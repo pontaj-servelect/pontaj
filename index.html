@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timesheet – GPS Logger</title>
+  <link rel="icon" href="assets/favicon.png" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#f8fafc; }
+    .card { max-width: 680px; margin: 0 auto; padding: 18px; border-radius: 14px; background:#fff; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+    h1 { font-size: 1.25rem; margin: 0 0 12px; }
+    button { padding: 14px 16px; margin: 8px 8px 8px 0; border: 0; border-radius: 10px; font-size: 16px; cursor:pointer; }
+    button.primary { background: #2563eb; color: white; }
+    button.finish { background: #16a34a; color: white; }
+    .row { margin: 10px 0; }
+    input[type="text"] { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; }
+    .small { font-size: 0.9rem; color: #6b7280; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
+    .ok { color: #16a34a; }
+    .err { color: #dc2626; }
+    .warn { color: #b45309; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:9999px; background:#eef2ff; color:#3730a3; font-size:12px; margin-left:8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Timesheet – GPS Logger <span class="pill">HTTPS</span></h1>
+    <p class="small">Tap Start / Finish. This page asks for precise GPS and submits to your Google Form, which writes into a linked Google Sheet.</p>
+
+    <div id="configStatus" class="small"></div>
+
+    <div class="row">
+      <label class="small">Optional note</label>
+      <input id="notes" type="text" placeholder="e.g. Project X, client Y" />
+    </div>
+
+    <div class="row">
+      <button class="primary" id="btnStart">Start</button>
+      <button class="finish" id="btnFinish">Finish</button>
+    </div>
+
+    <div id="status" class="small"></div>
+    <div id="last" class="small mono"></div>
+  </div>
+
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+  <form id="gform" method="POST" target="hidden_iframe">
+    <input type="hidden" id="f_action" />
+    <input type="hidden" id="f_timestamp" />
+    <input type="hidden" id="f_lat" />
+    <input type="hidden" id="f_lon" />
+    <input type="hidden" id="f_acc" />
+    <input type="hidden" id="f_device" />
+    <input type="hidden" id="f_notes" />
+    <input type="hidden" id="f_maps" />
+  </form>
+
+<script>
+(async function() {
+  const statusEl = document.getElementById('status');
+  const confEl = document.getElementById('configStatus');
+  const lastEl = document.getElementById('last');
+  const notesEl = document.getElementById('notes');
+  const form = document.getElementById('gform');
+
+  function setStatus(msg, cls) {
+    statusEl.className = 'small ' + (cls || '');
+    statusEl.textContent = msg;
+  }
+  function setConfig(msg, cls) {
+    confEl.className = 'small ' + (cls || '');
+    confEl.textContent = msg;
+  }
+
+  // Load config.json
+  let CFG = null;
+  try {
+    const res = await fetch('config.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    CFG = await res.json();
+    // Basic check
+    if (!CFG.formAction || !CFG.fields) throw new Error('Missing formAction or fields in config.json');
+    setConfig('Config loaded.', 'ok');
+  } catch (e) {
+    setConfig('Config error: ' + (e.message || e) + '. Edit config.json.', 'err');
+    // Do not proceed without config
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('btnFinish').disabled = true;
+    return;
+  }
+
+  // Set form action and names dynamically
+  form.action = CFG.formAction;
+  const names = CFG.fields; // map of logical -> entry.xxxxx
+  const idMap = {
+    'f_action': names.action,
+    'f_timestamp': names.timestamp,
+    'f_lat': names.latitude,
+    'f_lon': names.longitude,
+    'f_acc': names.accuracy,
+    'f_device': names.device,
+    'f_notes': names.notes,
+    'f_maps': names.mapsLink
+  };
+  // Assign 'name' attribute to hidden inputs
+  Object.entries(idMap).forEach(([id, name]) => {
+    const el = document.getElementById(id);
+    if (!name) return;
+    el.setAttribute('name', name);
+  });
+
+  function handle(action) {
+    if (!('geolocation' in navigator)) {
+      setStatus('Geolocation not available on this device/browser.', 'err');
+      return;
+    }
+    setStatus('Getting precise location…');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const acc = Math.round(pos.coords.accuracy || 0);
+        const ts = new Date().toISOString();
+        const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+        const payload = { action, ts, lat, lon, acc, mapsLink };
+
+        document.getElementById('f_action').value = action;
+        document.getElementById('f_timestamp').value = ts;
+        document.getElementById('f_lat').value = lat;
+        document.getElementById('f_lon').value = lon;
+        document.getElementById('f_acc').value = acc;
+        document.getElementById('f_device').value = navigator.userAgent;
+        document.getElementById('f_notes').value = notesEl.value || '';
+        document.getElementById('f_maps').value = mapsLink;
+
+        form.submit();
+        setStatus('Submitted ✓ (gps). Check your Google Sheet.', 'ok');
+        lastEl.textContent = JSON.stringify({
+          action, timestamp: ts, latitude: lat, longitude: lon, accuracy: acc, mapsLink
+        }, null, 2);
+      },
+      err => setStatus('Location failed: ' + err.message, 'err'),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    );
+  }
+
+  document.getElementById('btnStart').addEventListener('click', () => handle('Start'));
+  document.getElementById('btnFinish').addEventListener('click', () => handle('Finish'));
+})();
+</script>
+</body>
+</html>
