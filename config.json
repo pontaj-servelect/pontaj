@@ -3,13 +3,13 @@
   "fields": {
     "action": "entry.1158543984",
     "timestamp": "entry.378594324",
-    "location": "entry.583138862",
     "latitude": "entry.1909899821",
     "longitude": "entry.1880716729",
     "accuracy": "entry.544486631",
     "device": "entry.81942735",
     "notes": "entry.1485036348",
     "mapsLink": "entry.692020218"
+    "locations": "entry.583138862",
   },
 
     "locationsCsv": "locations.csv",
