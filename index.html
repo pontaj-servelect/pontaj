@@ -18,6 +18,7 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
     .ok { color: #16a34a; }
     .err { color: #dc2626; }
+    .warn { color: #b45309; }
   </style>
 </head>
 <body>
@@ -30,6 +31,7 @@
     <div class="row">
       <label class="small">Locație de lucru</label>
       <select id="locationSelect"><option>Se încarcă...</option></select>
+      <div id="locStatus" class="small"></div>
     </div>
 
     <div class="row">
@@ -68,9 +70,11 @@
   const notesEl = document.getElementById('notes');
   const form = document.getElementById('gform');
   const locSel = document.getElementById('locationSelect');
+  const locStatus = document.getElementById('locStatus');
 
   function setStatus(msg, cls) { statusEl.className = 'small ' + (cls||''); statusEl.textContent = msg; }
   function setCfg(msg, cls) { cfgEl.className = 'small ' + (cls||''); cfgEl.textContent = msg; }
+  function setLoc(msg, cls) { locStatus.className = 'small ' + (cls||''); locStatus.textContent = msg; }
 
   // Load config
   let CFG = null;
@@ -114,14 +118,32 @@
         if (!r.ok) throw new Error('CSV ' + r.status);
         const txt = await r.text();
         const rows = txt.trim().split(/\r?\n/).map(r=>r.split(','));
+        if (!rows.length) throw new Error('CSV gol');
         const header = rows[0].map(h=>h.replace(/^"|"$/g,''));
         const idx = header.findIndex(h=>/locatie|location|nume/i.test(h));
-        const list = rows.slice(1).map(row => (row[idx] or row[0] or '').replace(/^"|"$/g,''));
-        fillLocations(list.filter(Boolean));
+        const list = rows.slice(1).map(row => {
+          const clean = row.map(c => c.replace(/^"|"$/g,''));
+          const v = (idx >= 0 ? clean[idx] : clean[0]) || '';
+          return v;
+        }).filter(Boolean);
+        if (!list.length) throw new Error('Nu s-au găsit valori în CSV');
+        fillLocations(list);
+        setLoc('Locații încărcate din CSV.', 'ok');
         return;
-      } catch (e) { console.warn('CSV load failed', e); }
+      } catch (e) {
+        console.warn('CSV load failed', e);
+        setLoc('Nu am putut încărca CSV: ' + (e.message||e) + '. Încerc din config.json…', 'warn');
+      }
     }
-    fillLocations(Array.isArray(CFG.locations)? CFG.locations : []);
+    // Fallback: inline list
+    const list = Array.isArray(CFG.locations) ? CFG.locations : [];
+    if (!list.length) {
+      fillLocations([]);
+      setLoc('Adaugă locații în config.json sau setează locationsCsv.', 'warn');
+    } else {
+      fillLocations(list);
+      setLoc('Locații încărcate din config.json.', 'ok');
+    }
   }
 
   function fillLocations(list) {
