@@ -107,9 +107,9 @@
   form.action = CFG.formAction;
   const names = CFG.fields;
   const idMap = {
+    'f_name': names.name,
     'f_action': names.action,
     'f_timestamp': names.timestamp,
-    'f_name': names.name,
     'f_location': names.location,
     'f_lat': names.latitude,
     'f_lon': names.longitude,
@@ -180,9 +180,9 @@
         const acc = Math.round(pos.coords.accuracy || 0);
         const ts = new Date().toISOString();
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
+        document.getElementById('f_name').value = nameEl.value.trim();
         document.getElementById('f_action').value = action;
         document.getElementById('f_timestamp').value = ts;
-        document.getElementById('f_name').value = nameEl.value.trim();
         document.getElementById('f_location').value = locSel.value;
         document.getElementById('f_lat').value = lat;
         document.getElementById('f_lon').value = lon;
