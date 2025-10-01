@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ro">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pontaj – Start/Stop + Locație (HTTPS)</title>
+  <title>Pontaj – Nume + Locație + GPS</title>
   <link rel="icon" href="assets/favicon.png" />
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#f8fafc; }
@@ -18,15 +19,19 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
     .ok { color: #16a34a; }
     .err { color: #dc2626; }
-    .warn { color: #b45309; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Pontaj – Start/Stop + Locație</h1>
-    <p class="small">Alege „Locație de lucru”, apoi apasă Start/Finish. GPS pentru coordonate (link Google Maps). Datele merg în Google Form → Google Sheet.</p>
+    <h1>Pontaj – Start/Finish cu Nume, Locație și GPS</h1>
+    <p class="small">Completează numele tău, alege locația de lucru, apoi apasă Start / Finish. Datele merg în Google Form → Google Sheet.</p>
 
     <div id="cfg" class="small"></div>
+
+    <div class="row">
+      <label class="small">Nume și prenume</label>
+      <input id="name" type="text" placeholder="ex: Popescu Ion" />
+    </div>
 
     <div class="row">
       <label class="small">Locație de lucru</label>
@@ -53,6 +58,7 @@
   <form id="gform" method="POST" target="hidden_iframe">
     <input type="hidden" id="f_action" />
     <input type="hidden" id="f_timestamp" />
+    <input type="hidden" id="f_name" />
     <input type="hidden" id="f_location" />
     <input type="hidden" id="f_lat" />
     <input type="hidden" id="f_lon" />
@@ -68,9 +74,15 @@
   const cfgEl = document.getElementById('cfg');
   const lastEl = document.getElementById('last');
   const notesEl = document.getElementById('notes');
+  const nameEl = document.getElementById('name');
   const form = document.getElementById('gform');
   const locSel = document.getElementById('locationSelect');
   const locStatus = document.getElementById('locStatus');
+
+  // remember name locally
+  const savedName = localStorage.getItem('ts_name') || '';
+  if (savedName) nameEl.value = savedName;
+  nameEl.addEventListener('change', () => localStorage.setItem('ts_name', nameEl.value.trim()));
 
   function setStatus(msg, cls) { statusEl.className = 'small ' + (cls||''); statusEl.textContent = msg; }
   function setCfg(msg, cls) { cfgEl.className = 'small ' + (cls||''); cfgEl.textContent = msg; }
@@ -97,6 +109,7 @@
   const idMap = {
     'f_action': names.action,
     'f_timestamp': names.timestamp,
+    'f_name': names.name,
     'f_location': names.location,
     'f_lat': names.latitude,
     'f_lon': names.longitude,
@@ -132,18 +145,13 @@
         return;
       } catch (e) {
         console.warn('CSV load failed', e);
-        setLoc('Nu am putut încărca CSV: ' + (e.message||e) + '. Încerc din config.json…', 'warn');
+        setLoc('Nu am putut încărca CSV. Încerc din config.json…', 'warn');
       }
     }
-    // Fallback: inline list
-    const list = Array.isArray(CFG.locations) ? CFG.locations : [];
-    if (!list.length) {
-      fillLocations([]);
-      setLoc('Adaugă locații în config.json sau setează locationsCsv.', 'warn');
-    } else {
-      fillLocations(list);
-      setLoc('Locații încărcate din config.json.', 'ok');
-    }
+    const fallback = Array.isArray(CFG.locations) ? CFG.locations : [];
+    fillLocations(fallback);
+    if (fallback.length) setLoc('Locații încărcate din config.json.', 'ok');
+    else setLoc('Adaugă locații în config.json sau setează locationsCsv.', 'warn');
   }
 
   function fillLocations(list) {
@@ -151,7 +159,7 @@
     const ph = document.createElement('option');
     ph.value=''; ph.textContent='Alege locația…'; ph.disabled = true; ph.selected = true;
     locSel.appendChild(ph);
-    list.forEach(name => {
+    (list || []).forEach(name => {
       const o = document.createElement('option');
       o.value = name; o.textContent = name;
       locSel.appendChild(o);
@@ -161,6 +169,7 @@
   await loadLocations();
 
   function submitAction(action) {
+    if (!nameEl.value.trim()) { setStatus('Completează numele.', 'err'); nameEl.focus(); return; }
     if (!locSel.value) { setStatus('Selectează o locație.', 'err'); return; }
     if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
     setStatus('Se obține locația GPS…');
@@ -173,6 +182,7 @@
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
         document.getElementById('f_action').value = action;
         document.getElementById('f_timestamp').value = ts;
+        document.getElementById('f_name').value = nameEl.value.trim();
         document.getElementById('f_location').value = locSel.value;
         document.getElementById('f_lat').value = lat;
         document.getElementById('f_lon').value = lon;
@@ -182,7 +192,8 @@
         document.getElementById('f_maps').value = maps;
         form.submit();
         setStatus('Trimis ✓ (GPS). Verifică Google Sheet.', 'ok');
-        lastEl.textContent = JSON.stringify({action, timestamp: ts, location: locSel.value, latitude: lat, longitude: lon, accuracy: acc}, null, 2);
+        localStorage.setItem('ts_name', nameEl.value.trim());
+        lastEl.textContent = JSON.stringify({action, timestamp: ts, nume: nameEl.value.trim(), location: locSel.value, latitude: lat, longitude: lon, accuracy: acc}, null, 2);
       },
       err => setStatus('Eroare locație: ' + err.message, 'err'),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
