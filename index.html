@@ -1,63 +1,72 @@
-
 <!DOCTYPE html>
 <html lang="ro">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>pontaj v0.4</title>
+  <title>Pontaj PRO v3 — Start/Finish/Învoire</title>
   <link rel="icon" href="assets/favicon.png" />
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#f8fafc; }
-    .card { max-width: 820px; margin: 0 auto; padding: 18px; border-radius: 14px; background:#fff; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
-    h1 { font-size: 1.25rem; margin: 0 0 12px; }
-    button { padding: 14px 16px; margin: 8px 8px 8px 0; border: 0; border-radius: 10px; font-size: 16px; cursor:pointer; }
-    button.primary { background: #2563eb; color: white; }
-    button.finish { background: #16a34a; color: white; }
-    .row { margin: 10px 0; }
-    input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; }
-    .small { font-size: 0.9rem; color: #6b7280; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
-    .ok { color: #16a34a; }
-    .err { color: #dc2626; }
-    .flex { display:flex; gap:16px; flex-wrap:wrap; }
-    .col { flex:1 1 280px; min-width:260px; }
+    :root { --bg:#f8fafc; --card:#fff; --muted:#6b7280; --ok:#16a34a; --danger:#dc2626; --accent:#2563eb; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:16px; background:var(--bg); }
+    .wrap{ max-width: 920px; margin: 0 auto; display:grid; gap:16px; }
+    .card{ background:var(--card); border-radius:14px; padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    h1{ font-size:1.2rem; margin:0 0 8px; }
+    .row{ display:flex; gap:16px; flex-wrap:wrap; }
+    .col{ flex:1 1 280px; min-width:260px; }
+    label{ font-size:.9rem; color:var(--muted); display:block; margin-bottom:6px; }
+    input[type="text"], input[type="number"], select{ width:100%; padding:12px; border:1px solid #e5e7eb; border-radius:10px; font-size:15px; }
+    .buttons button{ padding:14px 16px; border:0; border-radius:10px; font-size:15px; color:#fff; cursor:pointer; }
+    .btn-start{ background:#2563eb; }
+    .btn-finish{ background:#16a34a; }
+    .btn-invoire{ background:#9333ea; }
+    .small{ font-size:.9rem; color:var(--muted); }
+    .status.ok{ color:var(--ok); } .status.err{ color:var(--danger); }
+    .mono{ font-family: ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; }
+    .hint{ margin-top:8px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>pontaj v.04</h1>
-    <p class="small">Alege <b>versiune functionala</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Pontaj PRO v3 — Start · Finish · Învoire (fără aprobare)</h1>
+      <p class="small">Alege <b>Angajat</b>, scrie <b>locația</b>, apoi apasă <b>Start</b> sau <b>Finish</b>. Pentru o <b>Învoire</b>, completează orele și apasă butonul „Învoire”. Coordonatele GPS și linkul Google Maps se trimit automat.</p>
+      <div id="cfg" class="small"></div>
 
-    <div id="cfg" class="small"></div>
-
-    <div class="flex">
-      <div class="col">
-        <label class="small">Angajat</label>
-        <select id="employeeSelect"><option>Se încarcă...</option></select>
-        <div class="small" id="empStatus"></div>
+      <div class="row">
+        <div class="col">
+          <label>Angajat</label>
+          <select id="employeeSelect"><option>Se încarcă...</option></select>
+          <div id="empStatus" class="small"></div>
+        </div>
+        <div class="col">
+          <label>Locație (text liber)</label>
+          <input id="locationInput" type="text" placeholder="ex: Șantier B — Poarta 2" />
+        </div>
       </div>
-      <div class="col">
-        <label class="small">Locație (scrie exact cum dorești)</label>
-        <input id="locationInput" type="text" placeholder="ex: Șantier B – Poartă 2" />
+
+      <div class="row">
+        <div class="col">
+          <label>Notă (opțional)</label>
+          <input id="notes" type="text" placeholder="ex: Proiect X, client Y" />
+        </div>
+        <div class="col">
+          <label>Învoire — ore (ex: 2 sau 1.5)</label>
+          <input id="invoireHours" type="number" step="0.25" min="0" placeholder="0.00" />
+        </div>
       </div>
-    </div>
 
-    <div class="row">
-      <label class="small">Notă (opțional)</label>
-      <input id="notes" type="text" placeholder="ex: Proiect X, client Y" />
-    </div>
+      <div class="buttons" style="margin-top:8px;">
+        <button class="btn-start" id="btnStart">Start</button>
+        <button class="btn-finish" id="btnFinish">Finish</button>
+        <button class="btn-invoire" id="btnInvoire">Învoire</button>
+      </div>
 
-    <div class="row">
-      <button class="primary" id="btnStart">Start</button>
-      <button class="finish" id="btnFinish">Finish</button>
+      <div id="status" class="small status hint"></div>
+      <div id="last" class="small mono hint"></div>
     </div>
-
-    <div id="status" class="small"></div>
-    <div id="last" class="small mono"></div>
   </div>
 
   <iframe name="hidden_iframe" style="display:none;"></iframe>
-
   <form id="gform" method="POST" target="hidden_iframe">
     <input type="hidden" id="f_action" />
     <input type="hidden" id="f_timestamp" />
@@ -69,35 +78,35 @@
     <input type="hidden" id="f_device" />
     <input type="hidden" id="f_notes" />
     <input type="hidden" id="f_maps" />
+    <input type="hidden" id="f_invoire" />
   </form>
 
 <script>
-(async function() {
+(async function(){
   const statusEl = document.getElementById('status');
   const cfgEl = document.getElementById('cfg');
   const lastEl = document.getElementById('last');
   const notesEl = document.getElementById('notes');
   const locInput = document.getElementById('locationInput');
-  const form = document.getElementById('gform');
   const empSel = document.getElementById('employeeSelect');
   const empStatus = document.getElementById('empStatus');
+  const invHoursEl = document.getElementById('invoireHours');
+  const form = document.getElementById('gform');
 
-  function setStatus(msg, cls) { statusEl.className = 'small ' + (cls||''); statusEl.textContent = msg; }
-  function setCfg(msg, cls) { cfgEl.className = 'small ' + (cls||''); cfgEl.textContent = msg; }
-  function setEmp(msg, cls) { empStatus.className = 'small ' + (cls||''); empStatus.textContent = msg; }
+  function set(el, msg, cls){ el.className = 'small ' + (cls||''); el.textContent = msg; }
+  function setStatus(msg, cls){ statusEl.className = 'small status ' + (cls||''); statusEl.textContent = msg; }
 
   // Load config
   let CFG = null;
-  try {
+  try{
     const r = await fetch('config.json', {cache:'no-store'});
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
     CFG = await r.json();
-    if (!CFG.formAction || !CFG.fields) throw new Error('Config incomplet');
-    setCfg('Config încărcat.', 'ok');
-  } catch (e) {
-    setCfg('Eroare config: ' + (e.message||e), 'err');
-    document.getElementById('btnStart').disabled = true;
-    document.getElementById('btnFinish').disabled = true;
+    if(!CFG.formAction || !CFG.fields) throw new Error('Config incomplet');
+    set(cfgEl, 'Config incarcat.', 'ok');
+  }catch(e){
+    set(cfgEl, 'Eroare config: ' + (e.message||e), 'err');
+    ['btnStart','btnFinish','btnInvoire'].forEach(id=>document.getElementById(id).disabled=true);
     return;
   }
 
@@ -114,58 +123,56 @@
     'f_acc': names.accuracy,
     'f_device': names.device,
     'f_notes': names.notes,
-    'f_maps': names.mapsLink
+    'f_maps': names.mapsLink,
+    'f_invoire': names.invoireHours
   };
-  Object.entries(idMap).forEach(([id,name]) => {
+  Object.entries(idMap).forEach(([id,name])=>{
+    if(!name) return;
     const el = document.getElementById(id);
-    if (name) el.setAttribute('name', name);
+    el.setAttribute('name', name);
   });
 
   // Load employees
-  async function loadEmployees() {
-    if (CFG.employeesCsv) {
-      try {
+  async function loadEmployees(){
+    if (CFG.employeesCsv){
+      try{
         const r = await fetch(CFG.employeesCsv, {cache:'no-store'});
-        if (!r.ok) throw new Error('CSV ' + r.status);
+        if(!r.ok) throw new Error('CSV ' + r.status);
         const txt = await r.text();
         const rows = txt.trim().split(/\r?\n/).map(r=>r.split(','));
         const header = rows[0].map(h=>h.replace(/^"|"$/g,''));
         const idx = header.findIndex(h=>/angajat|nume/i.test(h));
         const list = rows.slice(1).map(row => {
-          const clean = row.map(c => c.replace(/^"|"$/g,''));
-          return clean[idx >= 0 ? idx : 0];
+          const clean = row.map(c=>c.replace(/^"|"$/g,''));
+          return clean[idx>=0?idx:0];
         }).filter(Boolean);
-        fillEmployees(list);
-        setEmp('Angajați încărcați din CSV.', 'ok');
-        return;
-      } catch (e) {
-        setEmp('CSV angajați indisponibil, încerc config.json…', 'warn');
-      }
+        fillEmployees(list); set(empStatus, 'Angajati din CSV.', 'ok'); return;
+      }catch(e){ set(empStatus, 'CSV indisponibil, incerc config.json…', ''); }
     }
-    fillEmployees(Array.isArray(CFG.employees) ? CFG.employees : []);
-    setEmp('Angajați încărcați din config.json.', 'ok');
+    fillEmployees(Array.isArray(CFG.employees)? CFG.employees : []);
+    set(empStatus, 'Angajati din config.json.', 'ok');
   }
-
   function fillEmployees(list){
-    empSel.innerHTML = '';
-    const ph = document.createElement('option');
-    ph.value=''; ph.textContent='Alege angajat…'; ph.disabled = true; ph.selected = true;
-    empSel.appendChild(ph);
-    list.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; empSel.appendChild(o); });
+    empSel.innerHTML='';
+    const ph=document.createElement('option'); ph.value=''; ph.textContent='Alege angajat…'; ph.disabled=true; ph.selected=true; empSel.appendChild(ph);
+    list.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; empSel.appendChild(o); });
   }
-
   await loadEmployees();
 
-  function submitAction(action) {
-    if (!empSel.value) { setStatus('Selectează angajat.', 'err'); return; }
-    if (!locInput.value.trim()) { setStatus('Scrie o locație.', 'err'); locInput.focus(); return; }
-    if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
-    setStatus('Se obține locația GPS…');
+  function submitAction(action){
+    if(!empSel.value){ setStatus('Selecteaza angajat.', 'err'); return; }
+    if(!locInput.value.trim()){ setStatus('Scrie o locatie.', 'err'); locInput.focus(); return; }
+    if(action==='Învoire' || action==='Invoire'){
+      const invH = parseFloat(invHoursEl.value);
+      if(isNaN(invH) || invH<=0){ setStatus('Completeaza orele pentru Învoire (ex: 2 sau 1.5).', 'err'); invHoursEl.focus(); return; }
+    }
+    if(!('geolocation' in navigator)){ setStatus('Geolocatie indisponibila.', 'err'); return; }
+    setStatus('Se obtine locatia GPS…');
     navigator.geolocation.getCurrentPosition(
-      pos => {
+      pos=>{
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        const acc = Math.round(pos.coords.accuracy || 0);
+        const acc = Math.round(pos.coords.accuracy||0);
         const ts = new Date().toISOString();
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
         document.getElementById('f_action').value = action;
@@ -176,19 +183,22 @@
         document.getElementById('f_lon').value = lon;
         document.getElementById('f_acc').value = acc;
         document.getElementById('f_device').value = navigator.userAgent;
-        document.getElementById('f_notes').value = (notesEl.value || '');
+        document.getElementById('f_notes').value = (notesEl.value||'');
         document.getElementById('f_maps').value = maps;
+        const inv = parseFloat(invHoursEl.value);
+        document.getElementById('f_invoire').value = (!isNaN(inv) && inv>0) ? inv : '';
         form.submit();
-        setStatus('Trimis ✓ (GPS). Verifică Google Sheet.', 'ok');
-        lastEl.textContent = JSON.stringify({action, timestamp: ts, angajat: empSel.value, locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc}, null, 2);
+        setStatus('Trimis ✓', 'ok');
+        lastEl.textContent = JSON.stringify({action, ts, angajat: empSel.value, locatie: locInput.value.trim(), lat, lon, acc, invoire: document.getElementById('f_invoire').value}, null, 2);
       },
-      err => setStatus('Eroare locație: ' + err.message, 'err'),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      err=> setStatus('Eroare locatie: ' + err.message, 'err'),
+      { enableHighAccuracy:true, timeout:20000, maximumAge:0 }
     );
   }
 
   document.getElementById('btnStart').addEventListener('click', ()=>submitAction('Start'));
   document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('Finish'));
+  document.getElementById('btnInvoire').addEventListener('click', ()=>submitAction('Invoire'));
 })();
 </script>
 </body>
