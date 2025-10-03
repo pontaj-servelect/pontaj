@@ -12,6 +12,13 @@
     "notes": "entry.1485036348",
     "mapsLink": "entry.692020218"
   },
+  "employeesCsv": "employees.csv",
+  "employees": [
+    "Ion Popescu",
+    "Maria Ionescu",
+    "Vlad Georgescu",
+    "Ana Radu"
+  ],
   "locationsCsv": "locations.csv",
   "locations": [
     "Sediu Central",
