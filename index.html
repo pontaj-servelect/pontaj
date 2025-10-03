@@ -4,11 +4,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>servelect pontaj v.03</title>
+  <title>Pontaj PRO – Angajați + Locații + GPS</title>
   <link rel="icon" href="assets/favicon.png" />
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#f8fafc; }
-    .card { max-width: 720px; margin: 0 auto; padding: 18px; border-radius: 14px; background:#fff; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+    .card { max-width: 820px; margin: 0 auto; padding: 18px; border-radius: 14px; background:#fff; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
     h1 { font-size: 1.25rem; margin: 0 0 12px; }
     button { padding: 14px 16px; margin: 8px 8px 8px 0; border: 0; border-radius: 10px; font-size: 16px; cursor:pointer; }
     button.primary { background: #2563eb; color: white; }
@@ -19,24 +19,28 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
     .ok { color: #16a34a; }
     .err { color: #dc2626; }
+    .flex { display:flex; gap:16px; flex-wrap:wrap; }
+    .col { flex:1 1 280px; min-width:260px; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Pontaj – Start/Finish cu Nume, Locație și GPS</h1>
-    <p class="small">versiune de test-tv</p>
+    <h1>Pontaj PRO – Start/Finish cu Angajat, Locație & GPS</h1>
+    <p class="small">Alege <b>Angajat</b> (din listă), apoi <b>Locație</b>. Apasă <b>Start</b> / <b>Finish</b>. Datele merg în Google Form → Google Sheet.</p>
 
     <div id="cfg" class="small"></div>
 
-    <div class="row">
-      <label class="small">Nume și prenume</label>
-      <input id="name" type="text" placeholder="ex: Popescu Ion" />
-    </div>
-
-    <div class="row">
-      <label class="small">Locație de lucru</label>
-      <select id="locationSelect"><option>Se încarcă...</option></select>
-      <div id="locStatus" class="small"></div>
+    <div class="flex">
+      <div class="col">
+        <label class="small">Angajat</label>
+        <select id="employeeSelect"><option>Se încarcă...</option></select>
+        <div class="small" id="empStatus"></div>
+      </div>
+      <div class="col">
+        <label class="small">Locație de lucru</label>
+        <select id="locationSelect"><option>Se încarcă...</option></select>
+        <div class="small" id="locStatus"></div>
+      </div>
     </div>
 
     <div class="row">
@@ -56,9 +60,9 @@
   <iframe name="hidden_iframe" style="display:none;"></iframe>
 
   <form id="gform" method="POST" target="hidden_iframe">
-    <input type="hidden" id="f_name" />
     <input type="hidden" id="f_action" />
     <input type="hidden" id="f_timestamp" />
+    <input type="hidden" id="f_name" />
     <input type="hidden" id="f_location" />
     <input type="hidden" id="f_lat" />
     <input type="hidden" id="f_lon" />
@@ -74,18 +78,15 @@
   const cfgEl = document.getElementById('cfg');
   const lastEl = document.getElementById('last');
   const notesEl = document.getElementById('notes');
-  const nameEl = document.getElementById('name');
   const form = document.getElementById('gform');
+  const empSel = document.getElementById('employeeSelect');
   const locSel = document.getElementById('locationSelect');
+  const empStatus = document.getElementById('empStatus');
   const locStatus = document.getElementById('locStatus');
-
-  // remember name locally
-  const savedName = localStorage.getItem('ts_name') || '';
-  if (savedName) nameEl.value = savedName;
-  nameEl.addEventListener('change', () => localStorage.setItem('ts_name', nameEl.value.trim()));
 
   function setStatus(msg, cls) { statusEl.className = 'small ' + (cls||''); statusEl.textContent = msg; }
   function setCfg(msg, cls) { cfgEl.className = 'small ' + (cls||''); cfgEl.textContent = msg; }
+  function setEmp(msg, cls) { empStatus.className = 'small ' + (cls||''); empStatus.textContent = msg; }
   function setLoc(msg, cls) { locStatus.className = 'small ' + (cls||''); locStatus.textContent = msg; }
 
   // Load config
@@ -107,9 +108,9 @@
   form.action = CFG.formAction;
   const names = CFG.fields;
   const idMap = {
-    'f_name': names.name,
     'f_action': names.action,
     'f_timestamp': names.timestamp,
+    'f_name': names.name,
     'f_location': names.location,
     'f_lat': names.latitude,
     'f_lon': names.longitude,
@@ -123,54 +124,51 @@
     if (name) el.setAttribute('name', name);
   });
 
-  // Load locations
-  async function loadLocations() {
-    if (CFG.locationsCsv) {
+  async function loadList(url, fallback, selectEl, setMsgFn, labelRegex, placeholder) {
+    if (url) {
       try {
-        const r = await fetch(CFG.locationsCsv, {cache:'no-store'});
+        const r = await fetch(url, {cache:'no-store'});
         if (!r.ok) throw new Error('CSV ' + r.status);
         const txt = await r.text();
         const rows = txt.trim().split(/\r?\n/).map(r=>r.split(','));
         if (!rows.length) throw new Error('CSV gol');
         const header = rows[0].map(h=>h.replace(/^"|"$/g,''));
-        const idx = header.findIndex(h=>/locatie|location|nume/i.test(h));
+        const idx = header.findIndex(h=>labelRegex.test(h));
+        const col = idx >= 0 ? idx : 0;
         const list = rows.slice(1).map(row => {
           const clean = row.map(c => c.replace(/^"|"$/g,''));
-          const v = (idx >= 0 ? clean[idx] : clean[0]) || '';
-          return v;
+          return clean[col] || '';
         }).filter(Boolean);
-        if (!list.length) throw new Error('Nu s-au găsit valori în CSV');
-        fillLocations(list);
-        setLoc('Locații încărcate din CSV.', 'ok');
+        fillSelect(selectEl, list, placeholder);
+        setMsgFn('Încărcat din CSV.', 'ok');
         return;
       } catch (e) {
-        console.warn('CSV load failed', e);
-        setLoc('Nu am putut încărca CSV. Încerc din config.json…', 'warn');
+        setMsgFn('CSV indisponibil: ' + (e.message||e) + '. Încerc din config.json…', 'warn');
       }
     }
-    const fallback = Array.isArray(CFG.locations) ? CFG.locations : [];
-    fillLocations(fallback);
-    if (fallback.length) setLoc('Locații încărcate din config.json.', 'ok');
-    else setLoc('Adaugă locații în config.json sau setează locationsCsv.', 'warn');
+    const list = Array.isArray(fallback) ? fallback : [];
+    fillSelect(selectEl, list, placeholder);
+    setMsgFn(list.length ? 'Încărcat din config.json.' : 'Adaugă valori în config.json sau CSV.', list.length ? 'ok' : 'warn');
   }
 
-  function fillLocations(list) {
-    locSel.innerHTML = '';
+  function fillSelect(selectEl, list, placeholder) {
+    selectEl.innerHTML = '';
     const ph = document.createElement('option');
-    ph.value=''; ph.textContent='Alege locația…'; ph.disabled = true; ph.selected = true;
-    locSel.appendChild(ph);
-    (list || []).forEach(name => {
+    ph.value=''; ph.textContent=placeholder; ph.disabled = true; ph.selected = true;
+    selectEl.appendChild(ph);
+    (list || []).forEach(val => {
       const o = document.createElement('option');
-      o.value = name; o.textContent = name;
-      locSel.appendChild(o);
+      o.value = val; o.textContent = val;
+      selectEl.appendChild(o);
     });
   }
 
-  await loadLocations();
+  await loadList(CFG.employeesCsv, CFG.employees, empSel, setEmp, /angajat|nume/i, 'Alege angajat…');
+  await loadList(CFG.locationsCsv, CFG.locations, locSel, setLoc, /loca/i, 'Alege locația…');
 
   function submitAction(action) {
-    if (!nameEl.value.trim()) { setStatus('Completează numele.', 'err'); nameEl.focus(); return; }
-    if (!locSel.value) { setStatus('Selectează o locație.', 'err'); return; }
+    if (!empSel.value) { setStatus('Selectează angajat.', 'err'); return; }
+    if (!locSel.value) { setStatus('Selectează locația.', 'err'); return; }
     if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
     setStatus('Se obține locația GPS…');
     navigator.geolocation.getCurrentPosition(
@@ -180,9 +178,9 @@
         const acc = Math.round(pos.coords.accuracy || 0);
         const ts = new Date().toISOString();
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
-        document.getElementById('f_name').value = nameEl.value.trim();
         document.getElementById('f_action').value = action;
         document.getElementById('f_timestamp').value = ts;
+        document.getElementById('f_name').value = empSel.value;
         document.getElementById('f_location').value = locSel.value;
         document.getElementById('f_lat').value = lat;
         document.getElementById('f_lon').value = lon;
@@ -192,8 +190,7 @@
         document.getElementById('f_maps').value = maps;
         form.submit();
         setStatus('Trimis ✓ (GPS). Verifică Google Sheet.', 'ok');
-        localStorage.setItem('ts_name', nameEl.value.trim());
-        lastEl.textContent = JSON.stringify({action, timestamp: ts, nume: nameEl.value.trim(), location: locSel.value, latitude: lat, longitude: lon, accuracy: acc}, null, 2);
+        lastEl.textContent = JSON.stringify({action, timestamp: ts, angajat: empSel.value, locatie: locSel.value, latitude: lat, longitude: lon, accuracy: acc}, null, 2);
       },
       err => setStatus('Eroare locație: ' + err.message, 'err'),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
