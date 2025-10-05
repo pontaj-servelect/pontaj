@@ -4,14 +4,14 @@
     "action": "entry.1158543984",
     "timestamp": "entry.378594324",
     "name": "entry.791295803",
+     "activityType": "entry.583138862",
     "location": "entry.583138862",
     "latitude": "entry.1909899821",
     "longitude": "entry.1880716729",
     "accuracy": "entry.544486631",
     "device": "entry.81942735",
     "notes": "entry.1485036348",
-    "mapsLink": "entry.692020218",
-    "invoireHours": "entry.430478"
+    "mapsLink": "entry.692020218"
   },
   "employeesCsv": "employees.csv",
   "employees": [
