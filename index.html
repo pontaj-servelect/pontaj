@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -13,11 +12,13 @@
     button { padding: 14px 16px; margin: 8px 8px 8px 0; border: 0; border-radius: 10px; font-size: 16px; cursor:pointer; }
     button.primary { background: #2563eb; color: white; }
     button.finish  { background: #16a34a; color: white; }
+    button.pause   { background: #f59e0b; color: #111827; }
+    button.unpause { background: #0ea5e9; color: white; }
     .row { margin: 10px 0; }
     input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; background: white; }
     .small { font-size: 0.9rem; color: #6b7280; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
-    .ok { color: #16a34a; } .err { color: #dc2626; }
+    .ok { color: #16a34a; } .err { color: #dc2626; } .warn { color: #b45309; }
     .flex { display:flex; gap:16px; flex-wrap:wrap; }
     .col { flex:1 1 260px; min-width:260px; }
   </style>
@@ -25,7 +26,7 @@
 <body>
   <div class="card">
     <h1>TEST PONTAJ SERVELECT</h1>
-    <p class="small">Alege <b>Angajat</b>, <b>Tip de activitate</b>, scrie <b>Locația</b>, apoi apasă <b>Start</b> sau <b>Finish</b></p>
+    <p class="small">Alege <b>Angajat</b>, <b>Tip de activitate</b>, scrie <b>Locația</b>, apoi apasă <b>Start</b>, <b>Pause</b>, <b>Unpause</b> sau <b>Finish</b>.</p>
 
     <div id="cfg" class="small"></div>
 
@@ -70,6 +71,8 @@
 
     <div class="row">
       <button class="primary" id="btnStart">Start</button>
+      <button class="pause" id="btnPause">Pause</button>
+      <button class="unpause" id="btnUnpause">Unpause</button>
       <button class="finish" id="btnFinish">Finish</button>
     </div>
 
@@ -116,15 +119,13 @@
     if (!r.ok) throw new Error('HTTP ' + r.status);
     CFG = await r.json();
     if (!CFG.formAction || !CFG.fields) throw new Error('Config incomplet');
-    setCfg('Config incarcat.', 'ok');
+    setCfg('Config încărcat.', 'ok');
   } catch (e) {
     setCfg('Eroare config: ' + (e.message||e), 'err');
-    document.getElementById('btnStart').disabled = true;
-    document.getElementById('btnFinish').disabled = true;
+    disableAllButtons(true);
     return;
   }
 
-  // Apply form action + names
   form.action = CFG.formAction;
   const names = CFG.fields;
   const idMap = {
@@ -160,14 +161,14 @@
           return clean[idx >= 0 ? idx : 0];
         }).filter(Boolean);
         fillEmployees(list);
-        setEmp('Angajati incarcati din CSV.', 'ok');
+        setEmp('Angajați încărcați din CSV.', 'ok');
         return;
       } catch (e) {
-        setEmp('CSV angajati indisponibil, incerc config.json…', 'warn');
+        setEmp('CSV angajați indisponibil, încerc config.json…', 'warn');
       }
     }
     fillEmployees(Array.isArray(CFG.employees) ? CFG.employees : []);
-    setEmp('Angajati incarcati din config.json.', 'ok');
+    setEmp('Angajați încărcați din config.json.', 'ok');
   }
 
   function fillEmployees(list){
@@ -180,12 +181,25 @@
 
   await loadEmployees();
 
-  function submitAction(action) {
-    if (!empSel.value) { setStatus('Selecteaza angajat.', 'err'); return; }
+  // Button state helpers (opțional: blochează apăsările repetate)
+  let busy = false;
+  function disableAllButtons(disabled) {
+    ['btnStart','btnPause','btnUnpause','btnFinish'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el) el.disabled = !!disabled;
+    });
+  }
+
+  async function submitAction(action) {
+    if (busy) return;
+    if (!empSel.value) { setStatus('Selectează angajat.', 'err'); return; }
     if (!actSel.value) { setStatus('Alege tip de activitate.', 'err'); return; }
-    if (!locInput.value.trim()) { setStatus('Scrie o locatie.', 'err'); locInput.focus(); return; }
-    if (!('geolocation' in navigator)) { setStatus('Geolocatie indisponibila pe acest dispozitiv.', 'err'); return; }
-    setStatus('Se obtine locatia GPS…');
+    if (!locInput.value.trim()) { setStatus('Scrie o locație.', 'err'); locInput.focus(); return; }
+    if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
+
+    busy = true; disableAllButtons(true);
+    setStatus('Se obține locația GPS…');
+
     navigator.geolocation.getCurrentPosition(
       pos => {
         const lat = pos.coords.latitude;
@@ -193,7 +207,8 @@
         const acc = Math.round(pos.coords.accuracy || 0);
         const ts = new Date().toISOString();
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
-        document.getElementById('f_action').value = action;
+
+        document.getElementById('f_action').value = action;          // IMPORTANT: lowercase
         document.getElementById('f_timestamp').value = ts;
         document.getElementById('f_name').value = empSel.value;
         document.getElementById('f_activity').value = actSel.value;
@@ -204,20 +219,30 @@
         document.getElementById('f_device').value = navigator.userAgent;
         document.getElementById('f_notes').value = (notesEl.value || '');
         document.getElementById('f_maps').value = maps;
+
         form.submit();
-        setStatus('Trimis ✓ (GPS). Verifica Google Sheet.', 'ok');
+        setStatus(`Trimis ✓ (${action.toUpperCase()}). Verifică Google Sheet.`, 'ok');
         lastEl.textContent = JSON.stringify({
           action, timestamp: ts, angajat: empSel.value, activitate: actSel.value,
           locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc
         }, null, 2);
+
+        // mic delay anti-double-tap
+        setTimeout(()=>{ busy=false; disableAllButtons(false); }, 800);
       },
-      err => setStatus('Eroare locatie: ' + err.message, 'err'),
+      err => {
+        setStatus('Eroare locație: ' + err.message, 'err');
+        busy=false; disableAllButtons(false);
+      },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
   }
 
-  document.getElementById('btnStart').addEventListener('click', ()=>submitAction('Start'));
-  document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('Finish'));
+  // Buttons → lowercase actions (ce vrea Apps Script-ul)
+  document.getElementById('btnStart').addEventListener('click', ()=>submitAction('start'));
+  document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause'));
+  document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause'));
+  document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('finish'));
 })();
 </script>
 </body>
