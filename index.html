@@ -15,12 +15,13 @@
     button.pause   { background: #f59e0b; color: #111827; }
     button.unpause { background: #0ea5e9; color: white; }
     .row { margin: 10px 0; }
-    input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; background: white; }
+    input[type="text"], input[type="email"], input[type="date"], select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; background: white; }
     .small { font-size: 0.9rem; color: #6b7280; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
     .ok { color: #16a34a; } .err { color: #dc2626; } .warn { color: #b45309; }
     .flex { display:flex; gap:16px; flex-wrap:wrap; }
     .col { flex:1 1 260px; min-width:260px; }
+    .panel { border:1px dashed #cbd5e1; border-radius:12px; padding:12px; }
   </style>
 </head>
 <body>
@@ -69,6 +70,34 @@
       <input id="notes" type="text" placeholder="ex: Proiect X, client Y" />
     </div>
 
+    <!-- === Panou concediu === -->
+    <div id="leavePanel" class="row panel" style="display:none;">
+      <div class="small" style="margin-bottom:8px;"><b>Cerere concediu</b> — completează intervalul de zile, emailul personal și o notă. Se trimite automat la office@servelect.ro.</div>
+      <div class="flex">
+        <div class="col">
+          <label class="small">Data start</label>
+          <input type="date" id="leaveStart" />
+        </div>
+        <div class="col">
+          <label class="small">Data sfârșit</label>
+          <input type="date" id="leaveEnd" />
+        </div>
+        <div class="col">
+          <label class="small">Email personal</label>
+          <input type="email" id="leaveEmail" placeholder="ex: prenume.nume@..." />
+        </div>
+      </div>
+      <div class="row">
+        <label class="small">Notă către HR (opțional)</label>
+        <input type="text" id="leaveNotes" placeholder="ex: motiv / detalii" />
+      </div>
+      <div class="row">
+        <button id="btnLeave" class="primary" type="button">Trimite cererea de concediu</button>
+        <span class="small" id="leaveStatus"></span>
+      </div>
+    </div>
+    <!-- === sfârșit panou concediu === -->
+
     <div class="row">
       <button class="primary" id="btnStart">Start</button>
       <button class="pause" id="btnPause">Pause</button>
@@ -98,6 +127,12 @@
 
 <script>
 (async function() {
+  const leaveTypes = new Set([
+    'concediu de odihna',
+    'concediu medical',
+    'concediu pentru ore suplimentare'
+  ]);
+
   const statusEl = document.getElementById('status');
   const cfgEl = document.getElementById('cfg');
   const lastEl = document.getElementById('last');
@@ -108,11 +143,18 @@
   const empStatus = document.getElementById('empStatus');
   const form = document.getElementById('gform');
 
+  const leavePanel = document.getElementById('leavePanel');
+  const leaveStart = document.getElementById('leaveStart');
+  const leaveEnd = document.getElementById('leaveEnd');
+  const leaveEmail = document.getElementById('leaveEmail');
+  const leaveNotes = document.getElementById('leaveNotes');
+  const leaveStatus = document.getElementById('leaveStatus');
+
   function setStatus(msg, cls) { statusEl.className = 'small ' + (cls||''); statusEl.textContent = msg; }
   function setCfg(msg, cls) { cfgEl.className = 'small ' + (cls||''); cfgEl.textContent = msg; }
   function setEmp(msg, cls) { empStatus.className = 'small ' + (cls||''); empStatus.textContent = msg; }
+  function setLeaveStatus(msg, cls) { leaveStatus.className = 'small ' + (cls||''); leaveStatus.textContent = msg; }
 
-  // Load config
   let CFG = null;
   try {
     const r = await fetch('config.json', {cache:'no-store'});
@@ -146,18 +188,18 @@
     if (name) el.setAttribute('name', name);
   });
 
-  // Load employees
+  // Employees
   async function loadEmployees() {
     if (CFG.employeesCsv) {
       try {
         const r = await fetch(CFG.employeesCsv, {cache:'no-store'});
         if (!r.ok) throw new Error('CSV ' + r.status);
         const txt = await r.text();
-        const rows = txt.trim().split(/\r?\n/).map(r=>r.split(','));
-        const header = rows[0].map(h=>h.replace(/^"|"$/g,''));
+        const rows = txt.trim().split(/\\r?\\n/).map(r=>r.split(','));
+        const header = rows[0].map(h=>h.replace(/^\"|\"$/g,''));
         const idx = header.findIndex(h=>/angajat|nume/i.test(h));
         const list = rows.slice(1).map(row => {
-          const clean = row.map(c => c.replace(/^"|"$/g,''));
+          const clean = row.map(c => c.replace(/^\"|\"$/g,''));
           return clean[idx >= 0 ? idx : 0];
         }).filter(Boolean);
         fillEmployees(list);
@@ -170,7 +212,6 @@
     fillEmployees(Array.isArray(CFG.employees) ? CFG.employees : []);
     setEmp('Angajați încărcați din config.json.', 'ok');
   }
-
   function fillEmployees(list){
     empSel.innerHTML = '';
     const ph = document.createElement('option');
@@ -178,24 +219,79 @@
     empSel.appendChild(ph);
     list.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; empSel.appendChild(o); });
   }
-
   await loadEmployees();
 
-  // Button state helpers (opțional: blochează apăsările repetate)
-  let busy = false;
-  function disableAllButtons(disabled) {
+  // Arată/ascunde panoul de concediu și dezactivează butoanele pontaj
+  actSel.addEventListener('change', () => {
+    const isLeave = leaveTypes.has((actSel.value||'').toLowerCase());
+    leavePanel.style.display = isLeave ? '' : 'none';
+    disableTimeButtons(isLeave);
+  });
+
+  function disableTimeButtons(disabled) {
     ['btnStart','btnPause','btnUnpause','btnFinish'].forEach(id=>{
       const el = document.getElementById(id);
       if (el) el.disabled = !!disabled;
     });
   }
+  function disableAllButtons(disabled){
+    disableTimeButtons(disabled);
+    const lbtn = document.getElementById('btnLeave');
+    if (lbtn) lbtn.disabled = !!disabled;
+  }
 
-  async function submitAction(action) {
+  // ====== Cerere concediu – trimite la Apps Script Web App ======
+  document.getElementById('btnLeave').addEventListener('click', async () => {
+    setLeaveStatus('', '');
+    if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
+    const tip = (actSel.value || '').toLowerCase();
+    if (!leaveTypes.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+
+    const sd = leaveStart.value;
+    const ed = leaveEnd.value;
+    if (!sd || !ed) { setLeaveStatus('Completează intervalul (start și sfârșit).', 'err'); return; }
+    if (ed < sd) { setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err'); return; }
+
+    const email = (leaveEmail.value || '').trim();
+    if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
+
+    if (!CFG.leaveEndpoint) { setLeaveStatus('Lipsește leaveEndpoint în config.json.', 'err'); return; }
+
+    try {
+      setLeaveStatus('Se trimite cererea…', '');
+      const res = await fetch(CFG.leaveEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          name: empSel.value,
+          activityType: tip,
+          startDate: sd,
+          endDate: ed,
+          personalEmail: email,
+          notes: (leaveNotes.value || '')
+        })
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'Eșec necunoscut');
+      setLeaveStatus(`Cerere înregistrată (${json.zile} zile). Email trimis către office@servelect.ro.`, 'ok');
+    } catch (err) {
+      setLeaveStatus('Eroare trimitere: ' + (err.message||err), 'err');
+    }
+  });
+
+  // ====== Pontaj clasic (Start/Pause/Unpause/Finish) ======
+  let busy = false;
+  function submitAction(action) {
     if (busy) return;
     if (!empSel.value) { setStatus('Selectează angajat.', 'err'); return; }
     if (!actSel.value) { setStatus('Alege tip de activitate.', 'err'); return; }
     if (!locInput.value.trim()) { setStatus('Scrie o locație.', 'err'); locInput.focus(); return; }
     if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
+
+    if (leaveTypes.has((actSel.value||'').toLowerCase())) {
+      setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn');
+      return;
+    }
 
     busy = true; disableAllButtons(true);
     setStatus('Se obține locația GPS…');
@@ -208,7 +304,7 @@
         const ts = new Date().toISOString();
         const maps = `https://maps.google.com/?q=${lat},${lon}`;
 
-        document.getElementById('f_action').value = action;          // IMPORTANT: lowercase
+        document.getElementById('f_action').value = action;
         document.getElementById('f_timestamp').value = ts;
         document.getElementById('f_name').value = empSel.value;
         document.getElementById('f_activity').value = actSel.value;
@@ -227,7 +323,6 @@
           locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc
         }, null, 2);
 
-        // mic delay anti-double-tap
         setTimeout(()=>{ busy=false; disableAllButtons(false); }, 800);
       },
       err => {
@@ -238,7 +333,6 @@
     );
   }
 
-  // Buttons → lowercase actions (ce vrea Apps Script-ul)
   document.getElementById('btnStart').addEventListener('click', ()=>submitAction('start'));
   document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause'));
   document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause'));
