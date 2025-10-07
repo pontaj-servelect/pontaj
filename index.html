@@ -18,10 +18,6 @@
     input[type="text"], input[type="email"], input[type="date"], select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; background: white; }
     .small { font-size: 0.9rem; color: #6b7280; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
-    .ok { color: #16a34a; } .err { color: #dc2626; } .warn { color: #b45309; }
-    .flex { display:flex; gap:16px; flex-wrap:wrap; }
-    .col { flex:1 1 260px; min-width:260px; }
-    .panel { border:1px dashed #cbd5e1; border-radius:12px; padding:12px; }
   </style>
 </head>
 <body>
@@ -31,14 +27,14 @@
 
     <div id="cfg" class="small"></div>
 
-    <div class="flex">
-      <div class="col">
+    <div class="flex" style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div class="col" style="flex:1 1 260px;min-width:260px;">
         <label class="small">Angajat</label>
         <select id="employeeSelect"><option>Se încarcă...</option></select>
         <div class="small" id="empStatus"></div>
       </div>
 
-      <div class="col">
+      <div class="col" style="flex:1 1 260px;min-width:260px;">
         <label class="small">Tip de activitate</label>
         <select id="activitySelect">
           <option value="" selected disabled>Alege tip...</option>
@@ -56,10 +52,9 @@
           <option>concediu pentru ore suplimentare</option>
           <option>birou + deplasare</option>
         </select>
-        <div class="small"></div>
       </div>
 
-      <div class="col">
+      <div class="col" style="flex:1 1 260px;min-width:260px;">
         <label class="small">Locație (scrie locatia)</label>
         <input id="locationInput" type="text" placeholder="ex: Șantier B – Poartă 2" />
       </div>
@@ -71,18 +66,18 @@
     </div>
 
     <!-- === Panou concediu === -->
-    <div id="leavePanel" class="row panel" style="display:none;">
+    <div id="leavePanel" class="row" style="display:none;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;">
       <div class="small" style="margin-bottom:8px;"><b>Cerere concediu</b> — completează intervalul de zile, emailul personal și o notă. Se trimite automat la vlad.taran@servelect.ro</div>
-      <div class="flex">
-        <div class="col">
+      <div class="flex" style="display:flex;gap:16px;flex-wrap:wrap;">
+        <div class="col" style="flex:1 1 260px;min-width:260px;">
           <label class="small">Data start</label>
           <input type="date" id="leaveStart" />
         </div>
-        <div class="col">
+        <div class="col" style="flex:1 1 260px;min-width:260px;">
           <label class="small">Data sfârșit</label>
           <input type="date" id="leaveEnd" />
         </div>
-        <div class="col">
+        <div class="col" style="flex:1 1 260px;min-width:260px;">
           <label class="small">Email personal</label>
           <input type="email" id="leaveEmail" placeholder="ex: prenume.nume@..." />
         </div>
@@ -92,17 +87,17 @@
         <input type="text" id="leaveNotes" placeholder="ex: motiv / detalii" />
       </div>
       <div class="row">
-        <button id="btnLeave" class="primary" type="button">Trimite cererea de concediu</button>
+        <button id="btnLeave" class="primary" type="button" style="background:#2563eb;color:#fff;">Trimite cererea de concediu</button>
         <span class="small" id="leaveStatus"></span>
       </div>
     </div>
     <!-- === sfârșit panou concediu === -->
 
     <div class="row">
-      <button class="primary" id="btnStart">Start</button>
-      <button class="pause" id="btnPause">Pause</button>
-      <button class="unpause" id="btnUnpause">Unpause</button>
-      <button class="finish" id="btnFinish">Finish</button>
+      <button class="primary" id="btnStart"  style="background:#2563eb;color:#fff;">Start</button>
+      <button class="pause"   id="btnPause"  style="background:#f59e0b;color:#111827;">Pause</button>
+      <button class="unpause" id="btnUnpause"style="background:#0ea5e9;color:#fff;">Unpause</button>
+      <button class="finish"  id="btnFinish" style="background:#16a34a;color:#fff;">Finish</button>
     </div>
 
     <div id="status" class="small"></div>
@@ -324,24 +319,28 @@ Ana Radu
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
     if (!CFG.leaveEndpoint) { setLeaveStatus('Lipsește leaveEndpoint în config.json.', 'err'); return; }
 
+    const payload = {
+      name: empSel.value,
+      activityType: tip,
+      startDate: sd,
+      endDate: ed,
+      personalEmail: email,
+      notes: (leaveNotes.value || '')
+    };
+    console.log('[LEAVE] payload ->', payload);
+
     try {
       setLeaveStatus('Se trimite cererea…', '');
       const res = await fetch(CFG.leaveEndpoint, {
         method: 'POST',
         headers: { 'Content-Type':'text/plain;charset=utf-8' }, // evităm preflight CORS
-        body: JSON.stringify({
-          name: empSel.value,
-          activityType: tip,
-          startDate: sd,
-          endDate: ed,
-          personalEmail: email,
-          notes: (leaveNotes.value || '')
-        })
+        body: JSON.stringify(payload)
       });
       const txt = await res.text();
+      console.log('[LEAVE] response raw ->', txt);
       let json = null; try{ json = JSON.parse(txt); }catch(_){}
       if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
-      setLeaveStatus(`Cerere înregistrată (${json.zile} zile). Email trimis către vlad.taran@servelect.ro`, 'ok');
+      setLeaveStatus(`Cerere înregistrată (${json.zile} zile). Email la HR + copie la ${email}.`, 'ok');
     } catch (err) {
       setLeaveStatus('Eroare trimitere: ' + (err.message||err), 'err');
     }
