@@ -268,7 +268,7 @@
     if (lbtn) lbtn.disabled = !!disabled;
   }
 
-  // Leave submit
+  // Leave submit (avoid CORS preflight by using text/plain)
   document.getElementById('btnLeave').addEventListener('click', async () => {
     setLeaveStatus('', '');
     if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
@@ -285,7 +285,7 @@
       setLeaveStatus('Se trimite cererea…', '');
       const res = await fetch(CFG.leaveEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
+        headers: { 'Content-Type':'text/plain;charset=utf-8' }, // evităm preflight CORS
         body: JSON.stringify({
           name: empSel.value,
           activityType: tip,
@@ -295,8 +295,9 @@
           notes: (document.getElementById('leaveNotes').value || '')
         })
       });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'Eșec necunoscut');
+      const txt = await res.text();
+      let json = null; try{ json = JSON.parse(txt); }catch(_){}
+      if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
       setLeaveStatus(`Cerere înregistrată (${json.zile} zile). Email trimis către vlad.taran@servelect.ro`, 'ok');
     } catch (err) {
       setLeaveStatus('Eroare trimitere: ' + (err.message||err), 'err');
