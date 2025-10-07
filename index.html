@@ -333,7 +333,7 @@ Ana Radu
       setLeaveStatus('Se trimite cererea…', '');
       const res = await fetch(CFG.leaveEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type':'text/plain;charset=utf-8' }, // evităm preflight CORS
+        headers: { 'Content-Type':'text/plain;charset=utf-8' }, // evităm preflight
         body: JSON.stringify(payload)
       });
       const txt = await res.text();
