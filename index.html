@@ -296,6 +296,19 @@
   <!-- Hidden iframe for Google Forms -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
 
+  <!-- Hidden iframe for Google Leave Form -->
+      <iframe name="hidden_iframe_leave" style="display:none;"></iframe>
+      <!-- Hidden Google Form for Leave submissions (will be bound via config.json leaveFields) -->
+      <form id="leaveForm" method="POST" target="hidden_iframe_leave">
+        <input type="hidden" id="lv_name" />
+        <input type="hidden" id="lv_type" />
+        <input type="hidden" id="lv_email" />
+        <input type="hidden" id="lv_start" />
+        <input type="hidden" id="lv_end" />
+        <input type="hidden" id="lv_notes" />
+        <input type="hidden" id="lv_ts" />
+      </form>
+
   <!-- Google Forms payload form (names bound via config.json) -->
   <form id="gform" method="POST" target="hidden_iframe">
     <input type="hidden" id="f_action" />
@@ -357,10 +370,34 @@ Ana Radu
       CFG = await r.json();
       if (!CFG.formAction || !CFG.fields) throw new Error('Config incomplet');
       setCfg('Config încărcat', 'ok');
+      try { setLeaveNames(); } catch(_) {}
     } catch (e) {
       setCfg('Eroare config: ' + (e.message||e), 'err');
       disableAllButtons(true);
       return;
+    }
+
+
+    // --- bind Google Leave Form fields (optional) ---
+    function setLeaveNames() {
+      if (!CFG.leaveFormAction || !CFG.leaveFields) return false;
+      const m = CFG.leaveFields;
+      const map = {
+        'lv_name':  m.name,
+        'lv_type':  m.activityType,
+        'lv_email': m.personalEmail,
+        'lv_start': m.startDate,
+        'lv_end':   m.endDate,
+        'lv_notes': m.notes,
+        'lv_ts':    m.timestamp
+      };
+      Object.entries(map).forEach(([id, name]) => {
+        const el = document.getElementById(id);
+        if (el && name) el.setAttribute('name', name);
+      });
+      const lf = document.getElementById('leaveForm');
+      lf.action = CFG.leaveFormAction;
+      return true;
     }
 
     // --- bind Google Forms fields ---
@@ -393,8 +430,8 @@ Ana Radu
         return text.split('\n').map(s => s.trim()).filter(Boolean);
       }
       const comma = (text.match(/,/g) || []).length;
-      theSemi = (text.match(/;/g) || []).length;
-      const delim = theSemi > comma ? ';' : ',';
+      semiCount = (text.match(/;/g) || []).length;
+      const delim = semiCount > comma ? ';' : ',';
       const rows = text.split('\n')
         .map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,'')))
         .filter(r => r.length && r.join('').length);
@@ -506,6 +543,69 @@ Ana Radu
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');
       if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
+      const tip = (actSel.value || '').toLowerCase();
+      if (!leaveTypeSet.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+      const sd = leaveStart.value;
+      const ed = leaveEnd.value;
+      if (!sd || !ed) { setLeaveStatus('Completează intervalul (start și sfârșit).', 'err'); return; }
+      if (ed < sd) { setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err'); return; }
+      const email = (leaveEmail.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
+
+      setLeaveStatus('Se trimite cererea…', '');
+
+      // Submit to Google Form (optional, if configured)
+      let formSubmitted = false;
+      if (CFG.leaveFormAction && CFG.leaveFields) {
+        try {
+          document.getElementById('lv_name').value  = empSel.value;
+          document.getElementById('lv_type').value  = tip;
+          document.getElementById('lv_email').value = document.getElementById('leaveEmail').value;
+          document.getElementById('lv_start').value = sd;
+          document.getElementById('lv_end').value   = ed;
+          document.getElementById('lv_notes').value = (leaveNotes.value || '');
+          document.getElementById('lv_ts').value    = new Date().toISOString();
+          document.getElementById('leaveForm').submit();
+          formSubmitted = true;
+        } catch (e) {
+          console.warn('Leave Form submit failed, will rely on endpoint only.', e);
+        }
+      }
+
+      // Submit to WebApp endpoint (optional)
+      let endpointOk = false, endpointMsg = '';
+      if (CFG.leaveEndpoint) {
+        try {
+          const payload = {
+            name: empSel.value,
+            activityType: tip,
+            startDate: sd,
+            endDate: ed,
+            personalEmail: email,
+            notes: (leaveNotes.value || '')
+          };
+          const res = await fetch(CFG.leaveEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const txt = await res.text();
+          let json = null; try{ json = JSON.parse(txt); }catch(_){}
+          if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
+          endpointOk = true;
+          endpointMsg = ' (înregistrată ' + json.zile + ' zile)';
+        } catch (err) {
+          console.warn('Leave endpoint error:', err);
+        }
+      }
+
+      if (formSubmitted || endpointOk) {
+        setLeaveStatus('Cerere trimisă' + endpointMsg + '. Email HR + Reply-To la ' + email + '.', 'ok');
+      } else {
+        setLeaveStatus('Eroare: nu s-a putut trimite cererea (Form/Endpoint). Verifică configurația.', 'err');
+      }
+    });
+          if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
       const tip = (actSel.value || '').toLowerCase();
       if (!leaveTypeSet.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
       const sd = leaveStart.value;
