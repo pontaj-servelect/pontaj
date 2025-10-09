@@ -22,19 +22,20 @@
       --warn:#f59e0b;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%; width:100%}
     body{
       margin:0;
       font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
 
-      /* ⇩⇩ FUNDAL cerut: gradient + imagine ⇩⇩ */
+      /* ⇩⇩ FUNDAL cerut: gradient + imagine, full stretch ⇩⇩ */
       background:
         linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),
         url('background.jpg');
       background-size: cover;
-      background-position: center;
+      background-position: center center;
       background-repeat: no-repeat;
+      background-attachment: fixed; /* întinde corect fundalul la orice rezoluție */
       /* ⇧⇧ FUNDAL cerut: gradient + imagine ⇧⇧ */
 
       min-height:100vh;
@@ -143,7 +144,7 @@
       margin-top:18px;font-size:12px;color:var(--muted);text-align:center
     }
     .ok{color:#15803d}
-    .err{color:var(--danger)}
+    .err{color:#ef4444}
     .warn{color:#a16207}
   </style>
 </head>
@@ -392,8 +393,8 @@ Ana Radu
         return text.split('\n').map(s => s.trim()).filter(Boolean);
       }
       const comma = (text.match(/,/g) || []).length;
-      const semi  = (text.match(/;/g) || []).length;
-      const delim = semi > comma ? ';' : ',';
+      theSemi = (text.match(/;/g) || []).length;
+      const delim = theSemi > comma ? ';' : ',';
       const rows = text.split('\n')
         .map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,'')))
         .filter(r => r.length && r.join('').length);
