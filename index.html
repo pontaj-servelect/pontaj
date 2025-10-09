@@ -123,11 +123,6 @@
     .summary{
       display:grid;gap:12px
     }
-    .kpis{display:grid;gap:12px;margin-top:12px}
-    .kpis.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .kpi{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
-    .kpi b{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    .kpi .val{font-size:20px;font-weight:700;color:var(--text)}
     .summary .item{
       display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#f8fafc;
       border:1px solid #e2e8f0;
@@ -281,16 +276,6 @@
           </div>
         </div>
 
-        <h2 style="margin:14px 0 8px;font-size:18px;display:flex;align-items:center;gap:10px"><span class="dot" aria-hidden="true"></span>Statistici azi</h2>
-        <div class="kpis cols-3" id="kpis">
-          <div class="kpi"><b>Durată activă</b><div class="val" id="statDurata">00:00</div></div>
-          <div class="kpi"><b>Suplimentar (h)</b><div class="val" id="statSuplimentar">0.0</div></div>
-          <div class="kpi"><b>Indicator</b><div class="val" id="statIndicator">0%</div></div>
-          <div class="kpi"><b>Pauze</b><div class="val" id="statPauze">0</div></div>
-          <div class="kpi"><b>Evenimente</b><div class="val" id="statEvents">0</div></div>
-          <div class="kpi"><b>Ultimul</b><div class="val" id="statUltimul">—</div></div>
-        </div>
-
         <div class="footer">© <span id="year"></span> SERVELECT. Toate drepturile rezervate.</div>
       </aside>
     </section>
@@ -312,12 +297,6 @@
     <input type="hidden" id="f_device" />
     <input type="hidden" id="f_notes" />
     <input type="hidden" id="f_maps" />
-    <!-- NEW: stats fields for Sheets (optional, driven by config.json) -->
-    <input type="hidden" id="f_duration" />
-    <input type="hidden" id="f_overtime" />
-    <input type="hidden" id="f_indicator" />
-    <input type="hidden" id="f_pauses" />
-    <input type="hidden" id="f_events" />
   </form>
 
   <!-- Fallback inline employees list -->
@@ -333,7 +312,7 @@ Ana Radu
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 
-  <!-- Core app logic: preserved + ability to push stats to Sheets when configured -->
+  <!-- Core app logic: preserved; only UI updated -->
   <script>
   (async function() {
     const statusEl = document.getElementById('status');
@@ -386,17 +365,11 @@ Ana Radu
       'f_acc':      names.accuracy,
       'f_device':   names.device,
       'f_notes':    names.notes,
-      'f_maps':     names.mapsLink,
-      // NEW: optional stats fields (if provided in config.json)
-      'f_duration': names.duration,
-      'f_overtime': names.overtime,
-      'f_indicator':names.indicator,
-      'f_pauses':   names.pauses,
-      'f_events':   names.events
+      'f_maps':     names.mapsLink
     };
     Object.entries(idMap).forEach(([id,name]) => {
       const el = document.getElementById(id);
-      if (name && el) el.setAttribute('name', name);
+      if (name) el.setAttribute('name', name);
     });
 
     // ==================== EMPLOYEES LOADING (with fallbacks) ====================
@@ -547,7 +520,7 @@ Ana Radu
           body: JSON.stringify(payload)
         });
         const txt = await res.text();
-        let json = null; try{ json = JSON.parse(txt); }catch(_){ }
+        let json = null; try{ json = JSON.parse(txt); }catch(_){}
         if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
         setLeaveStatus('Cerere înregistrată (' + json.zile + ' zile). Email la HR + copie la ' + email + '.', 'ok');
       } catch (err) {
@@ -555,7 +528,7 @@ Ana Radu
       }
     });
 
-    // ==================== TIME ACTIONS + optional stats push ====================
+    // ==================== TIME ACTIONS ====================
     let busy = false;
     function submitAction(action) {
       if (busy) return;
@@ -591,23 +564,11 @@ Ana Radu
           document.getElementById('f_notes').value = (notesEl.value || '');
           document.getElementById('f_maps').value = maps;
 
-          // record locally & compute stats before submit (so Sheets can receive them if configured)
-          try { addLocalEvent(empSel.value || '__ALL__', ts, action); } catch(_){}
-          const stats = computeStatsForToday(empSel.value || '__ALL__');
-          // bind optional fields only if names exist in config.json
-          if (names.duration)  document.getElementById('f_duration').value  = stats.durationHM; // HH:MM
-          if (names.overtime)  document.getElementById('f_overtime').value  = stats.overtimeH.toFixed(2); // hours decimal
-          if (names.indicator) document.getElementById('f_indicator').value = stats.indicatorPct + '%';
-          if (names.pauses)    document.getElementById('f_pauses').value    = String(stats.pauses);
-          if (names.events)    document.getElementById('f_events').value    = String(stats.events);
-
           form.submit();
-          renderStats();
           setStatus(`Trimis ✓ (${action.toUpperCase()}). Verifică Google Sheet.`, 'ok');
           lastEl.textContent = JSON.stringify({
             action, timestamp: ts, angajat: empSel.value, activitate: actSel.value,
-            locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc,
-            stats
+            locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc
           }, null, 2);
 
           setTimeout(()=>{ busy=false; disableAllButtons(false); }, 800);
@@ -621,93 +582,6 @@ Ana Radu
     document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause'));
     document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause'));
     document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('finish'));
-
-    // ===== Stats: compute from local events =====
-    const LS_KEY = 'ts_events_v1';
-    const WORKDAY_H = (CFG.workdayHours && Number(CFG.workdayHours)) || 8;
-
-    function loadAll(){
-      try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(_){ return {}; }
-    }
-    function saveAll(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
-    function ymd(d){ return new Date(d).toISOString().slice(0,10); }
-    function keyFor(emp, d){ return `${emp||'__ALL__'}@${ymd(d)}`; }
-
-    function addLocalEvent(emp, ts, action){
-      const all = loadAll();
-      const k = keyFor(emp, ts);
-      all[k] = all[k] || [];
-      all[k].push({action, ts});
-      all[k].sort((a,b)=> new Date(a.ts)-new Date(b.ts));
-      saveAll(all);
-    }
-    function getEvents(emp, d){
-      const all = loadAll();
-      return (all[keyFor(emp, d)]||[]).slice();
-    }
-
-    function fmtHM(ms){
-      const total = Math.max(0, Math.floor(ms/60000));
-      const h = Math.floor(total/60).toString().padStart(2,'0');
-      const m = (total%60).toString().padStart(2,'0');
-      return `${h}:${m}`;
-    }
-
-    function computeStatsForToday(emp){
-      const today = new Date();
-      const ev = getEvents(emp, today);
-      let activeMs=0, pauseMs=0, pauses=0;
-      let activeStart=null, paused=true, pauseStart=null;
-      let lastLabel='—';
-      for (const e of ev){
-        const t = new Date(e.ts);
-        lastLabel = `${e.action.toUpperCase()} ${t.toLocaleTimeString()}`;
-        if (e.action==='start'){
-          if (paused){ activeStart = t; paused=false; }
-        } else if (e.action==='pause'){
-          if (!paused && activeStart){ activeMs += t - activeStart; activeStart=null; }
-          pauseStart = t; pauses++; paused=true;
-        } else if (e.action==='unpause'){
-          if (pauseStart){ pauseMs += t - pauseStart; pauseStart=null; }
-          if (paused){ activeStart = t; paused=false; }
-        } else if (e.action==='finish'){
-          if (!paused && activeStart){ activeMs += t - activeStart; activeStart=null; }
-          if (pauseStart){ pauseMs += t - pauseStart; pauseStart=null; }
-          paused=true;
-        }
-      }
-      const now = new Date();
-      if (!paused && activeStart){ activeMs += now - activeStart; }
-      if (pauseStart){ pauseMs += now - pauseStart; }
-
-      const overtimeMs = Math.max(0, activeMs - WORKDAY_H*3600*1000);
-      const indicator = Math.round(Math.min(100, (activeMs/(WORKDAY_H*3600*1000))*100));
-      return {
-        durationHM: fmtHM(activeMs),
-        durationMs: activeMs,
-        overtimeH: overtimeMs/3600000,
-        indicatorPct: indicator,
-        pauses,
-        events: ev.length,
-        lastLabel
-      };
-    }
-
-    function renderStats(){
-      const emp = empSel.value || '__ALL__';
-      const s = computeStatsForToday(emp);
-      document.getElementById('statDurata').textContent = s.durationHM;
-      document.getElementById('statSuplimentar').textContent = s.overtimeH.toFixed(1);
-      document.getElementById('statIndicator').textContent = s.indicatorPct + '%';
-      document.getElementById('statPauze').textContent = s.pauses;
-      document.getElementById('statEvents').textContent = s.events;
-      document.getElementById('statUltimul').textContent = s.lastLabel;
-    }
-
-    // update on employee change & every 60s
-    empSel.addEventListener('change', renderStats);
-    setInterval(renderStats, 60000);
-    renderStats();
 
   })();
   </script>
