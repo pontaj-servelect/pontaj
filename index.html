@@ -127,9 +127,11 @@
     </section>
   </div>
 
+  <!-- Hidden iframes -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <iframe name="hidden_iframe_leave" style="display:none;"></iframe>
 
+  <!-- Leave Google Form (names bound from config.json) -->
   <form id="leaveForm" method="POST" target="hidden_iframe_leave">
     <input type="hidden" id="lv_name" />
     <input type="hidden" id="lv_type" />
@@ -140,6 +142,7 @@
     <input type="hidden" id="lv_ts" />
   </form>
 
+  <!-- Timesheet Google Form -->
   <form id="gform" method="POST" target="hidden_iframe">
     <input type="hidden" id="f_action" />
     <input type="hidden" id="f_timestamp" />
@@ -154,6 +157,7 @@
     <input type="hidden" id="f_maps" />
   </form>
 
+  <!-- Inline fallback employees (if CSV/config fail) -->
   <script type="text/plain" id="employees-inline">
 Ion Popescu
 Maria Ionescu
@@ -243,22 +247,18 @@ Ana Radu
 
     function parseEmployeesCSV(text){
       if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-      text = (text || '').replace(/
-/g, '
-').replace(/
-/g, '
-').trim();
+      text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
       if (!text) return [];
       if (!/,|;/.test(text)) {
-        return text.split('
-').map(s => s.trim()).filter(Boolean);
+        return text.split('\n').map(s => s.trim()).filter(Boolean);
       }
       const commaCount = (text.match(/,/g) || []).length;
       const semiCount  = (text.match(/;/g) || []).length;
       const delim = semiCount > commaCount ? ';' : ',';
-      const safeSplit = (line) => line.split(new RegExp(`${delim}(?=(?:[^"]*"[^"]*")*[^"]*$)`)).map(c => c.trim().replace(/^"|"$/g,''));
-      const rows = text.split('
-').map(safeSplit).filter(r => r.length && r.join('').length);
+      const rows = text.split('\n')
+        .map(line => line.split(new RegExp(`${delim}(?=(?:[^"]*"[^"]*")*[^"]*$)`))
+          .map(c => c.trim().replace(/^"|"$/g,'')))
+        .filter(r => r.length && r.join('').length);
       const header = rows[0].map(h => (h||'').toLowerCase());
       let startIdx = 0, nameCol = 0;
       if (header.some(h => /angajat|nume|employee|name/.test(h))) {
@@ -275,9 +275,7 @@ Ana Radu
     function getInlineEmployees(){
       const el = document.getElementById('employees-inline');
       if (!el) return [];
-      return el.textContent.split(/
-?
-/).map(s=>s.trim()).filter(Boolean);
+      return el.textContent.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
     }
     async function loadEmployees() {
       const ok = m => setEmp(m, 'ok');
@@ -318,12 +316,14 @@ Ana Radu
     }
     await loadEmployees();
 
+    // Toggle concedii în funcție de activitate
     const leaveTypes = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
     actSel.addEventListener('change', () => {
       const isLeave = leaveTypes.has((actSel.value||'').toLowerCase());
       leavePanel.style.display = isLeave ? '' : 'none';
       disableTimeButtons(isLeave);
     });
+
     function disableTimeButtons(disabled) {
       ['btnStart','btnPause','btnUnpause','btnFinish'].forEach(id=>{
         const el = document.getElementById(id);
@@ -336,6 +336,7 @@ Ana Radu
       if (lbtn) lbtn.disabled = !!disabled;
     }
 
+    // Trimitere cerere concediu
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');
       if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
@@ -349,6 +350,7 @@ Ana Radu
 
       setLeaveStatus('Se trimite cererea…');
 
+      // 1) Google Form (opțional)
       let formSubmitted = false;
       if (CFG.leaveFormAction && CFG.leaveFields) {
         try {
@@ -364,6 +366,7 @@ Ana Radu
         } catch (e) { console.warn('Leave Form submit failed:', e); }
       }
 
+      // 2) Endpoint Apps Script (opțional)
       let endpointOk = false, endpointMsg = '';
       if (CFG.leaveEndpoint) {
         try {
@@ -379,6 +382,7 @@ Ana Radu
       else setLeaveStatus('Eroare: nu s-a putut trimite cererea (Form/Endpoint). Verifică configurația.', 'err');
     });
 
+    // Acțiuni timp (Start / Pause / Unpause / Finish)
     let busy = false;
     function submitTimeAction(action) {
       if (busy) return;
@@ -389,7 +393,6 @@ Ana Radu
       if (['concediu de odihna','concediu medical','concediu pentru ore suplimentare'].includes((actSel.value||'').toLowerCase())) {
         setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn'); return;
       }
-
       busy = true; disableAllButtons(true); setStatus('Se obține locația GPS…');
 
       navigator.geolocation.getCurrentPosition(
@@ -414,13 +417,17 @@ Ana Radu
           setTimeout(()=>{ busy=false; disableAllButtons(false); }, 800);
         },
         err => { setStatus('Eroare locație: ' + err.message, 'err'); busy=false; disableAllButtons(false); },
-        { enableHighAccuracy:true, timeout: 20000, maximumAge:0 }
+        { enableHighAccuracy:true, timeout:20000, maximumAge:0 }
       );
     }
     document.getElementById('btnStart').addEventListener('click', ()=>submitTimeAction('start'));
     document.getElementById('btnPause').addEventListener('click', ()=>submitTimeAction('pause'));
     document.getElementById('btnUnpause').addEventListener('click', ()=>submitTimeAction('unpause'));
     document.getElementById('btnFinish').addEventListener('click', ()=>submitTimeAction('finish'));
+
+    // (optional helper) preload CSV via CFG if needed
+    async function loadEmployeesFromCfg(){ try { if (CFG.employeesCsv) await fetch(CFG.employeesCsv, {cache:'no-store'}); } catch(_){} }
+    async function loadEmployees(){ /* placeholder; already loaded above */ }
   })();
   </script>
 </body>
