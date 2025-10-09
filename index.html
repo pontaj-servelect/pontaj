@@ -455,59 +455,61 @@ Ana Radu
       return el.textContent.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
     }
 
-    async function loadEmployees() {
-      const status = msg => setEmp(msg, 'ok');
+   async function loadEmployees(){
+  const listFromCfg = Array.isArray(CFG.employees) ? CFG.employees : [];
 
-      // 1) employeesCsv from config.json
-      try {
-        if (CFG.employeesCsv) {
-          const url = CFG.employeesCsv + (CFG.employeesCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
-          const r = await fetch(url, {cache:'no-store'});
-          if (r.ok) {
-            const txt = await r.text();
-            const list = parseEmployeesCSV(txt);
-            if (list.length) {
-              fillEmployees(list);
-              status('Angajați încărcați din employeesCsv (' + list.length + ').');
-              return;
-            }
-          }
-        }
-      } catch(e){}
+  try {
+    if (CFG.employeesCsv) {
+      // Construiește URL absolut + no-cache
+      const url = CFG.employeesCsv.startsWith('http')
+        ? CFG.employeesCsv
+        : new URL(CFG.employeesCsv, location.href).href;
+      const csvUrl = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
 
-      // 2) Forced RAW GitHub fallback
-      try {
-        const raw = 'https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/employees.csv?v=' + Date.now();
-        const r2 = await fetch(raw, {cache:'no-store'});
-        if (r2.ok) {
-          const txt2 = await r2.text();
-          const list2 = parseEmployeesCSV(txt2);
-          if (list2.length) {
-            fillEmployees(list2);
-            status('Angajați încărcați din RAW GitHub (' + list2.length + ').');
-            return;
-          }
-        }
-      } catch(e){}
+      const r = await fetch(csvUrl, { cache: 'no-store' });
+      if (!r.ok) throw new Error('CSV HTTP ' + r.status);
 
-      // 3) list in config.json
-      if (Array.isArray(CFG.employees) && CFG.employees.length) {
-        fillEmployees(CFG.employees);
-        status('Angajați încărcați din config.json.');
+      // Text CSV (curățăm BOM)
+      let txt = await r.text();
+      txt = txt.replace(/^\uFEFF/, '').trim();
+      if (!txt) throw new Error('CSV gol');
+
+      // Detectăm separator ( ; sau , )
+      const firstLine = txt.split(/\r?\n/)[0] || '';
+      const semiCount  = (firstLine.match(/;/g) || []).length;
+      const commaCount = (firstLine.match(/,/g) || []).length;
+      const delim = semiCount > commaCount ? ';' : ',';
+
+      // Split sigur pe coloane (ține cont de ghilimele)
+      const rows = txt.split(/\r?\n/).map(line =>
+        line.split(new RegExp(`${delim}(?=(?:[^"]*"[^"]*")*[^"]*$)`)).map(c => c.replace(/^"|"$/g, '').trim())
+      );
+
+      if (!rows.length) throw new Error('CSV fără rânduri');
+
+      const header = rows[0].map(h => h.toLowerCase());
+      const idx = header.findIndex(h => /^(name|nume|angajat)/.test(h));
+      const col = idx >= 0 ? idx : 0;
+
+      const names = rows.slice(1)
+        .map(r => (r[col] || '').trim())
+        .filter(Boolean);
+
+      if (names.length) {
+        fillEmployees(names);
+        setEmp('Angajați încărcați din CSV.', 'ok');
         return;
       }
-
-      // 4) inline fallback
-      const inline = getInlineEmployees();
-      if (inline.length) {
-        fillEmployees(inline);
-        status('Angajați încărcați din fallback inline (' + inline.length + ').');
-        return;
-      }
-
-      fillEmployees([]);
-      setEmp('Nu am putut încărca lista de angajați. Verifică employees.csv / config.json.', 'err');
+      throw new Error('Nu s-au găsit nume în CSV');
     }
+  } catch (err) {
+    console.warn('loadEmployees CSV fallback:', err);
+  }
+
+  // Fallback la lista din config.json
+  fillEmployees(listFromCfg);
+  setEmp('Angajați încărcați din config.json.', listFromCfg.length ? 'ok' : 'warn');
+}
 
     function fillEmployees(list){
       const sel = empSel;
