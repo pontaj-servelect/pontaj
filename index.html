@@ -9,52 +9,166 @@
   <link rel="icon" href="favicon.png" />
   <meta name="theme-color" content="#516A75"/>
   <style>
-    :root{--brand: rgba(81,106,117,0.88);--brand-dark:#2f3e45;--accent: rgba(149,202,75,0.91);--text:#0f172a;--muted:#5b6b73;--bg:#f4f7f9;--card:#ffffff;--ring:#cfe0e7;--danger:#ef4444;--warn:#f59e0b;}
-    *{box-sizing:border-box}html,body{height:100%; width:100%}
-    body{margin:0;font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;color:var(--text);
-      background:linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),url('background.jpg');
-      background-size: cover;background-position: center center;background-repeat: no-repeat;background-attachment: fixed;min-height:100vh;}
+    :root{
+      --brand: rgba(81,106,117,0.88);       /* Servelect blue-gray */
+      --brand-dark:#2f3e45;                 /* darker tone */
+      --accent: rgba(149,202,75,0.91);      /* Servelect green */
+      --text:#0f172a;                       /* slate-900 */
+      --muted:#5b6b73;                      /* muted blue-gray */
+      --bg:#f4f7f9;                         /* very light slate */
+      --card:#ffffff;
+      --ring:#cfe0e7;                       /* ring outline */
+      --danger:#ef4444;
+      --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; width:100%}
+    body{
+      margin:0;
+      font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+
+      /* ⇩⇩ FUNDAL cerut: gradient + imagine, full stretch ⇩⇩ */
+      background:
+        linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),
+        url('background.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed; /* întinde corect fundalul la orice rezoluție */
+      /* ⇧⇧ FUNDAL cerut: gradient + imagine ⇧⇧ */
+
+      min-height:100vh;
+    }
+
+    /* Header / Nav */
     .shell{max-width:1100px;margin:0 auto;padding:24px;}
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border-radius:16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));backdrop-filter: blur(8px);box-shadow: 0 8px 30px rgba(81,106,117,.18);border:1px solid rgba(81,106,117,.18);}
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:14px 16px;border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(81,106,117,.18);
+      border:1px solid rgba(81,106,117,.18);
+    }
     .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
-    .brand img{width:38px;height:38px;object-fit:contain; aspect-ratio:1/1;border-radius:10px; box-shadow:0 3px 10px rgba(81,106,117,.25)}
+    .brand img{
+      width:38px;height:38px;
+      object-fit:contain; aspect-ratio:1/1;  /* prevenim întinderea */
+      border-radius:10px; box-shadow:0 3px 10px rgba(81,106,117,.25)
+    }
     .brand h1{font-size:18px;letter-spacing:.2px;margin:0;line-height:1.1}
-    .brand h1 span{display:block;font-weight:700}.brand small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-    .hero{margin-top:20px;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:stretch;}@media (max-width:900px){ .hero{grid-template-columns:1fr} }
-    .card{background:var(--card);border:1px solid rgba(14,165,233,.12);border-radius:18px;box-shadow:0 20px 60px rgba(2,132,199,.08);} .panel{padding:20px 20px 14px 20px}
-    .panel header{display:flex;align-items:center;gap:10px;margin:6px 0 14px;}.panel header .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(149,202,75,0.18);} .panel header h2{margin:0;font-size:18px}
+    .brand h1 span{display:block;font-weight:700}
+    .brand small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+    /* Hero */
+    .hero{
+      margin-top:20px;
+      display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:stretch;
+    }
+    @media (max-width:900px){ .hero{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(14,165,233,.12);
+      border-radius:18px;
+      box-shadow:0 20px 60px rgba(2,132,199,.08);
+    }
+    .panel{padding:20px 20px 14px 20px}
+    .panel header{
+      display:flex;align-items:center;gap:10px;margin:6px 0 14px;
+    }
+    .panel header .dot{
+      width:10px;height:10px;border-radius:50%;background:var(--accent);
+      box-shadow:0 0 0 4px rgba(149,202,75,0.18);
+    }
+    .panel header h2{margin:0;font-size:18px}
     .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+
+    /* Form controls */
     label{display:block;font-size:12px;color:var(--muted);margin:4px 0 6px}
-    .grid{display:grid;gap:14px}.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid{display:grid;gap:14px}
+    .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
     @media (max-width:900px){ .grid.cols-3,.grid.cols-2{grid-template-columns:1fr} }
-    select, input[type=text], input[type=email], input[type=date]{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:15px;outline:none;transition: box-shadow .15s, border-color .15s;}
-    select:focus, input:focus{border-color: var(--brand);box-shadow:0 0 0 4px var(--ring);}
+
+    select, input[type="text"], input[type="email"], input[type="date"]{
+      width:100%;padding:12px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;
+      font-size:15px;outline:none;transition: box-shadow .15s, border-color .15s;
+    }
+    select:focus, input:focus{
+      border-color: var(--brand);
+      box-shadow:0 0 0 4px var(--ring);
+    }
+
     .btnbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-    .btn{--bg:#e2e8f0; --fg:#0f172a;appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;transition: transform .06s ease, box-shadow .2s ease, background .2s;box-shadow:0 6px 16px rgba(15,23,42,.08);color:var(--fg);background:var(--bg);}
-    .btn:active{transform: translateY(1px)} .btn.primary{ --bg: var(--accent); --fg:#fff } .btn.pause{ --bg:#f59e0b; --fg:#111827 } .btn.unpause{ --bg: var(--brand); --fg:#fff } .btn.finish{ --bg: var(--accent); --fg:#fff } .btn:disabled{opacity:.6;cursor:not-allowed;}
-    .leave{border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc;} .kicker{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .status{font-size:13px;color:var(--muted);margin-top:10px} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;white-space:pre-wrap}
-    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(81,106,117,.10);color:#2f3e45;font-weight:600;font-size:12px}
-    .rail{padding:18px} .summary{display:grid;gap:12px}
-    .summary .item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;}
-    .summary .item svg{flex:0 0 auto} .footer{margin-top:18px;font-size:12px;color:var(--muted);text-align:center}
-    .ok{color:#15803d}.err{color:#ef4444}.warn{color:#a16207}
+    .btn{
+      --bg:#e2e8f0; --fg:#0f172a;
+      appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:600;
+      cursor:pointer;transition: transform .06s ease, box-shadow .2s ease, background .2s;
+      box-shadow:0 6px 16px rgba(15,23,42,.08);
+      color:var(--fg);background:var(--bg);
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{ --bg: var(--accent); --fg:#fff }
+    .btn.pause{ --bg:#f59e0b; --fg:#111827 }
+    .btn.unpause{ --bg: var(--brand); --fg:#fff }
+    .btn.finish{ --bg: var(--accent); --fg:#fff }
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
+
+    /* Leave panel */
+    .leave{
+      border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc;
+    }
+    .kicker{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+    /* Status blocks */
+    .status{font-size:13px;color:var(--muted);margin-top:10px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;white-space:pre-wrap}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
+      background:rgba(81,106,117,.10);color:#2f3e45;font-weight:600;font-size:12px
+    }
+
+    /* Right rail */
+    .rail{padding:18px}
+    .summary{
+      display:grid;gap:12px
+    }
+    .summary .item{
+      display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#f8fafc;
+      border:1px solid #e2e8f0;
+    }
+    .summary .item svg{flex:0 0 auto}
+    .footer{
+      margin-top:18px;font-size:12px;color:var(--muted);text-align:center
+    }
+    .ok{color:#15803d}
+    .err{color:#ef4444}
+    .warn{color:#a16207}
   </style>
 </head>
 <body>
   <div class="shell">
+    <!-- Top Nav / Brand -->
     <nav class="nav card">
       <a class="brand" href="#" aria-label="Spre început">
         <img src="favicon.png" alt="Siglă SERVELECT" />
-        <div><h1><span>SERVELECT</span><small>Pontaj & Management Concedii</small></h1></div>
+        <div>
+          <h1><span>SERVELECT</span><small>Pontaj & Management Concedii</small></h1>
+        </div>
       </a>
       <div class="chip" id="cfg">Se încarcă configurația…</div>
     </nav>
 
+    <!-- Main content -->
     <section class="hero">
+      <!-- Left: Main form -->
       <div class="card panel">
-        <header><span class="dot" aria-hidden="true"></span><h2>Înregistrare activitate</h2></header>
+        <header>
+          <span class="dot" aria-hidden="true"></span>
+          <h2>Înregistrare activitate</h2>
+        </header>
         <p class="sub">Alege <b>Angajat</b>, <b>Tip de activitate</b>, completează <b>Locația</b> și (opțional) o <b>Notă</b>. Apoi folosește butoanele de mai jos.</p>
 
         <div class="grid cols-3">
@@ -68,10 +182,19 @@
             <label for="activitySelect">Tip de activitate</label>
             <select id="activitySelect">
               <option value="" selected disabled>Alege tip...</option>
-              <option>atelier</option><option>birou-lucrare</option><option>deplasare</option><option>ofertare</option>
-              <option>concediu de odihna</option><option>concediu medical</option><option>zi libera legala</option>
-              <option>birou-administrativ</option><option>home office</option><option>invoire</option>
-              <option>pe drum</option><option>concediu pentru ore suplimentare</option><option>birou + deplasare</option>
+              <option>atelier</option>
+              <option>birou-lucrare</option>
+              <option>deplasare</option>
+              <option>ofertare</option>
+              <option>concediu de odihna</option>
+              <option>concediu medical</option>
+              <option>zi libera legala</option>
+              <option>birou-administrativ</option>
+              <option>home office</option>
+              <option>invoire</option>
+              <option>pe drum</option>
+              <option>concediu pentru ore suplimentare</option>
+              <option>birou + deplasare</option>
             </select>
           </div>
 
@@ -88,17 +211,33 @@
           </div>
         </div>
 
+        <!-- Leave panel -->
         <div id="leavePanel" class="leave" style="display:none;margin-top:16px">
           <div class="kicker"><b>Cerere concediu</b> — completează intervalul de zile, emailul personal și o notă. Se trimite automat la HR.</div>
           <div class="grid cols-3">
-            <div><label for="leaveStart">Data start</label><input type="date" id="leaveStart" /></div>
-            <div><label for="leaveEnd">Data sfârșit</label><input type="date" id="leaveEnd" /></div>
-            <div><label for="leaveEmail">Email personal</label><input type="email" id="leaveEmail" placeholder="ex: prenume.nume@..." /></div>
+            <div>
+              <label for="leaveStart">Data start</label>
+              <input type="date" id="leaveStart" />
+            </div>
+            <div>
+              <label for="leaveEnd">Data sfârșit</label>
+              <input type="date" id="leaveEnd" />
+            </div>
+            <div>
+              <label for="leaveEmail">Email personal</label>
+              <input type="email" id="leaveEmail" placeholder="ex: prenume.nume@..." />
+            </div>
           </div>
           <div class="grid" style="margin-top:10px">
-            <div><label for="leaveNotes">Notă către HR (opțional)</label><input type="text" id="leaveNotes" placeholder="ex: motiv / detalii" /></div>
+            <div>
+              <label for="leaveNotes">Notă către HR (opțional)</label>
+              <input type="text" id="leaveNotes" placeholder="ex: motiv / detalii" />
+            </div>
           </div>
-          <div class="btnbar"><button id="btnLeave" class="btn primary" type="button">Trimite cererea de concediu</button><span class="status" id="leaveStatus"></span></div>
+          <div class="btnbar">
+            <button id="btnLeave" class="btn primary" type="button">Trimite cererea de concediu</button>
+            <span class="status" id="leaveStatus"></span>
+          </div>
         </div>
 
         <div class="btnbar" style="margin-top:16px">
@@ -112,37 +251,65 @@
         <div id="last" class="status mono"></div>
       </div>
 
+      <!-- Right: Helper / Summary -->
       <aside class="card rail">
         <header style="display:flex;align-items:center;gap:10px;margin:4px 0 10px">
-          <span class="dot" aria-hidden="true"></span><h2 style="margin:0;font-size:18px">Scurt ghid</h2>
+          <span class="dot" aria-hidden="true"></span>
+          <h2 style="margin:0;font-size:18px">Scurt ghid</h2>
         </header>
         <div class="summary">
-          <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 21h8M12 3v14m0 0-4-4m4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Start</b> pornește pontajul</div></div>
-          <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 9v6m4-6v6M5 7h14v10H5zM5 7V5h14v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Pause</b> / <b>Unpause</b> marchează pauzele.</div></div>
-          <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Finish</b> încheie ziua de lucru.</div></div>
-          <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 7h8M6 11h12M4 15h16M8 19h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><div><b>Concedii</b> — alege tipul și trimite cererea.</div></div>
+          <div class="item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 21h8M12 3v14m0 0-4-4m4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <b>Start</b> pornește pontajul
+              <!-- <div class="kicker">Precizie raportată automat.</div> -->
+            </div>
+          </div>
+          <div class="item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 9v6m4-6v6M5 7h14v10H5zM5 7V5h14v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <b>Pause</b> / <b>Unpause</b> marchează pauzele.
+              <!-- <div class="kicker">Folosește-le pentru acuratețe.</div> -->
+            </div>
+          </div>
+          <div class="item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <b>Finish</b> încheie ziua de lucru.
+              <!-- <div class="kicker">Vezi ultimul eveniment mai jos.</div> -->
+            </div>
+          </div>
+          <div class="item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 7h8M6 11h12M4 15h16M8 19h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <div>
+              <b>Concedii</b> — alege tipul (ex: concediu de odihnă) și trimite cererea.
+              <!-- <div class="kicker">Ajunge automat la HR.</div> -->
+            </div>
+          </div>
         </div>
+
         <div class="footer">© <span id="year"></span> SERVELECT. Toate drepturile rezervate.</div>
       </aside>
     </section>
   </div>
 
-  <!-- Hidden iframes -->
+  <!-- Hidden iframe for Google Forms -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
-  <iframe name="hidden_iframe_leave" style="display:none;"></iframe>
 
-  <!-- Leave Google Form (names bound from config.json) -->
-  <form id="leaveForm" method="POST" target="hidden_iframe_leave">
-    <input type="hidden" id="lv_name" />
-    <input type="hidden" id="lv_type" />
-    <input type="hidden" id="lv_email" />
-    <input type="hidden" id="lv_start" />
-    <input type="hidden" id="lv_end" />
-    <input type="hidden" id="lv_notes" />
-    <input type="hidden" id="lv_ts" />
-  </form>
+  <!-- Hidden iframe for Google Leave Form -->
+      <iframe name="hidden_iframe_leave" style="display:none;"></iframe>
+      <!-- Hidden Google Form for Leave submissions (will be bound via config.json leaveFields) -->
+      <form id="leaveForm" method="POST" target="hidden_iframe_leave">
+        <input type="hidden" id="lv_name" />
+        <input type="hidden" id="lv_type" />
+        <input type="hidden" id="lv_email" />
+        <input type="hidden" id="lv_start" />
+        <input type="hidden" id="lv_end" />
+        <input type="hidden" id="lv_notes" />
+        <input type="hidden" id="lv_ts" />
+      </form>
 
-  <!-- Timesheet Google Form -->
+  <!-- Google Forms payload form (names bound via config.json) -->
   <form id="gform" method="POST" target="hidden_iframe">
     <input type="hidden" id="f_action" />
     <input type="hidden" id="f_timestamp" />
@@ -157,7 +324,7 @@
     <input type="hidden" id="f_maps" />
   </form>
 
-  <!-- Inline fallback employees (if CSV/config fail) -->
+  <!-- Fallback inline employees list -->
   <script type="text/plain" id="employees-inline">
 Ion Popescu
 Maria Ionescu
@@ -165,8 +332,12 @@ Vlad Georgescu
 Ana Radu
   </script>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    // Year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 
+  <!-- Core app logic: preserved; only UI updated -->
   <script>
   (async function() {
     const statusEl = document.getElementById('status');
@@ -191,6 +362,7 @@ Ana Radu
     function setEmp(msg, cls) { empStatus.className = 'status ' + (cls||''); empStatus.textContent = msg; }
     function setLeaveStatus(msg, cls) { leaveStatus.className = 'status ' + (cls||''); leaveStatus.textContent = msg; }
 
+    // --- load config.json ---
     let CFG = null;
     try {
       const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
@@ -205,6 +377,8 @@ Ana Radu
       return;
     }
 
+
+    // --- bind Google Leave Form fields (optional) ---
     function setLeaveNames() {
       if (!CFG.leaveFormAction || !CFG.leaveFields) return false;
       const m = CFG.leaveFields;
@@ -221,10 +395,12 @@ Ana Radu
         const el = document.getElementById(id);
         if (el && name) el.setAttribute('name', name);
       });
-      document.getElementById('leaveForm').action = CFG.leaveFormAction;
+      const lf = document.getElementById('leaveForm');
+      lf.action = CFG.leaveFormAction;
       return true;
     }
 
+    // --- bind Google Forms fields ---
     form.action = CFG.formAction;
     const names = CFG.fields;
     const idMap = {
@@ -245,6 +421,7 @@ Ana Radu
       if (name) el.setAttribute('name', name);
     });
 
+    // ==================== EMPLOYEES LOADING (with fallbacks) ====================
     function parseEmployeesCSV(text){
       if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
@@ -252,12 +429,11 @@ Ana Radu
       if (!/,|;/.test(text)) {
         return text.split('\n').map(s => s.trim()).filter(Boolean);
       }
-      const commaCount = (text.match(/,/g) || []).length;
-      const semiCount  = (text.match(/;/g) || []).length;
-      const delim = semiCount > commaCount ? ';' : ',';
+      const comma = (text.match(/,/g) || []).length;
+      semiCount = (text.match(/;/g) || []).length;
+      const delim = semiCount > comma ? ';' : ',';
       const rows = text.split('\n')
-        .map(line => line.split(new RegExp(`${delim}(?=(?:[^"]*"[^"]*")*[^"]*$)`))
-          .map(c => c.trim().replace(/^"|"$/g,'')))
+        .map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,'')))
         .filter(r => r.length && r.join('').length);
       const header = rows[0].map(h => (h||'').toLowerCase());
       let startIdx = 0, nameCol = 0;
@@ -272,13 +448,17 @@ Ana Radu
       }
       return list;
     }
+
     function getInlineEmployees(){
       const el = document.getElementById('employees-inline');
       if (!el) return [];
       return el.textContent.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
     }
+
     async function loadEmployees() {
-      const ok = m => setEmp(m, 'ok');
+      const status = msg => setEmp(msg, 'ok');
+
+      // 1) employeesCsv from config.json
       try {
         if (CFG.employeesCsv) {
           const url = CFG.employeesCsv + (CFG.employeesCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
@@ -286,26 +466,49 @@ Ana Radu
           if (r.ok) {
             const txt = await r.text();
             const list = parseEmployeesCSV(txt);
-            if (list.length) { fillEmployees(list); ok('Angajați din employeesCsv ('+list.length+').'); return; }
+            if (list.length) {
+              fillEmployees(list);
+              status('Angajați încărcați din employeesCsv (' + list.length + ').');
+              return;
+            }
           }
         }
       } catch(e){}
+
+      // 2) Forced RAW GitHub fallback
       try {
         const raw = 'https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/employees.csv?v=' + Date.now();
         const r2 = await fetch(raw, {cache:'no-store'});
         if (r2.ok) {
           const txt2 = await r2.text();
           const list2 = parseEmployeesCSV(txt2);
-          if (list2.length) { fillEmployees(list2); ok('Angajați din RAW GitHub ('+list2.length+').'); return; }
+          if (list2.length) {
+            fillEmployees(list2);
+            status('Angajați încărcați din RAW GitHub (' + list2.length + ').');
+            return;
+          }
         }
       } catch(e){}
+
+      // 3) list in config.json
       if (Array.isArray(CFG.employees) && CFG.employees.length) {
-        fillEmployees(CFG.employees); ok('Angajați din config.json.'); return;
+        fillEmployees(CFG.employees);
+        status('Angajați încărcați din config.json.');
+        return;
       }
+
+      // 4) inline fallback
       const inline = getInlineEmployees();
-      if (inline.length) { fillEmployees(inline); ok('Angajați (fallback inline).'); return; }
-      fillEmployees([]); setEmp('Nu am putut încărca lista de angajați. Verifică employees.csv / config.json.', 'err');
+      if (inline.length) {
+        fillEmployees(inline);
+        status('Angajați încărcați din fallback inline (' + inline.length + ').');
+        return;
+      }
+
+      fillEmployees([]);
+      setEmp('Nu am putut încărca lista de angajați. Verifică employees.csv / config.json.', 'err');
     }
+
     function fillEmployees(list){
       const sel = empSel;
       sel.innerHTML = '';
@@ -314,12 +517,13 @@ Ana Radu
       sel.appendChild(ph);
       list.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
     }
+
     await loadEmployees();
 
-    // Toggle concedii în funcție de activitate
-    const leaveTypes = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
+    // ==================== LEAVE (concedii) ====================
+    const leaveTypeSet = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
     actSel.addEventListener('change', () => {
-      const isLeave = leaveTypes.has((actSel.value||'').toLowerCase());
+      const isLeave = leaveTypeSet.has((actSel.value||'').toLowerCase());
       leavePanel.style.display = isLeave ? '' : 'none';
       disableTimeButtons(isLeave);
     });
@@ -336,69 +540,130 @@ Ana Radu
       if (lbtn) lbtn.disabled = !!disabled;
     }
 
-    // Trimitere cerere concediu
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');
       if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
       const tip = (actSel.value || '').toLowerCase();
-      if (!leaveTypes.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
-      const sd = leaveStart.value, ed = leaveEnd.value;
+      if (!leaveTypeSet.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+      const sd = leaveStart.value;
+      const ed = leaveEnd.value;
       if (!sd || !ed) { setLeaveStatus('Completează intervalul (start și sfârșit).', 'err'); return; }
       if (ed < sd) { setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err'); return; }
       const email = (leaveEmail.value || '').trim();
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
 
-      setLeaveStatus('Se trimite cererea…');
+      setLeaveStatus('Se trimite cererea…', '');
 
-      // 1) Google Form (opțional)
+      // Submit to Google Form (optional, if configured)
       let formSubmitted = false;
       if (CFG.leaveFormAction && CFG.leaveFields) {
         try {
           document.getElementById('lv_name').value  = empSel.value;
           document.getElementById('lv_type').value  = tip;
-          document.getElementById('lv_email').value = email;
+          document.getElementById('lv_email').value = document.getElementById('leaveEmail').value;
           document.getElementById('lv_start').value = sd;
           document.getElementById('lv_end').value   = ed;
           document.getElementById('lv_notes').value = (leaveNotes.value || '');
           document.getElementById('lv_ts').value    = new Date().toISOString();
           document.getElementById('leaveForm').submit();
           formSubmitted = true;
-        } catch (e) { console.warn('Leave Form submit failed:', e); }
+        } catch (e) {
+          console.warn('Leave Form submit failed, will rely on endpoint only.', e);
+        }
       }
 
-      // 2) Endpoint Apps Script (opțional)
+      // Submit to WebApp endpoint (optional)
       let endpointOk = false, endpointMsg = '';
       if (CFG.leaveEndpoint) {
         try {
-          const payload = { name: empSel.value, activityType: tip, startDate: sd, endDate: ed, personalEmail: email, notes: (leaveNotes.value||'') };
-          const res = await fetch(CFG.leaveEndpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-          const txt = await res.text(); let json = null; try{ json = JSON.parse(txt); }catch(_){}
+          const payload = {
+            name: empSel.value,
+            activityType: tip,
+            startDate: sd,
+            endDate: ed,
+            personalEmail: email,
+            notes: (leaveNotes.value || '')
+          };
+          const res = await fetch(CFG.leaveEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const txt = await res.text();
+          let json = null; try{ json = JSON.parse(txt); }catch(_){}
           if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
-          endpointOk = true; endpointMsg = ' (înregistrată ' + json.zile + ' zile)';
-        } catch (err) { console.warn('Leave endpoint error:', err); }
+          endpointOk = true;
+          endpointMsg = ' (înregistrată ' + json.zile + ' zile)';
+        } catch (err) {
+          console.warn('Leave endpoint error:', err);
+        }
       }
 
-      if (formSubmitted || endpointOk) setLeaveStatus('Cerere trimisă' + endpointMsg + '. Email HR + Reply-To la ' + email + '.', 'ok');
-      else setLeaveStatus('Eroare: nu s-a putut trimite cererea (Form/Endpoint). Verifică configurația.', 'err');
+      if (formSubmitted || endpointOk) {
+        setLeaveStatus('Cerere trimisă' + endpointMsg + '. Email HR + Reply-To la ' + email + '.', 'ok');
+      } else {
+        setLeaveStatus('Eroare: nu s-a putut trimite cererea (Form/Endpoint). Verifică configurația.', 'err');
+      }
+    });
+          if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
+      const tip = (actSel.value || '').toLowerCase();
+      if (!leaveTypeSet.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+      const sd = leaveStart.value;
+      const ed = leaveEnd.value;
+      if (!sd || !ed) { setLeaveStatus('Completează intervalul (start și sfârșit).', 'err'); return; }
+      if (ed < sd) { setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err'); return; }
+      const email = (leaveEmail.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
+      setLeaveStatus('Se trimite cererea…', '');
+      try {
+        const CFGr = CFG;
+        if (!CFGr.leaveEndpoint) throw new Error('Lipsește leaveEndpoint în config.json.');
+        const payload = {
+          name: empSel.value,
+          activityType: tip,
+          startDate: sd,
+          endDate: ed,
+          personalEmail: email,
+          notes: (leaveNotes.value || '')
+        };
+        const res = await fetch(CFGr.leaveEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type':'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const txt = await res.text();
+        let json = null; try{ json = JSON.parse(txt); }catch(_){}
+        if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
+        setLeaveStatus('Cerere înregistrată (' + json.zile + ' zile). Email la HR + copie la ' + email + '.', 'ok');
+      } catch (err) {
+        setLeaveStatus('Eroare trimitere: ' + (err.message||err), 'err');
+      }
     });
 
-    // Acțiuni timp (Start / Pause / Unpause / Finish)
+    // ==================== TIME ACTIONS ====================
     let busy = false;
-    function submitTimeAction(action) {
+    function submitAction(action) {
       if (busy) return;
       if (!empSel.value) { setStatus('Selectează angajat.', 'err'); return; }
       if (!actSel.value) { setStatus('Alege tip de activitate.', 'err'); return; }
       if (!locInput.value.trim()) { setStatus('Scrie o locație.', 'err'); locInput.focus(); return; }
-      if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă.', 'err'); return; }
+      if (!('geolocation' in navigator)) { setStatus('Geolocație indisponibilă pe acest dispozitiv.', 'err'); return; }
       if (['concediu de odihna','concediu medical','concediu pentru ore suplimentare'].includes((actSel.value||'').toLowerCase())) {
-        setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn'); return;
+        setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn');
+        return;
       }
-      busy = true; disableAllButtons(true); setStatus('Se obține locația GPS…');
+
+      busy = true; disableAllButtons(true);
+      setStatus('Se obține locația GPS…');
 
       navigator.geolocation.getCurrentPosition(
         pos => {
-          const lat = pos.coords.latitude, lon = pos.coords.longitude, acc = Math.round(pos.coords.accuracy || 0);
-          const ts = new Date().toISOString(); const maps = `https://maps.google.com/?q=${lat},${lon}`;
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const acc = Math.round(pos.coords.accuracy || 0);
+          const ts = new Date().toISOString();
+          const maps = `https://maps.google.com/?q=${lat},${lon}`;
+
           document.getElementById('f_action').value = action;
           document.getElementById('f_timestamp').value = ts;
           document.getElementById('f_name').value = empSel.value;
@@ -413,21 +678,23 @@ Ana Radu
 
           form.submit();
           setStatus(`Trimis ✓ (${action.toUpperCase()}). Verifică Google Sheet.`, 'ok');
-          lastEl.textContent = JSON.stringify({action, timestamp:ts, angajat:empSel.value, activitate:actSel.value, locatie:locInput.value.trim(), latitude:lat, longitude:lon, accuracy:acc}, null, 2);
+          lastEl.textContent = JSON.stringify({
+            action, timestamp: ts, angajat: empSel.value, activitate: actSel.value,
+            locatie: locInput.value.trim(), latitude: lat, longitude: lon, accuracy: acc
+          }, null, 2);
+
           setTimeout(()=>{ busy=false; disableAllButtons(false); }, 800);
         },
         err => { setStatus('Eroare locație: ' + err.message, 'err'); busy=false; disableAllButtons(false); },
-        { enableHighAccuracy:true, timeout:20000, maximumAge:0 }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
       );
     }
-    document.getElementById('btnStart').addEventListener('click', ()=>submitTimeAction('start'));
-    document.getElementById('btnPause').addEventListener('click', ()=>submitTimeAction('pause'));
-    document.getElementById('btnUnpause').addEventListener('click', ()=>submitTimeAction('unpause'));
-    document.getElementById('btnFinish').addEventListener('click', ()=>submitTimeAction('finish'));
 
-    // (optional helper) preload CSV via CFG if needed
-    async function loadEmployeesFromCfg(){ try { if (CFG.employeesCsv) await fetch(CFG.employeesCsv, {cache:'no-store'}); } catch(_){} }
-    async function loadEmployees(){ /* placeholder; already loaded above */ }
+    document.getElementById('btnStart').addEventListener('click', ()=>submitAction('start'));
+    document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause'));
+    document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause'));
+    document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('finish'));
+
   })();
   </script>
 </body>
