@@ -14,7 +14,7 @@
     "notes": "entry.1485036348",
     "mapsLink": "entry.692020218"
   },
-  "leaveEndpoint": "https://script.google.com/macros/s/AKfycbyTlFVawW2IbV7O14eh4q8yWSBxmryq9H3FAj6N0uKBIZ-vvAhAm9Bn2wVDeRI3O9kd/exec",
+  "leaveEndpoint": "https://script.google.com/macros/s/AKfycbzBLamn0m3m9-e3NAVTF3EIpG6lqX6TsnW_AL6HuX8RSmT8kGGKR9970L6aZrKSDAYT/exec",
   "employeesCsv": "https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/employees.csv",
   "employees": [
     "Ion Popescu",
