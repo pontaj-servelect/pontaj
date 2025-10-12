@@ -27,7 +27,6 @@
       margin:0;
       font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-      /* Dacă nu ai background.jpg, schimbă calea sau șterge url(...) */
       background:
         linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),
         url('background.jpg');
@@ -250,21 +249,22 @@ Ana Radu
 
   <!-- Core app logic -->
   <script>
+/** Trimite cererea de concediu la Apps Script WebApp (fără preflight CORS) */
 async function sendLeave(payload) {
+  // IMPORTANT: text/plain evită preflight OPTIONS, iar Apps Script citește e.postData.contents
   const r = await fetch(CFG.leaveEndpoint, {
     method: 'POST',
-    mode: 'cors',
-    headers: {'Content-Type':'application/json'},
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify(payload)
   });
-  if (!r.ok) throw new Error('HTTP ' + r.status);
   const txt = await r.text();
   let data;
-  try { data = JSON.parse(txt); } catch { throw new Error('Răspuns invalid: ' + txt); }
-  if (!data.ok) throw new Error(data.error || 'Eroare server');
+  try { data = JSON.parse(txt); }
+  catch { throw new Error('Răspuns invalid: ' + txt.slice(0,200)); }
+  if (!r.ok || !data.ok) throw new Error((data && data.error) || ('HTTP '+r.status));
   return data;
 }
-    
+
   (async function() {
     const statusEl = document.getElementById('status');
     const cfgEl = document.getElementById('cfg');
@@ -297,12 +297,14 @@ async function sendLeave(payload) {
       if (!CFG.formAction || !CFG.fields) throw new Error('Config incomplet');
       setCfg('Config încărcat', 'ok');
       try { setLeaveNames(); } catch(_) {}
+      // Expose global pentru sendLeave()
+      window.CFG = CFG;
     } catch (e) {
       setCfg('Eroare config: ' + (e.message||e), 'err');
       disableAllButtons(true); return;
     }
 
-    // --- bind Google Leave Form fields (optional) ---
+    // --- bind Google Leave Form fields (opțional) ---
     function setLeaveNames() {
       if (!CFG.leaveFormAction || !CFG.leaveFields) return false;
       const m = CFG.leaveFields;
@@ -381,7 +383,6 @@ async function sendLeave(payload) {
     async function loadEmployees() {
       const status = msg => setEmp(msg, 'ok');
 
-      // 1) din config.json -> employeesCsv
       try {
         if (CFG.employeesCsv) {
           const url = CFG.employeesCsv + (CFG.employeesCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
@@ -394,7 +395,6 @@ async function sendLeave(payload) {
         }
       } catch(e){}
 
-      // 2) fallback RAW GitHub (opțional)
       try {
         const raw = 'https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/employees.csv?v=' + Date.now();
         const r2 = await fetch(raw, {cache:'no-store'});
@@ -405,14 +405,12 @@ async function sendLeave(payload) {
         }
       } catch(e){}
 
-      // 3) din config.json -> employees:[]
       if (Array.isArray(CFG.employees) && CFG.employees.length) {
         fillEmployees(CFG.employees);
         status('Angajați încărcați din config.json.');
         return;
       }
 
-      // 4) fallback inline
       const inline = getInlineEmployees();
       if (inline.length) {
         fillEmployees(inline);
@@ -455,7 +453,7 @@ async function sendLeave(payload) {
       if (lbtn) lbtn.disabled = !!disabled;
     }
 
-    // ————— TRIMITERE CONCEDIU (unic, fără dubluri) —————
+    // ——— Trimite cererea de concediu
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');
       if (!empSel.value) { setLeaveStatus('Selectează angajat.', 'err'); return; }
@@ -470,7 +468,7 @@ async function sendLeave(payload) {
 
       setLeaveStatus('Se trimite cererea…', '');
 
-      // (A) opțional: Google Form pentru concedii
+      // (A) opțional: trimite și într-un Google Form separat (dacă e configurat)
       let formSubmitted = false;
       if (CFG.leaveFormAction && CFG.leaveFields) {
         try {
@@ -484,11 +482,11 @@ async function sendLeave(payload) {
           document.getElementById('leaveForm').submit();
           formSubmitted = true;
         } catch (e) {
-          console.warn('Leave Form submit failed, will rely on endpoint only.', e);
+          console.warn('Leave Form submit failed, continui cu endpoint.', e);
         }
       }
 
-      // (B) opțional: WebApp endpoint Apps Script
+      // (B) endpoint WebApp (Apps Script)
       let endpointOk = false, endpointMsg = '';
       if (CFG.leaveEndpoint) {
         try {
@@ -500,16 +498,9 @@ async function sendLeave(payload) {
             personalEmail: email,
             notes: (leaveNotes.value || '')
           };
-          const res = await fetch(CFG.leaveEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type':'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const txt = await res.text();
-          let json = null; try{ json = JSON.parse(txt); }catch(_){}
-          if (!res.ok || !json || json.ok !== true) throw new Error((json && json.error) || ('HTTP '+res.status+' '+res.statusText));
+          const res = await sendLeave(payload);
           endpointOk = true;
-          endpointMsg = ' (înregistrată ' + json.zile + ' zile)';
+          endpointMsg = ' (înregistrată ' + res.zile + ' zile)';
         } catch (err) {
           console.warn('Leave endpoint error:', err);
         }
