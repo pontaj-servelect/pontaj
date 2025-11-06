@@ -17,7 +17,7 @@
   "leaveEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
   "stateEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=state",
   "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=guard",
-  "departmentsCsv": "https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/departments.csv",
+  "departmentsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/blob/main/departments.csv",
  
   "employees": [
     "Ion Popescu",
