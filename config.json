@@ -15,7 +15,10 @@
     "mapsLink": "entry.692020218"
   },
   "leaveEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
-  "employeesCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/employees.csv",
+  "stateEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=state",
+  "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=guard",
+  "departmentsCsv": "https://raw.githubusercontent.com/mrshoby/timesheet-gps/main/departments.csv",
+ 
   "employees": [
     "Ion Popescu",
     "Maria Ionescu",
