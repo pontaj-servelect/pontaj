@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SERVELECT • Rapoarte Pontaj</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.png" />
+  <meta name="theme-color" content="#516A75"/>
+  <style>
+    :root{
+      --brand:#516B74;
+      --brand-weak:rgba(81,106,117,0.88);
+      --accent:#95CA4B;
+      --text:#0f172a;
+      --muted:#5b6b73;
+      --bg:#f4f7f9;
+      --card:#ffffff;
+      --ring:#cfe0e7;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; width:100%}
+    body{
+      margin:0;
+      font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),
+        url('background.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height:100vh;
+    }
+    .shell{max-width:1200px;margin:0 auto;padding:24px;}
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:14px 16px;border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(81,106,117,.18);
+      border:1px solid rgba(81,106,117,.18);
+    }
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{ width:38px;height:38px;object-fit:contain;aspect-ratio:1/1;border-radius:10px;box-shadow:0 3px 10px rgba(81,106,117,.25) }
+    .brand h1{font-size:18px;letter-spacing:.2px;margin:0;line-height:1.1}
+    .brand h1 span{display:block;font-weight:700}
+    .brand small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(81,106,117,.10);
+      color:#2f3e45;
+      font-weight:600;
+      font-size:12px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(14,165,233,.12);
+      border-radius:18px;
+      box-shadow: 0 20px 60px rgba(2,132,199,.08);
+    }
+
+    .admin-layout{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns: minmax(0,2.5fr) minmax(260px,1fr);
+      gap:18px;
+      align-items:flex-start;
+    }
+    @media (max-width:960px){
+      .admin-layout{ grid-template-columns:1fr; }
+    }
+
+    .admin-main{
+      padding:18px 18px 16px;
+      border-radius:18px;
+      background:rgba(248,250,252,.92);
+      backdrop-filter: blur(6px);
+      border:1px solid rgba(148,163,184,.25);
+    }
+
+    .admin-header{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:14px;
+    }
+    .admin-header h1{
+      margin:0;
+      font-size:20px;
+    }
+    .admin-header p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .admin-card{
+      padding:14px 14px 12px;
+    }
+    .admin-card h2{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+    .admin-small-text{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+
+    .btn{
+      --bg:#e2e8f0;
+      --fg:#0f172a;
+      appearance:none;
+      border:0;
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:600;
+      cursor:pointer;
+      transition: transform .06s ease, box-shadow .2s ease, background .2s;
+      box-shadow:0 6px 16px rgba(15,23,42,.08);
+      color:var(--fg);
+      background:var(--bg);
+      font-size:13px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      justify-content:center;
+      white-space:nowrap;
+    }
+    .btn:active{ transform:translateY(1px); }
+    .btn.primary{
+      --bg:var(--danger);
+      --fg:#fff;
+    }
+
+    .reports-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .admin-side{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .admin-link{
+      color:var(--brand);
+      text-decoration:none;
+      font-weight:600;
+      font-size:13px;
+    }
+    .admin-link:hover{
+      text-decoration:underline;
+    }
+
+    .admin-log{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", Courier, monospace;
+      font-size:11px;
+      background:#020617;
+      color:#e5e7eb;
+      border-radius:10px;
+      padding:10px 12px;
+      max-height:240px;
+      overflow:auto;
+      white-space:pre;
+    }
+        .reports-files-list{
+      margin-top:6px;
+      padding-left:16px;
+      font-size:12px;
+    }
+    .reports-files-list li{
+      margin-bottom:4px;
+    }
+    .reports-files-list a{
+      color:var(--brand);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .reports-files-list a:hover{
+      text-decoration:underline;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav card">
+      <a class="brand" href="index.html" aria-label="Spre pontaj">
+        <img src="favicon.png" alt="Siglă SERVELECT" />
+        <div>
+          <h1><span>SERVELECT</span><small>Pontaj & Management Concedii</small></h1>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a href="admin.html" class="btn">
+          ← Înapoi la dashboard
+        </a>
+        <div class="chip">Rapoarte manuale</div>
+      </div>
+    </nav>
+
+    <main class="admin-layout">
+      <section class="admin-main">
+        <header class="admin-header">
+          <h1>Rapoarte pontaj – executare manuală</h1>
+          <p>
+            Aici poți forța rularea rapoartelor de tip <b>dailyReports</b>, <b>weeklyReports</b>,
+            <b>monthlyReports</b> și <b>rebuildAllReports</b>, exact ca triggerele din Apps Script.
+            E util când trebuie „forțate” rapoartele sau testezi modificări.
+          </p>
+        </header>
+
+        <section class="card admin-card">
+          <h2>Generează rapoarte</h2>
+          <p class="admin-small-text">
+            Fiecare buton apelează endpoint-ul Apps Script (<code>adminEventsEndpoint</code>)
+            al WebApp-ului cu parametrii direcți:
+            <code>?fn=dailyReports</code>, <code>?fn=weeklyReports</code>,
+            <code>?fn=monthlyReports</code>, <code>?fn=rebuildReports</code>.
+            Alternativ se poate folosi și endpoint-ul generic:
+            <code>?fn=reports&amp;type=daily|weekly|monthly|rebuild</code>.
+          </p>
+
+          <div class="reports-actions" style="margin-bottom:10px;">
+            <button id="dailyReportBtn" type="button" class="btn primary">
+              📅 Raport zi (dailyReports)
+            </button>
+            <button id="weeklyReportBtn" type="button" class="btn">
+              🗓 Raport săptămână (weeklyReports)
+            </button>
+            <button id="monthlyReportBtn" type="button" class="btn">
+              📆 Raport lună (monthlyReports)
+            </button>
+            <button id="rebuildReportBtn" type="button" class="btn">
+              ♻️ Rebuild statistici (rebuildReports)
+            </button>
+          </div>
+
+          <div id="reportsStatus" class="admin-small-text">
+            Nicio acțiune rulată încă.
+          </div>
+
+          <pre id="reportsLog" class="admin-log">–</pre>
+                    <div id="reportsFiles" class="admin-small-text" style="margin-top:8px">
+            Niciun raport de descărcat încă.
+          </div>
+
+        </section>
+      </section>
+
+      <aside class="admin-side">
+        <section class="card admin-card">
+          <h2>Sesiune admin</h2>
+          <p class="admin-small-text">
+            Conectat ca <b id="adminLabel">Admin</b>.
+          </p>
+          <button id="logoutBtn" class="btn primary" type="button">Deconectare</button>
+          <p class="admin-small-text" style="margin-top:10px">
+            <a href="admin.html" class="admin-link">← Înapoi la dashboard pontaj</a>
+          </p>
+        </section>
+
+        <section class="card admin-card">
+          <h2>Info tehnic</h2>
+          <p class="admin-small-text">
+            Răspunsul de la server este afișat mai jos în log. Ideal, Apps Script ar trebui să
+            returneze un JSON de forma:
+            <code>{"ok":true,"msg":"Raport generat"}</code> sau <code>{"ok":false,"error":"..."}</code>.
+          </p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    const ADMIN_LS_KEY = 'pontaj/admin/v1';
+    let GLOBAL_CFG = null;
+
+    function getAdminSession(){
+      try{
+        const raw = localStorage.getItem(ADMIN_LS_KEY);
+        return raw ? JSON.parse(raw) : null;
+      }catch{
+        return null;
+      }
+    }
+    function clearAdminSession(){
+      try{ localStorage.removeItem(ADMIN_LS_KEY); }catch{}
+    }
+
+    async function loadConfig(){
+      if (GLOBAL_CFG) return GLOBAL_CFG;
+      const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
+      if (!r.ok) throw new Error('Nu pot citi config.json (HTTP ' + r.status + ').');
+      GLOBAL_CFG = await r.json();
+      return GLOBAL_CFG;
+    }
+
+    function getWebAppBaseUrl() {
+      if (!GLOBAL_CFG || !GLOBAL_CFG.adminEventsEndpoint) {
+        throw new Error('Lipsește adminEventsEndpoint în config.json.');
+      }
+      // ex: https://script.google.com/macros/s/.../exec?fn=adminEvents
+      // -> baza devine .../exec
+      return GLOBAL_CFG.adminEventsEndpoint.split('?')[0].replace(/\/$/, '');
+    }
+
+    function appendLogLine(logEl, text){
+      if (!logEl) return;
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mi = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      const line = '[' + hh + ':' + mi + ':' + ss + '] ' + text;
+      if (logEl.textContent === '–' || !logEl.textContent){
+        logEl.textContent = line;
+      } else {
+        logEl.textContent = line + '\n' + logEl.textContent;
+      }
+    }
+
+    const session = getAdminSession();
+    if (!session){
+      alert('Nu ești autentificat ca admin. Te redirecționez la pagina principală.');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const adminLabelEl     = document.getElementById('adminLabel');
+    const logoutBtn        = document.getElementById('logoutBtn');
+    const dailyBtn         = document.getElementById('dailyReportBtn');
+    const weeklyBtn        = document.getElementById('weeklyReportBtn');
+    const monthlyBtn       = document.getElementById('monthlyReportBtn');
+    const rebuildBtn       = document.getElementById('rebuildReportBtn');
+    const statusEl         = document.getElementById('reportsStatus');
+    const logEl            = document.getElementById('reportsLog');
+    const filesEl          = document.getElementById('reportsFiles');
+
+    if (adminLabelEl) adminLabelEl.textContent = session.user || 'Admin';
+
+    if (logoutBtn){
+      logoutBtn.addEventListener('click', function(){
+        clearAdminSession();
+        window.location.href = 'index.html';
+      });
+    }
+
+    // Dacă ai rol "viewer", nu are voie să forțeze rapoarte
+    if (session.role === 'viewer'){
+      if (dailyBtn) dailyBtn.disabled = true;
+      if (weeklyBtn) weeklyBtn.disabled = true;
+      if (monthlyBtn) monthlyBtn.disabled = true;
+      if (rebuildBtn) rebuildBtn.disabled = true;
+      if (statusEl) statusEl.textContent = 'Rolul tău nu permite rularea manuală a rapoartelor.';
+    }
+
+         async function callReport(fnKey, label){
+      if (!statusEl) return;
+      statusEl.textContent = 'Se rulează ' + label + '...';
+      statusEl.style.color = 'var(--muted)';
+
+      if (filesEl){
+        filesEl.textContent = 'Aștept răspuns de la server pentru ' + label + '...';
+      }
+
+      const btns = [dailyBtn, weeklyBtn, monthlyBtn, rebuildBtn].filter(Boolean);
+      btns.forEach(b => b.disabled = true);
+
+      try{
+        const cfg = await loadConfig();
+        if (!cfg.adminEventsEndpoint){
+          throw new Error('Lipsește adminEventsEndpoint în config.json.');
+        }
+
+        // *** AICI E SCHIMBAREA IMPORTANTĂ ***
+        // Luăm baza URL-ului (fără ?fn=adminEvents) și construim direct ?fn=dailyReports|weeklyReports|...
+        const baseUrl = getWebAppBaseUrl();
+        const url = baseUrl +
+          '?fn=' + encodeURIComponent(fnKey) +
+          '&v=' + Date.now();
+
+        appendLogLine(logEl, 'Trimit cerere către: ' + url);
+
+        const resp = await fetch(url, {cache:'no-store'});
+        const text = await resp.text();
+
+        let data = null;
+        try{
+          data = JSON.parse(text);
+        }catch(e){
+          // nu e JSON, dar poate totuși s-a executat
+        }
+
+        if (!resp.ok){
+          throw new Error('HTTP ' + resp.status + ' – ' + (data && data.error ? data.error : 'răspuns nevalid'));
+        }
+
+        if (data && data.ok === false){
+          throw new Error(data.error || 'Serverul a întors ok=false.');
+        }
+
+        const msg = (data && (data.message || data.status || data.msg)) || 'Rulare finalizată.';
+        statusEl.textContent = label + ': ' + msg;
+        statusEl.style.color = '#166534';
+        appendLogLine(logEl, label + ' OK: ' + msg);
+
+        // === Afișează linkurile către PDF-urile generate ===
+        if (filesEl){
+          const files = data && Array.isArray(data.files) ? data.files : [];
+          if (!files.length){
+            filesEl.textContent = 'Rularea a fost finalizată, dar nu am primit linkuri de rapoarte (vezi Google Drive).';
+          } else {
+            const items = files.map(function(f){
+              const url = f.fileUrl || f.url;
+              if (!url) return '';
+              const parts = [];
+              if (f.employee) parts.push(f.employee);
+              if (f.dept) parts.push('[' + f.dept + ']');
+              if (f.date) parts.push(f.date);
+              if (f.weekLabel) parts.push(f.weekLabel);
+              if (f.yearMonth) parts.push(f.yearMonth);
+              const labelText = (f.fileName || parts.join(' • ') || 'Descarcă raport')
+                .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+              return '<li><a href="' + url +
+                     '" target="_blank" rel="noopener">' +
+                     labelText + '</a></li>';
+            }).filter(Boolean).join('');
+
+            filesEl.innerHTML =
+              '<div class="admin-small-text" style="margin-top:4px;margin-bottom:2px;">' +
+                'Rapoarte generate la ultima rulare:' +
+              '</div>' +
+              '<ul class="reports-files-list">' + items + '</ul>';
+          }
+        }
+      }catch(err){
+        const m = err && err.message ? err.message : String(err);
+        statusEl.textContent = label + ' – eroare: ' + m;
+        statusEl.style.color = '#b91c1c';
+        appendLogLine(logEl, label + ' EROARE: ' + m);
+        if (filesEl){
+          filesEl.textContent = 'Nu am putut genera linkurile (eroare la rulare).';
+        }
+      }finally{
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    if (dailyBtn){
+      dailyBtn.addEventListener('click', function(){
+        // doGet: fn === 'dailyReports' -> dailyReports()
+        callReport('dailyReports', 'Raport zi (dailyReports)');
+      });
+    }
+    if (weeklyBtn){
+      weeklyBtn.addEventListener('click', function(){
+        callReport('weeklyReports', 'Raport săptămână (weeklyReports)');
+      });
+    }
+    if (monthlyBtn){
+      monthlyBtn.addEventListener('click', function(){
+        callReport('monthlyReports', 'Raport lună (monthlyReports)');
+      });
+    }
+    if (rebuildBtn){
+      rebuildBtn.addEventListener('click', function(){
+        // rulează rebuildAllReports() prin doGet (fn === 'rebuildReports')
+        callReport('rebuildReports', 'Rebuild statistici (rebuildReports)');
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
+
+
+
+

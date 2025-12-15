@@ -1,0 +1,3766 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SERVELECT • Admin Pontaj</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.png" />
+  <meta name="theme-color" content="#516A75"/>
+  <style>
+    :root{
+      --brand:#516B74;
+      --brand-weak:rgba(81,106,117,0.88);
+      --accent:#95CA4B;
+      --text:#0f172a;
+      --muted:#5b6b73;
+      --bg:#f4f7f9;
+      --card:#ffffff;
+      --ring:#cfe0e7;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; width:100%}
+    body{
+      margin:0;
+      font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        linear-gradient(180deg, rgba(149, 202, 75, 0.91) 0%, rgba(81, 106, 117, 0.88) 66%),
+        url('background.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height:100vh;
+    }
+    .shell{max-width:1200px;margin:0 auto;padding:24px;}
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:14px 16px;border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(81,106,117,.18);
+      border:1px solid rgba(81,106,117,.18);
+    }
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{ width:38px;height:38px;object-fit:contain;aspect-ratio:1/1;border-radius:10px;box-shadow:0 3px 10px rgba(81,106,117,.25) }
+    .brand h1{font-size:18px;letter-spacing:.2px;margin:0;line-height:1.1}
+    .brand h1 span{display:block;font-weight:700}
+    .brand small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+    .liveboard-summary{display:flex;flex-wrap:wrap;gap:8px;}
+
+    /* NOU: container pentru acțiunile din dreapta (chip + buton self-service) */
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(81,106,117,.10);
+      color:#2f3e45;
+      font-weight:600;
+      font-size:12px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(14,165,233,.12);
+      border-radius:18px;
+      box-shadow: 0 20px 60px rgba(2,132,199,.08);
+    }
+
+    .admin-layout{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns: minmax(0,2.5fr) minmax(260px,1fr);
+      gap:18px;
+      align-items:flex-start;
+    }
+    @media (max-width:960px){
+      .admin-layout{ grid-template-columns:1fr; }
+    }
+
+    .admin-main{
+      padding:18px 18px 16px;
+      border-radius:18px;
+      background:rgba(248,250,252,.92);
+      backdrop-filter: blur(6px);
+      border:1px solid rgba(148,163,184,.25);
+    }
+
+    .admin-header{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .admin-header h1{
+      margin:0;
+      font-size:20px;
+    }
+    .admin-filter-line{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .admin-filter-line label{
+      display:flex;
+      flex-direction:column;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .admin-filter-line select{
+      margin-top:2px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #d1d5db;
+      font-size:13px;
+      outline:none;
+      background:#ffffff;
+    }
+    .admin-filter-line select:focus{
+      border-color:var(--brand);
+      box-shadow:0 0 0 2px var(--ring);
+    }
+    .admin-filter-line input{
+      margin-top:2px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #d1d5db;
+      font-size:13px;
+      outline:none;
+      background:#ffffff;
+    }
+    .admin-filter-line input:focus{
+      border-color:var(--brand);
+      box-shadow:0 0 0 2px var(--ring);
+    }
+    .admin-last-update{
+      font-size:12px;
+      color:var(--muted);
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .toggle-incomplete{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:12px;
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+    }
+    .toggle-incomplete input{
+      margin:0;
+    }
+
+    .admin-error{
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#fef2f2;
+      border:1px solid #fecaca;
+      font-size:13px;
+      color:#991b1b;
+    }
+    .admin-loading{
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      font-size:13px;
+      color:#1d4ed8;
+    }
+
+    /* TAB-uri Dashboard / Alerte LIVE */
+    .admin-tabs{
+      display:flex;
+      gap:8px;
+      margin:6px 0 10px;
+      flex-wrap:wrap;
+    }
+    .admin-tab-btn{
+      border:0;
+      background:rgba(148,163,184,.18);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      text-decoration:none;
+    }
+    .admin-tab-btn.active{
+      background:var(--brand);
+      color:#fff;
+      box-shadow:0 4px 10px rgba(15,23,42,.18);
+    }
+
+    .admin-kpis{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:10px;
+      margin-bottom:14px;
+    }
+    @media (max-width:960px){
+      .admin-kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
+    .kpi{
+      padding:10px 12px;
+      border-radius:14px;
+      background:#ffffff;
+      border:1px solid #e2e8f0;
+    }
+    .kpi-label{
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .kpi-value{
+      font-size:20px;
+      font-weight:700;
+    }
+
+    .admin-grid{
+      display:grid;
+      grid-template-columns: minmax(0,1.3fr) minmax(0,1.7fr);
+      gap:12px;
+      margin-bottom:12px;
+    }
+    @media (max-width:960px){
+      .admin-grid{ grid-template-columns:1fr; }
+    }
+
+    .admin-card{
+      padding:14px 14px 12px;
+    }
+    .admin-card h2{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+    .admin-small-text{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+    
+    .admin-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-height:260px;
+      overflow:auto;
+    }
+    .admin-list-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:13px;
+      padding:6px 8px;
+      border-radius:10px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      cursor:pointer;
+    }
+    .admin-list-row:hover{
+      background:#e5f0ff;
+    }
+    .admin-list-row.selected{
+      border-color: var(--accent);
+      box-shadow:0 0 0 1px rgba(149,202,75,.5);
+      background:#ecfdf3;
+    }
+    .admin-list-label{
+      font-weight:500;
+    }
+    .admin-list-sub{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .admin-list-value{
+      font-variant-numeric:tabular-nums;
+      font-weight:600;
+      font-size:12px;
+      text-align:right;
+    }
+    .admin-empty{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .top-toggle{
+      border:0;
+      background:transparent;
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      cursor:pointer;
+      color:var(--muted);
+    }
+    .top-toggle.active{
+      background:rgba(149,202,75,.15);
+      color:var(--text);
+      font-weight:600;
+    }
+
+    .table-wrap{
+      max-height:260px;
+      overflow:auto;
+      border-radius:10px;
+      border:1px solid #e2e8f0;
+      background:#ffffff;
+    }
+    .admin-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    .admin-table th,
+    .admin-table td{
+      padding:6px 8px;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .admin-table th{
+      text-align:left;
+      position:sticky;
+      top:0;
+      background:#f9fafb;
+      z-index:1;
+    }
+    .admin-table tr:last-child td{
+      border-bottom:none;
+    }
+    .admin-table tr.clickable{
+      cursor:pointer;
+    }
+    .admin-table tr.clickable:hover td{
+      background:#e5f0ff;
+    }
+
+    .admin-log{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", Courier, monospace;
+      font-size:11px;
+      background:#020617;
+      color:#e5e7eb;
+      border-radius:10px;
+      padding:10px 12px;
+      max-height:240px;
+      overflow:auto;
+      white-space:pre;
+    }
+
+    .admin-side{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .btn{
+      --bg:#e2e8f0;
+      --fg:#0f172a;
+      appearance:none;
+      border:0;
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:600;
+      cursor:pointer;
+      transition: transform .06s ease, box-shadow .2s ease, background .2s;
+      box-shadow:0 6px 16px rgba(15,23,42,.08);
+      color:var(--fg);
+      background:var(--bg);
+      font-size:13px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      justify-content:center;
+      white-space:nowrap;
+    }
+    .btn:active{ transform:translateY(1px); }
+    .btn.primary{
+      --bg:var(--danger);
+      --fg:#fff;
+    }
+
+    .admin-link{
+      color:var(--brand);
+      text-decoration:none;
+      font-weight:600;
+      font-size:13px;
+    }
+    .admin-link:hover{
+      text-decoration:underline;
+    }
+    code{
+      font-size:11px;
+      background:#f1f5f9;
+      border-radius:4px;
+      padding:2px 4px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:600;
+    }
+    .badge-ok{
+      background:#dcfce7;
+      color:#166534;
+    }
+    .badge-warn{
+      background:#fef3c7;
+      color:#92400e;
+    }
+    .badge-info{
+      background:#e0f2fe;
+      color:#075985;
+    }
+
+    /* Calendar prezență (A4) */
+    .calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:4px;
+      font-size:11px;
+    }
+    .calendar-day{
+      padding:4px;
+      border-radius:6px;
+      text-align:center;
+      background:#e5e7eb;
+      cursor:pointer;
+    }
+    .calendar-day-header{
+      font-weight:600;
+      font-size:10px;
+      color:var(--muted);
+      text-transform:uppercase;
+      cursor:default;
+    }
+    .calendar-day-label{
+      font-weight:600;
+      display:block;
+    }
+    .calendar-day-meta{
+      display:block;
+      font-size:9px;
+      color:var(--muted);
+    }
+    .calendar-day-none{ background:#e5e7eb; }
+    .calendar-day-low{ background:#fee2e2; }
+    .calendar-day-med{ background:#fef3c7; }
+    .calendar-day-high{ background:#dcfce7; }
+    .calendar-day-selected{
+      outline:2px solid var(--accent);
+      outline-offset:1px;
+    }
+
+    .calendar-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+      font-size:11px;
+      color:var(--muted);
+      align-items:center;
+    }
+    .calendar-legend-label{
+      font-weight:600;
+      margin-right:4px;
+    }
+    .calendar-legend-item{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .calendar-legend-box{
+      width:12px;
+      height:12px;
+      border-radius:4px;
+      border:1px solid rgba(148,163,184,.7);
+    }
+    .calendar-legend-none{ background:#e5e7eb; }
+    .calendar-legend-low{ background:#fee2e2; }
+    .calendar-legend-med{ background:#fef3c7; }
+    .calendar-legend-high{ background:#dcfce7; }
+
+      </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav card">
+      <a class="brand" href="index.html" aria-label="Spre pontaj">
+        <img src="favicon.png" alt="Siglă SERVELECT" />
+        <div>
+          <h1><span>SERVELECT</span><small>Pontaj & Management Concedii</small></h1>
+        </div>
+      </a>
+
+      <!-- Buton Self-service + chip Admin -->
+      <div class="nav-actions">
+        <a href="self.html" class="btn" id="selfServiceLink" target="_blank" rel="noopener">
+          🧾 Self-service – raportul meu
+        </a>
+        <div class="chip">Admin dashboard</div>
+      </div>
+    </nav>
+
+    <main class="admin-layout">
+      <section class="admin-main">
+        <header class="admin-header">
+          <h1>Dashboard pontaj</h1>
+          <div class="admin-filter-line">
+            <label>
+              <span>Perioadă</span>
+              <select id="rangeSelect">
+                <option value="today">Astăzi</option>
+                <option value="last7">Ultimele 7 zile</option>
+                <option value="all">Toate datele</option>
+              </select>
+            </label>
+            <label>
+              <span>Departament</span>
+              <select id="deptFilter">
+                <option value="all">Toate</option>
+              </select>
+            </label>
+            <label>
+              <span>Angajat</span>
+              <select id="employeeFilter">
+                <option value="all">Toți</option>
+              </select>
+            </label>
+            <div class="admin-last-update">
+              <label class="toggle-incomplete">
+                <input type="checkbox" id="incompleteOnly" />
+                <span>Doar zile incomplete (START / PAUSE / EXTRA deschise)</span>
+              </label>
+              <span id="lastUpdate">–</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- TAB-uri: Dashboard / Alerte LIVE / Rapoarte -->
+        <div class="admin-tabs">
+          <button type="button" class="admin-tab-btn active" data-tab="dashboard">
+            📊 Dashboard
+          </button>
+          <button type="button" class="admin-tab-btn" data-tab="alerts">
+            ⏰ Alerte LIVE
+          </button>
+          <a href="reports.html" class="admin-tab-btn" role="button">
+            📑 Rapoarte
+          </a>
+        </div>
+
+        <div id="error" class="admin-error" style="display:none"></div>
+        <div id="loading" class="admin-loading">Se încarcă datele din server…</div>
+
+        <!-- TAB PRINCIPAL: Dashboard -->
+        <section id="dashboard" style="display:none">
+          <!-- KPI-uri principale -->
+          <div class="admin-kpis">
+            <div class="card kpi">
+              <div class="kpi-label">Pontaje în filtrul curent</div>
+              <div class="kpi-value" id="kpiTotal">–</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-label">Angajați implicați</div>
+              <div class="kpi-value" id="kpiEmployees">–</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-label">START</div>
+              <div class="kpi-value" id="kpiStart">–</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-label">FINISH</div>
+              <div class="kpi-value" id="kpiFinish">–</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-label">Norme complete (azi)</div>
+              <div class="kpi-value" id="kpiCompletedToday">–</div>
+            </div>
+          </div>
+
+          <div class="admin-grid">
+            <section class="card admin-card">
+              <h2>Distribuție pe departamente</h2>
+              <div class="admin-small-text">Număr de pontaje în perioada și filtrele selectate.</div>
+              <div id="deptList" class="admin-list"></div>
+            </section>
+
+            <section class="card admin-card">
+              <h2 id="lastEventsTitle">Ultimele pontaje</h2>
+              <div class="admin-small-text" id="lastEventsHint">
+                <span>Perioadă listă:</span>
+                <select id="lastEventsRange">
+                  <option value="today">Ziua curentă</option>
+                  <option value="week">Săptămâna curentă</option>
+                  <option value="month">Luna curentă</option>
+                  <option value="all">Toate înregistrările</option>
+                </select>
+                <span id="lastEventsHintText">
+                  Toate înregistrările din perioada aleasă, după filtrele de mai sus.
+                </span>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Data / ora</th>
+                      <th>Angajat</th>
+                      <th>Departament</th>
+                      <th>Acțiune</th>
+                      <th>Activitate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lastEventsBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- A3: Zile incomplete -->
+          <section class="card admin-card">
+            <h2>Zile incomplete</h2>
+            <div class="admin-small-text">
+              Zile în care există probleme de închidere: START fără FINISH, PAUSE fără UNPAUSE, EXTRA START fără EXTRA FINISH sau sesiune rămasă deschisă (după filtrul curent).
+            </div>
+            <div style="margin:6px 0 10px;display:flex;gap:6px;flex-wrap:wrap;">
+  <button type="button" class="top-toggle active" id="incompleteDayAllBtn">Toate</button>
+  <button type="button" class="top-toggle" id="incompleteDayWeekendBtn">Doar weekend</button>
+  <button type="button" class="top-toggle" id="incompleteDayWorkBtn">Doar zile lucrătoare</button>
+</div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Angajat</th>
+                    <th>Departament</th>
+                    <th>Normă</th>
+                    <th>Extra</th>
+                    <th>Stare</th>
+                  </tr>
+                </thead>
+                <tbody id="incompleteDaysBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- A3: Anomalii -->
+          <section class="card admin-card">
+            <h2>Anomalii pontaj</h2>
+            <div class="admin-small-text">
+              Zile cu posibile probleme de pontaj: pauze neînchise, EXTRA neînchis, pauze prea lungi, ore foarte multe sau pontaj în weekend.
+            </div>
+            <div style="margin:6px 0 10px;display:flex;gap:6px;flex-wrap:wrap;">
+  <button type="button" class="top-toggle active" id="anomalyDayAllBtn">Toate</button>
+  <button type="button" class="top-toggle" id="anomalyDayWeekendBtn">Doar weekend</button>
+  <button type="button" class="top-toggle" id="anomalyDayWorkBtn">Doar zile lucrătoare</button>
+</div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Angajat</th>
+                    <th>Departament</th>
+                    <th>Normă</th>
+                    <th>Extra</th>
+                    <th>Detalii</th>
+                  </tr>
+                </thead>
+                <tbody id="anomaliesBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Log brut -->
+          <section class="card admin-card">
+            <h2 id="rawLogTitle">Log brut (filtru curent)</h2>
+            <div class="admin-small-text">
+              Lista completă a evenimentelor care trec de filtrele de mai sus — utilă pentru debugging sau verificări rapide.
+            </div>
+            <pre id="rawLog" class="admin-log">–</pre>
+          </section>
+
+          <!-- A3: Prezență pe zile -->
+          <section class="card admin-card">
+            <h2>Prezență pe zile</h2>
+            <div class="admin-small-text">
+              Pentru perioada și filtrele de mai sus: câți angajați au avut cel puțin un START, câți au normă completă și câți sunt în concediu.
+            </div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Angajați cu pontaj</th>
+                    <th>Normă completă</th>
+                    <th>% complet</th>
+                    <th>Concedii aprobate</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyPresenceBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- A4: Calendar prezență -->
+          <section class="card admin-card">
+            <h2>Calendar prezență (lună curentă)</h2>
+            <div class="admin-small-text">
+              Fiecare zi arată câți angajați au avut pontaj și câți au normă completă, pentru luna curentă. Click pe o zi pentru a filtra mai jos.
+            </div>
+            <div style="margin:6px 0 10px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+  <button type="button" class="top-toggle" id="calPrevBtn">‹ Luna anterioară</button>
+  <div class="chip" id="calendarMonthLabel">–</div>
+  <button type="button" class="top-toggle" id="calNextBtn">Luna următoare ›</button>
+</div>
+            <div id="presenceCalendar" class="calendar-grid"></div>
+            
+            <div class="calendar-legend">
+              <span class="calendar-legend-label">Legendă:</span>
+              <span class="calendar-legend-item">
+                <span class="calendar-legend-box calendar-legend-none"></span> fără pontaj
+              </span>
+              <span class="calendar-legend-item">
+                <span class="calendar-legend-box calendar-legend-low"></span> &lt;50% complet
+              </span>
+              <span class="calendar-legend-item">
+                <span class="calendar-legend-box calendar-legend-med"></span> 50–90% complet
+              </span>
+              <span class="calendar-legend-item">
+                <span class="calendar-legend-box calendar-legend-high"></span> &gt;90% complet
+              </span>
+            </div>
+          </section>
+
+          <!-- A2: Index & detalii angajat -->
+          <div class="admin-grid">
+            <section class="card admin-card">
+              <h2>Index angajați</h2>
+              <div class="admin-small-text">
+                Listă angajați (după filtrul de departament). Click pe un nume pentru a vedea statistici detaliate (all time).
+              </div>
+              <div class="admin-filter-line" style="margin:8px 0 6px;">
+                <label style="flex:1;">
+                  <span>Caută angajat / departament</span>
+                  <input type="text" id="employeeSearch" placeholder="Tastează pentru a filtra..." />
+                </label>
+              </div>
+              <div id="employeeIndexList" class="admin-list"></div>
+            </section>
+
+            <section class="card admin-card">
+              <h2>Detalii angajat</h2>
+              <div class="admin-small-text" id="employeeDetailsHeader">
+                Selectează un angajat din listă pentru a vedea situația pe toate zilele (normă, extra, overtime, zile complete, concediu).
+              </div>
+              <a href="#" class="btn" id="employeeSelfLink" target="_blank" rel="noopener"
+   style="display:none;margin:8px 0 10px">
+  🧾 Deschide pontajul angajatului
+</a>
+              <div id="employeeDetailsBody">
+                <div class="admin-empty">Niciun angajat selectat.</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- TAB NOU: Alerte LIVE -->
+        <section id="alertsPage" style="display:none">
+          <div class="admin-filter-line" style="margin:0 0 10px;">
+  <label>
+    <span>Tip alertă</span>
+    <select id="alertsTypeFilter">
+      <option value="all">Toate</option>
+      <option value="pause">Pauză</option>
+      <option value="norm">Normă</option>
+      <option value="extra">Extra</option>
+      <option value="system">Sistem</option>
+    </select>
+  </label>
+  <label>
+    <span>Departament</span>
+    <select id="alertsDeptFilter">
+      <option value="all">Toate</option>
+    </select>
+  </label>
+  <label style="flex:1;min-width:220px;">
+    <span>Caută</span>
+    <input type="text" id="alertsSearch" placeholder="Nume / mesaj..." />
+  </label>
+</div>
+          <section class="card admin-card">
+            <h2>Alerte LIVE pe ziua curentă</h2>
+            <div class="admin-small-text">
+              Monitorizare în timp real (client-side) pentru:
+              <ul style="margin:4px 0 0 16px;padding:0;font-size:11px;color:var(--muted);">
+                <li>Pauză &gt; limită (implicit 40 min, din configurare) fără UNPAUSE – notificări din 15 în 15 minute.</li>
+                <li>Normă depășită (8h / 8h30 sau valori din <code>normSettings</code>) fără FINISH – notificări din 30 în 30 de minute.</li>
+                <li>EXTRA în curs &gt; 30 min – notificări din 15 în 15 minute.</li>
+              </ul>
+            </div>
+            <div id="liveAlertsActive" class="admin-list"></div>
+          </section>
+
+          <section class="card admin-card">
+            <h2>Istoric notificări în sesiunea curentă</h2>
+            <div class="admin-small-text">
+              Fiecare depășire generează o notificare inițială, apoi încă una la fiecare interval (15 / 30 min) cât timp condiția rămâne activă.
+              Istoricul este local, doar pentru sesiunea curentă a paginii.
+            </div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Moment</th>
+                    <th>Angajat</th>
+                    <th>Departament</th>
+                    <th>Tip</th>
+                    <th>Mesaj</th>
+                  </tr>
+                </thead>
+                <tbody id="liveAlertsHistoryBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- NOU: Alerte istorice din sistem (toate zilele anterioare) -->
+          <section class="card admin-card">
+            <h2>Alerte istorice din sistem</h2>
+            <div class="admin-small-text">
+              Alerte generate de Apps Script pentru toate zilele (inclusiv cele anterioare), pe baza datelor salvate în foaia de pontaj.
+            </div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Moment</th>
+                    <th>Angajat</th>
+                    <th>Departament</th>
+                    <th>Tip</th>
+                    <th>Mesaj</th>
+                  </tr>
+                </thead>
+                <tbody id="systemAlertsHistoryBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <aside class="admin-side">
+        <section class="card admin-card">
+          <h2>Sesiune admin</h2>
+          <p class="admin-small-text">
+            Conectat ca <b id="adminLabel">Admin</b>.
+          </p>
+          <button id="logoutBtn" class="btn primary" type="button">Deconectare</button>
+          <button id="exportCsvBtn" class="btn" type="button" style="margin-top:8px">
+            Export CSV (filtru curent)
+          </button>
+          <button id="exportIncompleteBtn" class="btn" type="button" style="margin-top:8px">
+  Export zile incomplete
+</button>
+<button id="exportAnomaliesBtn" class="btn" type="button" style="margin-top:8px">
+  Export anomalii
+</button>
+          <button id="pdfBtn" class="btn" type="button" style="margin-top:8px">
+            PDF angajat selectat
+          </button>
+          <button id="deptPdfBtn" class="btn" type="button" style="margin-top:8px">
+            PDF departament (luna precedentă)
+          </button>
+          <button id="employeeExportBtn" class="btn" type="button" style="margin-top:8px">
+            Export CSV angajat (all time)
+          </button>
+          <button id="payrollExportBtn" class="btn" type="button" style="margin-top:8px">
+            Export salarizare (luna precedentă)
+          </button>
+          <p class="admin-small-text" style="margin-top:10px">
+            <a href="index.html" class="admin-link">Înapoi la pontaj</a>
+          </p>
+        </section>
+
+        <!-- A2: Top angajați -->
+        <section class="card admin-card">
+          <h2>Top angajați</h2>
+          <div class="admin-small-text">
+            Clasament all time:
+            <button type="button" class="top-toggle active" id="topModeHours">Ore normă</button>
+            <button type="button" class="top-toggle" id="topModeAnomalies">Anomalii</button>
+          </div>
+          <div id="topEmployees" class="admin-list"></div>
+        </section>
+
+        <!-- A5: Live board cu două moduri (azi / zile anterioare) -->
+        <section class="card admin-card">
+          <h2>Live pontaj</h2>
+         <div class="admin-small-text" id="liveBoardHint">
+  <div id="liveBoardSummary" class="admin-small-text" style="margin:6px 0 8px;"></div>
+
+  <span id="liveBoardHintText">
+    Starea curentă a pontajului pentru ziua de azi (START / PAUSE / EXTRA / FINISH).
+  </span>
+</div>
+          <div style="margin:6px 0 8px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="top-toggle active" id="liveBoardTodayBtn">Azi</button>
+            <button type="button" class="top-toggle" id="liveBoardPastBtn">Zile anterioare</button>
+          </div>
+          <div id="liveBoard" class="admin-list"></div>
+        </section>
+
+        <!-- A6: Alerte sistem (din Apps Script) -->
+        <section class="card admin-card">
+          <h2>Alerte sistem</h2>
+          <div class="admin-small-text">
+            Ultimele notificări generate de sistem (pontaj uitat, anomalii etc.), venite din Apps Script.
+          </div>
+          <div id="alertsList" class="admin-list"></div>
+        </section>
+
+        <section class="card admin-card">
+          <h2>Notițe</h2>
+          <p class="admin-small-text">
+            Pagina citește datele prin Apps Script (<code>adminEventsEndpoint</code> din <code>config.json</code>).
+            Foaia de pontaj rămâne privată; serverul întoarce un JSON cu evenimente, concedii și meta (alerte, versiune),
+            iar aici calculăm statistici, ore pe zi, overtime și rapoarte PDF/CSV.
+          </p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+ <script>
+(function(){
+  const ADMIN_LS_KEY = 'pontaj/admin/v1';
+
+  // A1: Normă/pauză implicită (fallback) – suprascrisă din config.json
+  let DEFAULT_NORM_MS             = 8   * 60 * 60 * 1000;
+  let LONG_NORM_MS                = 8.5 * 60 * 60 * 1000;
+  let DEFAULT_PAUSE_MARGIN_MS     = 40  * 60 * 1000;
+
+  // Config normă/pauză per departament / angajat (A1)
+  let NORM_CFG = null;
+
+  // A2/A3: Index concedii: dateKey -> Set(nume)
+  let LEAVE_BY_DAY = new Map();
+
+  // Activitățile care au normă de 8h30 (fallback)
+  const ACTIVITATI_NORMA_8H30 = ['deplasare', 'pe drum', 'atelier'];
+
+  let ALL_STATS = null;
+  let SELECTED_EMPLOYEE = null;
+  let CURRENT_DEPT_FILTER = 'all';
+  let filterIncompleteOnly = false;
+  let GLOBAL_CFG = null;
+  let lastEventsRange = 'today';
+  let SELECTED_CALENDAR_DAY = null;
+  let EMPLOYEE_SEARCH_TEXT = '';
+  let TOP_MODE = 'hours';
+  let LIVE_BOARD_MODE = 'today';
+
+  let INCOMPLETE_DAY_FILTER = 'all'; // all | weekend | workday
+  let ANOMALY_DAY_FILTER    = 'all'; // all | weekend | workday
+
+  let CALENDAR_YEAR  = (new Date()).getFullYear();
+  let CALENDAR_MONTH = (new Date()).getMonth();
+
+  let ALERTS_FILTER_TYPE = 'all'; // all|pause|norm|extra|system
+  let ALERTS_FILTER_DEPT = 'all';
+  let ALERTS_FILTER_Q    = '';
+
+  let LAST_LIVE_ACTIVE = [];
+  let LATEST_INCOMPLETE_ROWS = [];
+  let LATEST_ANOMALY_ROWS    = [];
+
+  let SELF_SERVICE_BASE = null;
+
+  
+  let ADMIN_SESSION = null;
+  let ADMIN_ROLE = 'admin';
+  let ADMIN_DEPT = null;
+
+  // Alerte LIVE – stocare locală sesiune
+  let LIVE_ALERT_STATE = {}; // key: "nume|tip" -> { firstTriggeredAt, lastSlotIndex }
+  let LIVE_ALERT_LOG   = []; // [{ts,name,dept,type,message}]
+  const ALERT_MAX_LOG  = 200;
+  let LIVE_ALERT_TIMER = null;
+
+  function getAdminSession(){
+    try{
+      const raw = localStorage.getItem(ADMIN_LS_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch{ return null; }
+  }
+  function clearAdminSession(){
+    try{ localStorage.removeItem(ADMIN_LS_KEY); }catch{}
+  }
+
+  async function loadConfig(){
+    if (GLOBAL_CFG) return GLOBAL_CFG;
+    const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
+    if (!r.ok) throw new Error('Nu pot citi config.json (HTTP ' + r.status + ').');
+    GLOBAL_CFG = await r.json();
+    return GLOBAL_CFG;
+  }
+
+  function applyNormSettingsFromConfig(cfg){
+    NORM_CFG = {
+      timezone: (cfg.normSettings && cfg.normSettings.timezone) || 'Europe/Bucharest',
+      defaultNormMs: DEFAULT_NORM_MS,
+      defaultLongNormMs: LONG_NORM_MS,
+      defaultPauseMarginMs: DEFAULT_PAUSE_MARGIN_MS,
+      perDept: {},
+      perEmployee: {}
+    };
+    if (cfg.normSettings){
+      if (cfg.normSettings.default){
+        if (typeof cfg.normSettings.default.normHours === 'number'){
+          NORM_CFG.defaultNormMs = cfg.normSettings.default.normHours * 60 * 60 * 1000;
+        }
+        if (typeof cfg.normSettings.default.pauseMaxMinutes === 'number'){
+          NORM_CFG.defaultPauseMarginMs = cfg.normSettings.default.pauseMaxMinutes * 60 * 1000;
+        }
+      }
+      if (cfg.normSettings.departments){
+        Object.keys(cfg.normSettings.departments).forEach(dep=>{
+          const nd = cfg.normSettings.departments[dep] || {};
+          NORM_CFG.perDept[dep] = {
+            normMs: (typeof nd.normHours === 'number' ? nd.normHours * 60 * 60 * 1000 : null),
+            pauseMarginMs: (typeof nd.pauseMaxMinutes === 'number' ? nd.pauseMaxMinutes * 60 * 1000 : null)
+          };
+        });
+      }
+      if (cfg.normSettings.employees){
+        Object.keys(cfg.normSettings.employees).forEach(name=>{
+          const ne = cfg.normSettings.employees[name] || {};
+          NORM_CFG.perEmployee[name] = {
+            normMs: (typeof ne.normHours === 'number' ? ne.normHours * 60 * 60 * 1000 : null),
+            pauseMarginMs: (typeof ne.pauseMaxMinutes === 'number' ? ne.pauseMaxMinutes * 60 * 1000 : null)
+          };
+        });
+      }
+    }
+  }
+
+  function getNormMsFor(name, dept, hasLongActivity){
+    const cfg = NORM_CFG || {};
+    const empCfg = (cfg.perEmployee && name) ? cfg.perEmployee[name] : null;
+    if (empCfg && empCfg.normMs) return empCfg.normMs;
+    const depCfg = (cfg.perDept && dept) ? cfg.perDept[dept] : null;
+    if (depCfg && depCfg.normMs) return depCfg.normMs;
+    if (hasLongActivity){
+      return cfg.defaultLongNormMs || LONG_NORM_MS;
+    }
+    return cfg.defaultNormMs || DEFAULT_NORM_MS;
+  }
+
+  function getPauseMarginMsFor(name, dept){
+    const cfg = NORM_CFG || {};
+    const empCfg = (cfg.perEmployee && name) ? cfg.perEmployee[name] : null;
+    if (empCfg && typeof empCfg.pauseMarginMs === 'number') return empCfg.pauseMarginMs;
+    const depCfg = (cfg.perDept && dept) ? cfg.perDept[dept] : null;
+    if (depCfg && typeof depCfg.pauseMarginMs === 'number') return depCfg.pauseMarginMs;
+    return cfg.defaultPauseMarginMs || DEFAULT_PAUSE_MARGIN_MS;
+  }
+
+  function buildLeaveIndex(leaves){
+    LEAVE_BY_DAY = new Map();
+    if (!Array.isArray(leaves)) return;
+    leaves.forEach(item=>{
+      if (!item || !item.name || !item.from || !item.to) return;
+      const name = item.name;
+      const status = (item.status || '').toLowerCase();
+      if (status && status !== 'approved' && status !== 'aprobat') return;
+      const start = new Date(item.from);
+      const end   = new Date(item.to);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
+      const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const last= new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      while (cur.getTime() <= last.getTime()){
+        const dk = dateKeyFromIso(cur.toISOString());
+        if (!LEAVE_BY_DAY.has(dk)){
+          LEAVE_BY_DAY.set(dk, new Set());
+        }
+        LEAVE_BY_DAY.get(dk).add(name);
+        cur.setDate(cur.getDate() + 1);
+      }
+    });
+  }
+
+  function isEmployeeOnLeave(name, dateKey){
+    if (!name || !dateKey || !LEAVE_BY_DAY) return false;
+    const set = LEAVE_BY_DAY.get(dateKey);
+    return !!(set && set.has(name));
+  }
+
+  const session = getAdminSession();
+  ADMIN_SESSION = session;
+
+  const adminLabelEl           = document.getElementById('adminLabel');
+  const logoutBtn              = document.getElementById('logoutBtn');
+  const errorEl                = document.getElementById('error');
+  const loadingEl              = document.getElementById('loading');
+  const dashboardEl            = document.getElementById('dashboard');
+  const alertsPageEl           = document.getElementById('alertsPage');
+  const tabButtons             = document.querySelectorAll('button.admin-tab-btn'); // DOAR butoanele, nu și link-ul spre reports.html
+
+  const rangeSelect            = document.getElementById('rangeSelect');
+  const deptFilter             = document.getElementById('deptFilter');
+  const employeeFilter         = document.getElementById('employeeFilter');
+  const incompleteOnlyCheckbox = document.getElementById('incompleteOnly');
+  const lastUpdateEl           = document.getElementById('lastUpdate');
+  const rawLogEl               = document.getElementById('rawLog');
+  const exportCsvBtn           = document.getElementById('exportCsvBtn');
+  const pdfBtn                 = document.getElementById('pdfBtn');
+  const deptPdfBtn             = document.getElementById('deptPdfBtn');
+  const employeeExportBtn      = document.getElementById('employeeExportBtn');
+  const payrollExportBtn       = document.getElementById('payrollExportBtn');
+  const topEmployeesEl         = document.getElementById('topEmployees');
+  const employeeIndexListEl    = document.getElementById('employeeIndexList');
+  const employeeDetailsHeaderEl= document.getElementById('employeeDetailsHeader');
+  const employeeDetailsBodyEl  = document.getElementById('employeeDetailsBody');
+  const kpiCompletedTodayEl    = document.getElementById('kpiCompletedToday');
+  const dailyPresenceBodyEl    = document.getElementById('dailyPresenceBody');
+  const incompleteDaysBodyEl   = document.getElementById('incompleteDaysBody');
+  const anomaliesBodyEl        = document.getElementById('anomaliesBody');
+  const lastEventsTitleEl      = document.getElementById('lastEventsTitle');
+  const lastEventsHintTextEl   = document.getElementById('lastEventsHintText');
+  const lastEventsRangeSelect  = document.getElementById('lastEventsRange');
+  const lastEventsBodyEl       = document.getElementById('lastEventsBody');
+  const rawLogTitleEl          = document.getElementById('rawLogTitle');
+  const presenceCalendarEl     = document.getElementById('presenceCalendar');
+  const liveBoardEl            = document.getElementById('liveBoard');
+  const liveBoardHintEl        = document.getElementById('liveBoardHint');
+  const liveBoardSummaryEl     = document.getElementById('liveBoardSummary');
+  const liveBoardHintTextEl    = document.getElementById('liveBoardHintText');
+
+  const alertsTypeFilterEl     = document.getElementById('alertsTypeFilter');
+  const alertsDeptFilterEl     = document.getElementById('alertsDeptFilter');
+  const alertsSearchEl         = document.getElementById('alertsSearch');
+
+  const incompleteDayAllBtn    = document.getElementById('incompleteDayAllBtn');
+  const incompleteDayWeekendBtn= document.getElementById('incompleteDayWeekendBtn');
+  const incompleteDayWorkBtn   = document.getElementById('incompleteDayWorkBtn');
+
+  const anomalyDayAllBtn       = document.getElementById('anomalyDayAllBtn');
+  const anomalyDayWeekendBtn   = document.getElementById('anomalyDayWeekendBtn');
+  const anomalyDayWorkBtn      = document.getElementById('anomalyDayWorkBtn');
+
+  const calPrevBtn             = document.getElementById('calPrevBtn');
+  const calNextBtn             = document.getElementById('calNextBtn');
+  const calendarMonthLabelEl   = document.getElementById('calendarMonthLabel');
+
+  const exportIncompleteBtn    = document.getElementById('exportIncompleteBtn');
+  const exportAnomaliesBtn     = document.getElementById('exportAnomaliesBtn');
+
+  const employeeSelfLinkEl     = document.getElementById('employeeSelfLink');
+
+  const liveBoardTodayBtn      = document.getElementById('liveBoardTodayBtn');
+  const liveBoardPastBtn       = document.getElementById('liveBoardPastBtn');
+  const alertsListEl           = document.getElementById('alertsList');
+  const selfServiceLink        = document.getElementById('selfServiceLink'); // mic helper pentru A1/A2
+  const employeeSearchInput    = document.getElementById('employeeSearch');
+  const topModeHoursBtn        = document.getElementById('topModeHours');
+  const topModeAnomaliesBtn    = document.getElementById('topModeAnomalies');
+
+  // Elemente pentru pagina de Alerte LIVE
+  const liveAlertsActiveEl     = document.getElementById('liveAlertsActive');
+  const liveAlertsHistoryBodyEl= document.getElementById('liveAlertsHistoryBody');
+  const systemAlertsHistoryBodyEl = document.getElementById('systemAlertsHistoryBody');
+
+  if (!session){
+    alert('Nu ești autentificat ca admin. Te redirecționez la pagina principală.');
+    window.location.href = 'index.html';
+    return;
+  }
+  ADMIN_ROLE = session.role || 'admin';
+  ADMIN_DEPT = session.dept || null;
+
+  if (adminLabelEl) adminLabelEl.textContent = session.user || 'Admin';
+  if (logoutBtn){
+    logoutBtn.addEventListener('click', function(){
+      clearAdminSession();
+      window.location.href = 'index.html';
+    });
+  }
+
+  function showError(msg){
+    if (errorEl){
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    }
+    window.addEventListener('error', function(e){
+  try{ showError('Eroare JS: ' + (e.message || e.error || e)); }catch(_){}
+});
+window.addEventListener('unhandledrejection', function(e){
+  try{ showError('Promise reject: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)); }catch(_){}
+});
+
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (dashboardEl) dashboardEl.style.display = 'none';
+    if (alertsPageEl) alertsPageEl.style.display = 'none';
+  }
+
+  function _norm(s){ return String(s==null?'':s).trim(); }
+  function _normAction(a){
+    let s = _norm(a).toLowerCase().replace(/[-\s]+/g,'_');
+    if (s === 'resume') s='unpause';
+    if (s === 'stop') s='finish';
+    if (s === 'extra start') s='extra_start';
+    if (s === 'extra finish') s='extra_finish';
+    return s;
+  }
+  function fmtDateTime(iso){
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${dd}.${mm}.${yyyy} ${hh}:${mi}`;
+  }
+  function fmtHoursShort(ms){
+    const h = ms / 3600000;
+    return h.toFixed(1).replace('.', ',') + ' h';
+  }
+  function fmtHoursHM(ms){
+    const totalMin = Math.round(ms / 60000);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return `${h}h ${String(m).padStart(2,'0')}m`;
+  }
+  function msToHours(ms){
+    return ms / 3600000;
+  }
+  function dateKeyFromIso(iso){
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  }
+  function isWeekend(dateKey){
+    if (!dateKey) return false;
+    const parts = dateKey.split('-');
+    if (parts.length !== 3) return false;
+    const y = parseInt(parts[0],10);
+    const m = parseInt(parts[1],10) - 1;
+    const d = parseInt(parts[2],10);
+    const dt = new Date(y,m,d);
+    if (isNaN(dt.getTime())) return false;
+    const wd = dt.getDay(); // 0 = duminică, 6 = sâmbătă
+    return wd === 0 || wd === 6;
+  }
+
+  function renderKpis(events){
+    const totalEl  = document.getElementById('kpiTotal');
+    const empEl    = document.getElementById('kpiEmployees');
+    const startEl  = document.getElementById('kpiStart');
+    const finishEl = document.getElementById('kpiFinish');
+    const list = events || [];
+    if (totalEl) totalEl.textContent = String(list.length);
+    const uniq = new Set();
+    let cStart = 0, cFinish = 0;
+    list.forEach(ev => {
+      if (ev.name) uniq.add(ev.name);
+      if (ev.action === 'start')  cStart++;
+      if (ev.action === 'finish') cFinish++;
+    });
+    if (empEl)    empEl.textContent = String(uniq.size);
+    if (startEl)  startEl.textContent = String(cStart);
+    if (finishEl) finishEl.textContent = String(cFinish);
+  }
+
+  function renderDept(events){
+    const container = document.getElementById('deptList');
+    if (!container) return;
+    const list = events || [];
+    if (!list.length){
+      container.innerHTML = '<div class="admin-empty">Nu există date în filtrul curent.</div>';
+      return;
+    }
+    const counts = {};
+    list.forEach(ev => {
+      const key = ev.dept || '(fără departament)';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    container.innerHTML = '';
+    entries.forEach(([dept, count])=>{
+      const row = document.createElement('div');
+      row.className = 'admin-list-row';
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + dept + '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' + count + '</div>';
+      container.appendChild(row);
+    });
+  }
+
+  function renderLastEvents(events){
+    if (!lastEventsBodyEl) return;
+    const list = (events || []).slice().sort((a,b)=>{
+      const ta = a.ts ? new Date(a.ts).getTime() : 0;
+      const tb = b.ts ? new Date(b.ts).getTime() : 0;
+      return tb - ta;
+    });
+    lastEventsBodyEl.innerHTML = '';
+    if (!list.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Nu există înregistrări în perioada aleasă (după filtre).';
+      tr.appendChild(td);
+      lastEventsBodyEl.appendChild(tr);
+      return;
+    }
+    list.forEach(ev=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + fmtDateTime(ev.ts) + '</td>' +
+        '<td>' + (ev.name || '') + '</td>' +
+        '<td>' + (ev.dept || '') + '</td>' +
+        '<td>' + (ev.action || '') + '</td>' +
+        '<td>' + (ev.activity || '') + '</td>';
+      lastEventsBodyEl.appendChild(tr);
+    });
+  }
+
+  function renderRawLog(events){
+    if (!rawLogEl) return;
+    const list = events || [];
+    if (!list.length){
+      rawLogEl.textContent = 'Nu există evenimente în filtrul curent.';
+      return;
+    }
+    const sorted = list.slice().sort((a,b)=>{
+      const ta = a.ts ? new Date(a.ts).getTime() : 0;
+      const tb = b.ts ? new Date(b.ts).getTime() : 0;
+      return ta - tb;
+    });
+    const lines = sorted.map(ev => {
+      const t   = fmtDateTime(ev.ts);
+      const dept= ev.dept || '';
+      const name= ev.name || '';
+      const actn= ev.action || '';
+      const act = ev.activity || '';
+      const loc = ev.location || '';
+      let s = `[${t}] ${name}`;
+      if (dept) s += ' | ' + dept;
+      if (actn) s += ' | ' + actn;
+      if (act)  s += ' | ' + act;
+      if (loc)  s += ' | ' + loc;
+      return s;
+    });
+    rawLogEl.textContent = lines.join('\n');
+  }
+
+  function buildDeptFilter(events){
+    if (!deptFilter) return;
+    const set = new Set();
+    events.forEach(ev => {
+      const key = ev.dept || '(fără departament)';
+      if (key) set.add(key);
+    });
+    const depts = Array.from(set).sort((a,b)=>a.localeCompare(b,'ro'));
+    deptFilter.innerHTML = '';
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'Toate';
+    deptFilter.appendChild(optAll);
+    depts.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d;
+      o.textContent = d;
+      deptFilter.appendChild(o);
+    });
+  }
+
+  function buildEmployeeFilter(events, selectedDept){
+    if (!employeeFilter) return;
+    const set = new Set();
+    events.forEach(ev => {
+      if (!ev.name) return;
+      const deptKey = ev.dept || '(fără departament)';
+      if (selectedDept && selectedDept !== 'all' && deptKey !== selectedDept) return;
+      set.add(ev.name);
+    });
+    const emps = Array.from(set).sort((a,b)=>a.localeCompare(b,'ro'));
+    employeeFilter.innerHTML = '';
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'Toți';
+    employeeFilter.appendChild(optAll);
+    emps.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n;
+      o.textContent = n;
+      employeeFilter.appendChild(o);
+    });
+  }
+
+  function exportCsv(events){
+    const list = events || [];
+    if (!list.length){
+      alert('Nu există evenimente în filtrul curent pentru export.');
+      return;
+    }
+    const header = ['timestamp_iso','data_ora','nume','departament','actiune','activitate','locatie'];
+    const rows = list.map(ev => [
+      ev.ts || '',
+      fmtDateTime(ev.ts) || '',
+      ev.name || '',
+      ev.dept || '',
+      ev.action || '',
+      ev.activity || '',
+      ev.location || ''
+    ]);
+    const csvLines = [header].concat(rows).map(row => row.map(cell => {
+      const s = String(cell).replace(/"/g,'""');
+      return '"' + s + '"';
+    }).join(','));
+    const csv = csvLines.join('\r\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = 'pontaj-export.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+function isDayIncomplete(day){
+  if (!day) return false;
+
+  const hasAnyEvent =
+    (day.events && day.events.length) ||
+    day.hasStart || day.hasFinish ||
+    day.pauseCount || day.unpauseCount ||
+    day.extraStartCount || day.extraFinishCount;
+
+  if (!hasAnyEvent) return false;
+
+  return (
+    !day.hasFinish ||
+    day.hasPauseMismatch ||
+    day.hasExtraMismatch ||
+    day.openExtra
+  );
+}
+
+
+  function applyIncompleteFilter(events){
+    // Dacă checkbox-ul "doar zile incomplete" NU e bifat → întoarcem lista originală
+    if (!filterIncompleteOnly) return events;
+
+    // Dacă nu avem statistici construite sau nu avem evenimente → nu filtrăm
+    if (!ALL_STATS || !ALL_STATS.employees || !events || !events.length) return events;
+
+    return events.filter(ev => {
+      if (!ev.name || !ev.ts) return false;
+      const dk = dateKeyFromIso(ev.ts);
+      if (!dk) return false;
+
+      const emp = ALL_STATS.employees.get(ev.name);
+      if (!emp) return false;
+
+      const day = emp.days.get(dk);
+      if (!day) return false;
+
+      // Folosim logica existentă de "zi incompletă"
+      return isDayIncomplete(day);
+    });
+  }
+  
+  function buildStatsFromEvents(events){
+    const employees = new Map();
+    const perDay    = new Map();
+
+    function getEmp(name){
+      if (!employees.has(name)){
+        employees.set(name, {
+          name,
+          dept:'',
+          days:new Map(),
+          totals:{
+            daysWithStart:0,
+            daysWithFinish:0,
+            daysCompleted:0,
+            totalWorkMs:0,
+            totalExtraMs:0,
+            overtimeMs:0,
+            firstEvent:null,
+            lastEvent:null,
+            normValidatedDays:0,
+            incompleteDays:0
+          }
+        });
+      }
+      return employees.get(name);
+    }
+
+    const byNameDate = new Map();
+    (events || []).forEach(ev => {
+      if (!ev.ts || !ev.name) return;
+      const dk = dateKeyFromIso(ev.ts);
+      if (!dk) return;
+      const key = ev.name + '||' + dk;
+      if (!byNameDate.has(key)) byNameDate.set(key, []);
+      byNameDate.get(key).push(ev);
+    });
+
+    byNameDate.forEach((evs, key) => {
+      evs.sort((a,b)=>new Date(a.ts) - new Date(b.ts));
+      const parts = key.split('||');
+      const name  = parts[0];
+      const dk    = parts[1];
+
+      const emp = getEmp(name);
+      let day = emp.days.get(dk);
+      if (!day){
+        day = {
+          dateKey: dk,
+          dept:'',
+          events: evs,
+          workMs:0,
+          extraMs:0,
+          pauseMs:0,
+          hasStart:false,
+          hasFinish:false,
+          completed:false,
+          overtimeMs:0,
+          normMs: DEFAULT_NORM_MS,
+          normValidated:false,
+          incomplete:false,
+          startCount:0,
+          finishCount:0,
+          pauseCount:0,
+          unpauseCount:0,
+          extraStartCount:0,
+          extraFinishCount:0,
+          openRunning:false,
+          openExtra:false,
+          hasPauseMismatch:false,
+          hasExtraMismatch:false
+        };
+        emp.days.set(dk, day);
+      } else {
+        day.events = evs;
+      }
+
+      let hasLongActivity = false;
+      evs.forEach(ev => {
+        if (ev.dept) day.dept = ev.dept;
+        if (ev.activity && ACTIVITATI_NORMA_8H30.indexOf(ev.activity) !== -1){
+          hasLongActivity = true;
+        }
+      });
+      day.normMs = getNormMsFor(name, day.dept, hasLongActivity);
+
+      if (!emp.dept && day.dept) emp.dept = day.dept;
+
+      let running        = false;
+      let paused         = false;
+      let extraRunning   = false;
+      let startTs        = null;
+      let pauseStartTs   = null;
+      let extraStartTs   = null;
+      let sumPauseMs     = 0;
+      let workMs         = 0;
+      let extraMs        = 0;
+
+      evs.forEach(ev => {
+        const t = new Date(ev.ts).getTime();
+        if (isNaN(t)) return;
+        const act = ev.action;
+
+        if (act === 'start') {
+          day.hasStart = true;
+          day.startCount++;
+          if (!running) {
+            running = true;
+            paused  = false;
+            sumPauseMs   = 0;
+            startTs      = t;
+            pauseStartTs = null;
+          } else {
+            // nou: dacă există deja o sesiune, considerăm că începe o nouă sesiune
+            startTs      = t;
+            paused       = false;
+            pauseStartTs = null;
+            sumPauseMs   = 0;
+          }
+        } else if (act === 'pause') {
+          day.pauseCount++;
+          if (running && !paused) {
+            paused       = true;
+            pauseStartTs = t;
+          }
+        } else if (act === 'unpause') {
+          day.unpauseCount++;
+          if (running && paused) {
+            paused = false;
+            if (pauseStartTs != null) {
+              sumPauseMs += Math.max(0, t - pauseStartTs);
+              pauseStartTs = null;
+            }
+          }
+        } else if (act === 'finish') {
+          day.hasFinish = true;
+          day.finishCount++;
+          if (running && startTs != null) {
+            if (paused && pauseStartTs != null) {
+              sumPauseMs += Math.max(0, t - pauseStartTs);
+              pauseStartTs = null;
+              paused = false;
+            }
+            const diff    = Math.max(0, t - startTs);
+            const segment = Math.max(0, diff - sumPauseMs);
+            workMs += segment;
+          }
+          running      = false;
+          paused       = false;
+          startTs      = null;
+          pauseStartTs = null;
+          sumPauseMs   = 0;
+        } else if (act === 'extra_start') {
+          day.extraStartCount++;
+          if (!extraRunning) {
+            extraRunning = true;
+            extraStartTs = t;
+          } else {
+            extraStartTs = t;
+          }
+        } else if (act === 'extra_finish') {
+          day.extraFinishCount++;
+          if (extraRunning && extraStartTs != null) {
+            extraMs += Math.max(0, t - extraStartTs);
+          }
+          extraRunning = false;
+          extraStartTs = null;
+        }
+      });
+
+      day.workMs   = workMs;
+      day.extraMs  = extraMs;
+      day.pauseMs  = sumPauseMs;
+
+      emp.totals.totalWorkMs  += workMs;
+      emp.totals.totalExtraMs += extraMs;
+
+      if (day.hasStart)  emp.totals.daysWithStart++;
+      if (day.hasFinish) emp.totals.daysWithFinish++;
+
+      day.openRunning      = day.hasStart && !day.hasFinish;
+      day.openExtra        = day.extraStartCount > day.extraFinishCount;
+      day.hasPauseMismatch = day.pauseCount !== day.unpauseCount;
+      day.hasExtraMismatch = day.extraStartCount !== day.extraFinishCount;
+
+      day.incomplete = isDayIncomplete(day);
+      if (day.incomplete) emp.totals.incompleteDays++;
+
+      if (day.hasStart && day.hasFinish && workMs > 0) {
+        day.completed = true;
+        emp.totals.daysCompleted++;
+      }
+
+      const normForDay     = day.normMs || getNormMsFor(name, day.dept || emp.dept || '', false);
+      const pauseMarginMs  = getPauseMarginMsFor(name, day.dept || emp.dept || '');
+
+      if (day.completed && workMs > normForDay){
+        day.overtimeMs = workMs - normForDay;
+        emp.totals.overtimeMs += day.overtimeMs;
+      }
+
+      day.normValidated = false;
+      if (!day.incomplete && day.completed){
+        const neededWorkMs = Math.max(0, normForDay - pauseMarginMs);
+        const pauseMs      = day.pauseMs || 0;
+        const hasMinWork   = workMs >= neededWorkMs;
+        const pauseOk      = pauseMs <= pauseMarginMs;
+        if (hasMinWork && pauseOk){
+          day.normValidated = true;
+          emp.totals.normValidatedDays++;
+        }
+      }
+
+      let daySummary = perDay.get(dk);
+      if (!daySummary) {
+        daySummary = { dateKey: dk, started: new Set(), completed: new Set() };
+        perDay.set(dk, daySummary);
+      }
+      if (day.hasStart)   daySummary.started.add(name);
+      if (day.completed)  daySummary.completed.add(name);
+
+      evs.forEach(ev => {
+        const t = new Date(ev.ts).getTime();
+        if (isNaN(t)) return;
+        if (!emp.totals.firstEvent || t < new Date(emp.totals.firstEvent).getTime()) {
+          emp.totals.firstEvent = ev.ts;
+        }
+        if (!emp.totals.lastEvent || t > new Date(emp.totals.lastEvent).getTime()) {
+          emp.totals.lastEvent = ev.ts;
+        }
+      });
+    });
+
+    return { employees, perDay };
+  }
+
+  function renderEmployeeIndex(allStats, deptFilterValue, searchTerm){
+    if (!employeeIndexListEl) return;
+    if (!allStats || !allStats.employees){
+      employeeIndexListEl.innerHTML = '<div class="admin-empty">Nu există date.</div>';
+      return;
+    }
+    const term = (searchTerm || '').trim().toLowerCase();
+    const entries = [];
+    allStats.employees.forEach((emp) => {
+      const dept = emp.dept || '(fără departament)';
+      if (deptFilterValue && deptFilterValue !== 'all' && dept !== deptFilterValue) return;
+
+      if (term){
+        const haystack = (emp.name + ' ' + dept).toLowerCase();
+        if (!haystack.includes(term)) return;
+      }
+
+      entries.push(emp);
+    });
+    if (!entries.length){
+      employeeIndexListEl.innerHTML = '<div class="admin-empty">Nu există angajați pentru acest filtru.</div>';
+      return;
+    }
+    entries.sort((a,b)=>b.totals.totalWorkMs - a.totals.totalWorkMs);
+    employeeIndexListEl.innerHTML = '';
+    entries.forEach(emp => {
+      const row = document.createElement('div');
+      row.className = 'admin-list-row';
+      row.dataset.empName = emp.name;
+      const dept = emp.dept || '(fără departament)';
+      const t = emp.totals;
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + emp.name + '</div>' +
+          '<div class="admin-list-sub">' + dept + ' • ' +
+            t.daysCompleted + ' zile complete, ' + fmtHoursShort(t.totalWorkMs) +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' +
+          '<span>' + fmtHoursShort(t.totalWorkMs) + '</span>' +
+        '</div>';
+      row.addEventListener('click', function(){
+        SELECTED_EMPLOYEE = emp.name;
+        if (employeeFilter){
+          if (!employeeFilter.querySelector('option[value="'+emp.name+'"]')){
+            const o = document.createElement('option');
+            o.value = emp.name;
+            o.textContent = emp.name;
+            employeeFilter.appendChild(o);
+          }
+          employeeFilter.value = emp.name;
+        }
+        markSelectedEmployee(emp.name);
+        renderEmployeeDetails(emp.name);
+      });
+      employeeIndexListEl.appendChild(row);
+    });
+  }
+
+  function markSelectedEmployee(name){
+    document.querySelectorAll('.admin-list-row').forEach(el => {
+      el.classList.toggle('selected', el.dataset.empName === name);
+    });
+  }
+
+  function renderEmployeeDetails(name){
+    if (!employeeDetailsBodyEl || !employeeDetailsHeaderEl) return;
+    if (!name){
+      employeeDetailsHeaderEl.textContent = 'Selectează un angajat din listă pentru a vedea situația pe toate zilele.';
+      employeeDetailsBodyEl.innerHTML = '<div class="admin-empty">Niciun angajat selectat.</div>';
+      if (employeeSelfLinkEl) employeeSelfLinkEl.style.display = 'none';
+      return;
+    }
+    if (!ALL_STATS || !ALL_STATS.employees || !ALL_STATS.employees.has(name)){
+      employeeDetailsHeaderEl.textContent = 'Nu găsesc statistici pentru ' + name + '.';
+      employeeDetailsBodyEl.innerHTML = '<div class="admin-empty">Nu există date pentru acest angajat.</div>';
+      return;
+    }
+    const emp  = ALL_STATS.employees.get(name);
+        if (employeeSelfLinkEl){
+      // Dacă vrei baza din config, trebuie să setezi SELF_SERVICE_BASE în applySelfServiceConfig.
+      // Dacă nu ai făcut asta încă, poți folosi temporar 'self.html' ca bază.
+      const base = (typeof SELF_SERVICE_BASE === 'string' && SELF_SERVICE_BASE) ? SELF_SERVICE_BASE : 'self.html';
+      const join = base.includes('?') ? '&' : '?';
+      employeeSelfLinkEl.href = base + join + 'name=' + encodeURIComponent(name);
+      employeeSelfLinkEl.style.display = '';
+    }
+
+    const dept = emp.dept || '(fără departament)';
+    const t    = emp.totals;
+    employeeDetailsHeaderEl.innerHTML =
+      'Statistici all time pentru <b>' + name + '</b> (' + dept + '). ' +
+      'Zile cu normă completă (START + FINISH): <b>' + t.daysCompleted + '</b> din <b>' + t.daysWithStart + '</b> cu START. ' +
+      'Zile cu <b>normă validată</b> (cu pauză până la limita din configurare): <b>' + t.normValidatedDays + '</b>.';
+
+    const daysArr = Array.from(emp.days.values()).sort((a,b)=>a.dateKey < b.dateKey ? -1 : (a.dateKey > b.dateKey ? 1 : 0));
+
+    let html = '';
+    html += '<div style="margin-bottom:10px;font-size:13px;">';
+    html += '<div><b>Total ore normă:</b> ' + fmtHoursShort(t.totalWorkMs) + '</div>';
+    html += '<div><b>Total ore extra:</b> ' + fmtHoursShort(t.totalExtraMs) + '</div>';
+    html += '<div><b>Total overtime:</b> ' + fmtHoursShort(t.overtimeMs) + '</div>';
+    html += '<div><b>Zile cu START:</b> ' + t.daysWithStart + ' • <b>Zile cu FINISH:</b> ' + t.daysWithFinish + '</div>';
+    html += '</div>';
+
+    if (!daysArr.length){
+      html += '<div class="admin-empty">Nu există zile înregistrate pentru acest angajat.</div>';
+      employeeDetailsBodyEl.innerHTML = html;
+      return;
+    }
+
+    html += '<div class="table-wrap">';
+    html += '<table class="admin-table">';
+    html += '<thead><tr>' +
+      '<th>Data</th>' +
+      '<th>Departament</th>' +
+      '<th>Concediu</th>' +
+      '<th>Normă</th>' +
+      '<th>Extra</th>' +
+      '<th>Completă</th>' +
+      '<th>Normă validată</th>' +
+      '<th>Overtime</th>' +
+    '</tr></thead><tbody>';
+
+    daysArr.forEach(d => {
+      const compStatus = d.completed
+        ? '<span class="badge badge-ok">DA</span>'
+        : (isDayIncomplete(d)
+            ? '<span class="badge badge-warn">INCOMPLETĂ (fără FINISH)</span>'
+            : '-');
+
+      let normStatus = '-';
+      if (d.completed){
+        if (d.normValidated){
+          normStatus = '<span class="badge badge-ok">VALIDATĂ</span>';
+        }else{
+          normStatus = '<span class="badge badge-warn">NU</span>';
+        }
+      }
+
+      const isLeave = isEmployeeOnLeave(name, d.dateKey);
+
+      html += '<tr>' +
+        '<td>' + d.dateKey + '</td>' +
+        '<td>' + (d.dept || '') + '</td>' +
+        '<td>' + (isLeave ? '<span class="badge badge-info">CONCEDIU</span>' : '-') + '</td>' +
+        '<td>' + (d.workMs ? fmtHoursHM(d.workMs) : '-') + '</td>' +
+        '<td>' + (d.extraMs ? fmtHoursHM(d.extraMs) : '-') + '</td>' +
+        '<td>' + compStatus + '</td>' +
+        '<td>' + normStatus + '</td>' +
+        '<td>' + (d.overtimeMs ? fmtHoursHM(d.overtimeMs) : '-') + '</td>' +
+      '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    employeeDetailsBodyEl.innerHTML = html;
+  }
+
+  function renderTopEmployees(allStats){
+    if (!topEmployeesEl) return;
+    if (!allStats || !allStats.employees){
+      topEmployeesEl.innerHTML = '<div class="admin-empty">Nu există date.</div>';
+      return;
+    }
+    const entries = [];
+    allStats.employees.forEach((emp) => entries.push(emp));
+    if (!entries.length){
+      topEmployeesEl.innerHTML = '<div class="admin-empty">Nu există date.</div>';
+      return;
+    }
+
+    // Dacă suntem pe modul "anomalii", calculează-le pentru fiecare angajat
+    if (TOP_MODE === 'anomalies'){
+      entries.forEach(emp => {
+        if (emp._anomalyComputed) return;
+        let anomalyDays = 0;
+        let anomalyEvents = 0;
+
+        emp.days.forEach(day => {
+          const dept = day.dept || emp.dept || '';
+          const pauseMarginMs = getPauseMarginMsFor(emp.name, dept);
+          let c = 0;
+          if (day.hasPauseMismatch) c++;
+          if (day.hasExtraMismatch) c++;
+          if (day.openRunning)      c++;
+          if (day.openExtra)        c++;
+          if (day.pauseMs && day.pauseMs > pauseMarginMs) c++;
+          if (day.workMs && day.workMs > 12 * 60 * 60 * 1000) c++;
+          if (isWeekend(day.dateKey) && (day.workMs || day.extraMs)) c++;
+
+          if (c > 0){
+            anomalyDays++;
+            anomalyEvents += c;
+          }
+        });
+
+        emp.totals.__anomalyDays   = anomalyDays;
+        emp.totals.__anomalyEvents = anomalyEvents;
+        emp._anomalyComputed       = true;
+      });
+    }
+
+    entries.sort((a,b)=>{
+      const ta = a.totals;
+      const tb = b.totals;
+
+      if (TOP_MODE === 'anomalies'){
+        const ca = (ta.__anomalyEvents || ta.__anomalyDays || 0);
+        const cb = (tb.__anomalyEvents || tb.__anomalyDays || 0);
+        if (cb !== ca) return cb - ca;
+
+        const ia = ta.incompleteDays || 0;
+        const ib = tb.incompleteDays || 0;
+        if (ib !== ia) return ib - ia;
+
+        return (tb.totalWorkMs || 0) - (ta.totalWorkMs || 0);
+      }
+
+      // default: după total ore normă
+      return (tb.totalWorkMs || 0) - (ta.totalWorkMs || 0);
+    });
+
+    const top = entries.slice(0,5);
+    topEmployeesEl.innerHTML = '';
+    top.forEach(emp => {
+      const t = emp.totals;
+      let primary, secondary;
+
+      if (TOP_MODE === 'anomalies'){
+        const days   = t.__anomalyDays   || 0;
+        const events = t.__anomalyEvents || days;
+        primary   = days + ' zile cu anomalii';
+        secondary = events + ' tipuri de abateri';
+      } else {
+        primary   = fmtHoursShort(t.totalWorkMs);
+        secondary = t.daysCompleted + ' zile complete';
+      }
+
+      const row = document.createElement('div');
+      row.className = 'admin-list-row';
+      row.dataset.empName = emp.name;
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + emp.name + '</div>' +
+          '<div class="admin-list-sub">' + (emp.dept || '(fără departament)') + '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' +
+          '<div>' + primary + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;">' + secondary + '</div>' +
+        '</div>';
+      row.addEventListener('click', function(){
+        SELECTED_EMPLOYEE = emp.name;
+        markSelectedEmployee(emp.name);
+        renderEmployeeDetails(emp.name);
+      });
+      topEmployeesEl.appendChild(row);
+    });
+  }
+
+  function filterByRange(events, range){
+    if (!events || !events.length) return [];
+    const now = new Date();
+    if (range === 'all') return events.slice();
+    const endTime = now.getTime();
+    let startTime;
+    if (range === 'last7'){
+      const d = new Date(now);
+      d.setDate(d.getDate() - 6);
+      startTime = d.getTime();
+    } else { // today
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0);
+      startTime = d.getTime();
+    }
+    return events.filter(ev => {
+      if (!ev.ts) return false;
+      const t = new Date(ev.ts).getTime();
+      if (isNaN(t)) return false;
+      return t >= startTime && t <= endTime;
+    });
+  }
+
+  function filterLastEventsByRange(events, range){
+    if (!events || !events.length) return [];
+    const now = new Date();
+    const endTime = now.getTime();
+    let startTime = null;
+
+    if (range === 'today'){
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0);
+      startTime = d.getTime();
+    } else if (range === 'week'){
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0);
+      const day = d.getDay(); // 0 = duminică
+      const diffToMonday = (day + 6) % 7;
+      d.setDate(d.getDate() - diffToMonday);
+      startTime = d.getTime();
+    } else if (range === 'month'){
+      const d = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0);
+      startTime = d.getTime();
+    } else {
+      return events.slice();
+    }
+
+    return events.filter(ev => {
+      if (!ev.ts) return false;
+      const t = new Date(ev.ts).getTime();
+      if (isNaN(t)) return false;
+      return t >= startTime && t <= endTime;
+    });
+  }
+
+  function updateCompletedTodayKpiFromStats(stats, range){
+    if (!kpiCompletedTodayEl) return;
+    if (range !== 'today'){
+      kpiCompletedTodayEl.textContent = '–';
+      return;
+    }
+    if (!stats || !stats.employees || !stats.employees.size){
+      kpiCompletedTodayEl.textContent = '0 / 0';
+      return;
+    }
+    let total = 0, completed = 0;
+    stats.employees.forEach(emp => {
+      const t = emp.totals;
+      if (t.daysWithStart || t.daysWithFinish){
+        total++;
+        if (t.daysCompleted > 0) completed++;
+      }
+    });
+    kpiCompletedTodayEl.textContent = completed + ' / ' + total;
+  }
+
+  function renderDailyPresence(stats){
+    if (!dailyPresenceBodyEl) return;
+    dailyPresenceBodyEl.innerHTML = '';
+    if (!stats || !stats.perDay || !stats.perDay.size){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Nu există zile în filtrul curent.';
+      tr.appendChild(td);
+      dailyPresenceBodyEl.appendChild(tr);
+      return;
+    }
+    const entries = Array.from(stats.perDay.values())
+      .sort((a,b)=>a.dateKey < b.dateKey ? -1 : (a.dateKey > b.dateKey ? 1 : 0));
+    entries.forEach(day => {
+      const started   = day.started   ? day.started.size   : 0;
+      const completed = day.completed ? day.completed.size : 0;
+      const pct       = started ? Math.round(100 * completed / started) : 0;
+      const leaveCount = LEAVE_BY_DAY && LEAVE_BY_DAY.get(day.dateKey)
+        ? LEAVE_BY_DAY.get(day.dateKey).size
+        : 0;
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + day.dateKey + '</td>' +
+        '<td>' + started + '</td>' +
+        '<td>' + completed + '</td>' +
+        '<td>' + (started ? pct + '%' : '–') + '</td>' +
+        '<td>' + (leaveCount || 0) + '</td>';
+      dailyPresenceBodyEl.appendChild(tr);
+    });
+  }
+
+  function renderIncompleteDays(baseEvents){
+    if (!incompleteDaysBodyEl) return;
+    incompleteDaysBodyEl.innerHTML = '';
+
+    if (!baseEvents || !baseEvents.length || !ALL_STATS || !ALL_STATS.employees || !ALL_STATS.employees.size){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = 'Nu există zile incomplete în filtrul curent.';
+      tr.appendChild(td);
+      incompleteDaysBodyEl.appendChild(tr);
+      return;
+    }
+
+    const keyMap = new Map();
+    baseEvents.forEach(ev => {
+      if (!ev.name || !ev.ts) return;
+      const dk = dateKeyFromIso(ev.ts);
+      if (!dk) return;
+      const key = ev.name + '||' + dk;
+      if (!keyMap.has(key)){
+        keyMap.set(key, {
+          name: ev.name,
+          dateKey: dk,
+          deptHint: ev.dept || ''
+        });
+      }
+    });
+
+    const rows = [];
+    keyMap.forEach(info => {
+      const emp = ALL_STATS.employees.get(info.name);
+      if (!emp) return;
+      const day = emp.days.get(info.dateKey);
+      if (!day) return;
+      if (!isDayIncomplete(day)) return;
+      rows.push({
+        dateKey: info.dateKey,
+        name: info.name,
+        dept: day.dept || emp.dept || info.deptHint || '',
+        workMs: day.workMs,
+        extraMs: day.extraMs,
+        day
+      });
+    });
+
+    if (!rows.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = 'Nu există zile incomplete în filtrul curent.';
+      tr.appendChild(td);
+      incompleteDaysBodyEl.appendChild(tr);
+      return;
+    }
+
+    rows.sort((a,b)=>{
+      if (a.dateKey < b.dateKey) return -1;
+      if (a.dateKey > b.dateKey) return 1;
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+    });
+
+    LATEST_INCOMPLETE_ROWS = [];
+
+    rows.forEach(item => {
+      const wk = isWeekend(item.dateKey);
+      if (INCOMPLETE_DAY_FILTER === 'weekend' && !wk) return;
+      if (INCOMPLETE_DAY_FILTER === 'workday' && wk) return;
+
+      const isLeave = isEmployeeOnLeave(item.name, item.dateKey);
+      const leaveBadge = isLeave ? '<span class="badge badge-info">CONCEDIU</span> ' : '';
+
+      const statusText = leaveBadge + 'Zi cu pontaj, dar fără FINISH (nu s-a apăsat FINISH)';
+
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.dataset.name = item.name;
+      tr.dataset.dateKey = item.dateKey;
+      tr.innerHTML =
+        '<td>' + item.dateKey + '</td>' +
+        '<td>' + item.name + '</td>' +
+        '<td>' + item.dept + '</td>' +
+        '<td>' + (item.workMs ? fmtHoursHM(item.workMs) : '-') + '</td>' +
+        '<td>' + (item.extraMs ? fmtHoursHM(item.extraMs) : '-') + '</td>' +
+        '<td>' + statusText + '</td>';
+
+      LATEST_INCOMPLETE_ROWS.push({
+        dateKey:item.dateKey,
+        name:item.name,
+        dept:item.dept,
+        work:item.workMs ? fmtHoursHM(item.workMs) : '',
+        extra:item.extraMs ? fmtHoursHM(item.extraMs) : '',
+        leave:isLeave ? 'DA' : 'NU',
+        status:'Fără FINISH'
+      });
+
+      incompleteDaysBodyEl.appendChild(tr);
+    });
+  }
+
+  function renderAnomalies(baseEvents){
+    if (!anomaliesBodyEl) return;
+    anomaliesBodyEl.innerHTML = '';
+
+    if (!baseEvents || !baseEvents.length || !ALL_STATS || !ALL_STATS.employees || !ALL_STATS.employees.size){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = 'Nu există anomalii în filtrul curent.';
+      tr.appendChild(td);
+      anomaliesBodyEl.appendChild(tr);
+      return;
+    }
+
+    const keyMap = new Map();
+    baseEvents.forEach(ev=>{
+      if (!ev.name || !ev.ts) return;
+      const dk = dateKeyFromIso(ev.ts);
+      if (!dk) return;
+      const key = ev.name + '||' + dk;
+      if (!keyMap.has(key)){
+        keyMap.set(key, { name:ev.name, dateKey:dk, deptHint:ev.dept || '' });
+      }
+    });
+
+    const rows = [];
+    keyMap.forEach(info=>{
+      const emp = ALL_STATS.employees.get(info.name);
+      if (!emp) return;
+      const day = emp.days.get(info.dateKey);
+      if (!day) return;
+
+      const reasons = [];
+      const normForDay = day.normMs || getNormMsFor(info.name, day.dept || emp.dept || '', false);
+      const pauseMarginMs = getPauseMarginMsFor(info.name, day.dept || emp.dept || '');
+
+      if (day.hasPauseMismatch){
+        reasons.push('PAUSE / UNPAUSE nu se potrivesc');
+      }
+      if (day.hasExtraMismatch){
+        reasons.push('EXTRA START / EXTRA FINISH nu se potrivesc');
+      }
+      if (day.openRunning){
+        reasons.push('Sesiune normă rămasă deschisă (START fără FINISH)');
+      }
+      if (day.openExtra){
+        reasons.push('Sesiune EXTRA rămasă deschisă');
+      }
+      if (day.pauseMs && day.pauseMs > pauseMarginMs){
+        reasons.push('Pauză mai mare decât limita (' + fmtHoursHM(day.pauseMs) + ' > ' + fmtHoursHM(pauseMarginMs) + ')');
+      }
+      if (day.workMs && day.workMs > 12 * 60 * 60 * 1000){
+        reasons.push('Normă foarte mare în aceeași zi (>12h)');
+      }
+      if (isWeekend(info.dateKey) && (day.workMs || day.extraMs)){
+        reasons.push('Pontaj în weekend');
+      }
+
+      if (!reasons.length) return;
+
+      rows.push({
+        dateKey: info.dateKey,
+        name: info.name,
+        dept: day.dept || emp.dept || info.deptHint || '',
+        workMs: day.workMs,
+        extraMs: day.extraMs,
+        reasons: reasons.join('; ')
+      });
+    });
+
+    if (!rows.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = 'Nu există anomalii în filtrul curent.';
+      tr.appendChild(td);
+      anomaliesBodyEl.appendChild(tr);
+      return;
+    }
+
+    rows.sort((a,b)=>{
+      if (a.dateKey < b.dateKey) return -1;
+      if (a.dateKey > b.dateKey) return 1;
+      return a.name.localeCompare(b.name,'ro');
+    });
+
+    LATEST_ANOMALY_ROWS = [];
+
+    rows.forEach(item=>{
+      const wk = isWeekend(item.dateKey);
+      if (ANOMALY_DAY_FILTER === 'weekend' && !wk) return;
+      if (ANOMALY_DAY_FILTER === 'workday' && wk) return;
+
+      const isLeave = isEmployeeOnLeave(item.name, item.dateKey);
+      const leaveBadge = isLeave ? '<span class="badge badge-info">CONCEDIU</span> ' : '';
+
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.dataset.name = item.name;
+      tr.dataset.dateKey = item.dateKey;
+      tr.innerHTML =
+        '<td>' + item.dateKey + '</td>' +
+        '<td>' + item.name + '</td>' +
+        '<td>' + item.dept + '</td>' +
+        '<td>' + (item.workMs ? fmtHoursHM(item.workMs) : '-') + '</td>' +
+        '<td>' + (item.extraMs ? fmtHoursHM(item.extraMs) : '-') + '</td>' +
+        '<td>' + leaveBadge + item.reasons + '</td>';
+
+      LATEST_ANOMALY_ROWS.push({
+        dateKey:item.dateKey,
+        name:item.name,
+        dept:item.dept,
+        work:item.workMs ? fmtHoursHM(item.workMs) : '',
+        extra:item.extraMs ? fmtHoursHM(item.extraMs) : '',
+        leave:isLeave ? 'DA' : 'NU',
+        reasons:item.reasons
+      });
+
+      anomaliesBodyEl.appendChild(tr);
+    });
+  }
+
+  function applyDeptEmployee(events, currentDept, currentEmployee){
+    let list = events.slice();
+    if (currentDept && currentDept !== 'all'){
+      list = list.filter(ev => (ev.dept || '(fără departament)') === currentDept);
+    }
+    if (currentEmployee && currentEmployee !== 'all'){
+      list = list.filter(ev => ev.name === currentEmployee);
+    }
+    return list;
+  }
+
+  // LIVE BOARD: două moduri (azi / zile anterioare)
+    function renderLiveBoard(){
+    if (!liveBoardEl) return;
+    liveBoardEl.innerHTML = '';
+
+    if (liveBoardSummaryEl){
+      liveBoardSummaryEl.innerHTML = '';
+    }
+
+    let allEvents = window.__pontajAdminEvents || [];
+
+    const role = ADMIN_ROLE || 'admin';
+    if (role === 'teamlead' && ADMIN_DEPT){
+      allEvents = allEvents.filter(ev => (ev.dept || '') === ADMIN_DEPT);
+    }
+
+    const now = new Date();
+    const todayKey = dateKeyFromIso(now.toISOString());
+    if (!todayKey){
+      liveBoardEl.innerHTML = '<div class="admin-empty">Nu pot determina data curentă.</div>';
+      return;
+    }
+
+    // --- MODE: PAST (angajat -> ultima zi incompletă) ---
+    if (LIVE_BOARD_MODE === 'past'){
+      if (!ALL_STATS || !ALL_STATS.employees || !ALL_STATS.employees.size){
+        liveBoardEl.innerHTML = '<div class="admin-empty">Nu există date pentru a calcula zilele anterioare.</div>';
+        return;
+      }
+
+      const rows = [];
+      ALL_STATS.employees.forEach(emp=>{
+        let latest = null;
+        let count  = 0;
+
+        emp.days.forEach(day=>{
+          if (!day || !day.incomplete) return;
+          const dk = day.dateKey;
+          if (!dk || dk >= todayKey) return;
+
+          const dept = day.dept || emp.dept || '';
+          if (role === 'teamlead' && ADMIN_DEPT && dept !== ADMIN_DEPT) return;
+
+          count++;
+          if (!latest || dk > latest) latest = dk;
+        });
+
+        if (count){
+          rows.push({
+            name: emp.name,
+            dept: emp.dept || '(fără departament)',
+            count,
+            dateKey: latest
+          });
+        }
+      });
+
+      if (!rows.length){
+        liveBoardEl.innerHTML = '<div class="admin-empty">Toate zilele anterioare sunt închise (FINISH pentru toți până la azi).</div>';
+        return;
+      }
+
+      rows.sort((a,b)=>a.name.localeCompare(b.name,'ro'));
+
+      if (liveBoardSummaryEl){
+        liveBoardSummaryEl.innerHTML =
+          '<div class="liveboard-summary">' +
+            '<span class="chip">⚠ Angajați cu zile neînchise: <b>' + rows.length + '</b></span>' +
+          '</div>';
+      }
+
+      rows.forEach(r=>{
+        const row = document.createElement('div');
+        row.className = 'admin-list-row';
+        row.dataset.empName = r.name;
+        row.innerHTML =
+          '<div>' +
+            '<div class="admin-list-label">' + r.name + '</div>' +
+            '<div class="admin-list-sub">' + r.dept + (r.dateKey ? (' • ultima: ' + r.dateKey) : '') + '</div>' +
+          '</div>' +
+          '<div class="admin-list-value">' +
+            '<span class="badge badge-warn">⚠ ' + r.count + ' zile fără FINISH</span>' +
+          '</div>';
+
+        row.addEventListener('click', function(){
+          focusEmployeeAndMaybeDay(r.name, r.dateKey || null);
+        });
+
+        liveBoardEl.appendChild(row);
+      });
+
+      return;
+    }
+
+    // --- MODE: TODAY ---
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0,0);
+    const todayEnd   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59,999);
+
+    const todayEvents = allEvents.filter(ev=>{
+      if (!ev.ts) return false;
+      const t = new Date(ev.ts);
+      if (isNaN(t.getTime())) return false;
+      return t >= todayStart && t <= todayEnd;
+    });
+
+    if (!todayEvents.length){
+      liveBoardEl.innerHTML = '<div class="admin-empty">Niciun pontaj înregistrat azi.</div>';
+      return;
+    }
+
+    const byName = new Map();
+    todayEvents.forEach(ev=>{
+      if (!ev.name) return;
+      if (!byName.has(ev.name)) byName.set(ev.name, []);
+      byName.get(ev.name).push(ev);
+    });
+
+    const rows = [];
+    byName.forEach((list, name)=>{
+      list.sort((a,b)=>new Date(a.ts) - new Date(b.ts));
+
+      let baseState = 'none'; // working|paused|closed|none
+      let baseTs = null;
+
+      let extraState = 'none'; // extra_running|none
+      let extraTs = null;
+
+      let lastDept = '';
+
+      list.forEach(ev=>{
+        const t = new Date(ev.ts).getTime();
+        if (isNaN(t)) return;
+        if (ev.dept) lastDept = ev.dept;
+
+        const act = ev.action;
+
+        if (act === 'start' || act === 'unpause'){ baseState='working'; baseTs=t; }
+        else if (act === 'pause'){ baseState='paused'; baseTs=t; }
+        else if (act === 'finish'){ baseState='closed'; baseTs=t; }
+
+        if (act === 'extra_start'){ extraState='extra_running'; extraTs=t; }
+        else if (act === 'extra_finish'){ extraState='none'; extraTs=t; }
+      });
+
+      function fmtSince(ts){
+        if (!ts) return '';
+        const diffMs = now.getTime() - ts;
+        if (diffMs <= 0) return '';
+        const mins = Math.round(diffMs / 60000);
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h > 0) return h + 'h ' + String(m).padStart(2,'0') + 'm';
+        return m + ' min';
+      }
+
+      let state='Fără pontaj azi', badgeClass='badge-info', sinceLabel='';
+
+      if (extraState === 'extra_running'){
+        state='Extra în curs'; badgeClass='badge-ok'; sinceLabel=fmtSince(extraTs);
+      } else if (baseState === 'paused'){
+        state='În pauză'; badgeClass='badge-warn'; sinceLabel=fmtSince(baseTs);
+      } else if (baseState === 'working'){
+        state='Lucrează'; badgeClass='badge-ok'; sinceLabel=fmtSince(baseTs);
+      } else if (baseState === 'closed' || list.length){
+        state='Închis azi'; badgeClass='badge-info'; sinceLabel='';
+      }
+
+      rows.push({ name, dept:lastDept||'', state, badgeClass, sinceLabel });
+    });
+
+    rows.sort((a,b)=>a.name.localeCompare(b.name,'ro'));
+
+    // summary counters
+    let cWorking=0, cPaused=0, cExtra=0, cClosed=0;
+    rows.forEach(r=>{
+      if (r.state === 'Lucrează') cWorking++;
+      else if (r.state === 'În pauză') cPaused++;
+      else if (r.state === 'Extra în curs') cExtra++;
+      else if (r.state === 'Închis azi') cClosed++;
+    });
+    if (liveBoardSummaryEl){
+      liveBoardSummaryEl.innerHTML =
+        '<div class="liveboard-summary">' +
+          '<span class="chip">Lucrează: <b>' + cWorking + '</b></span>' +
+          '<span class="chip">În pauză: <b>' + cPaused + '</b></span>' +
+          '<span class="chip">Extra: <b>' + cExtra + '</b></span>' +
+          '<span class="chip">Închis: <b>' + cClosed + '</b></span>' +
+        '</div>';
+    }
+
+    rows.forEach(r=>{
+      const row = document.createElement('div');
+      row.className = 'admin-list-row';
+      row.dataset.empName = r.name;
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + r.name + '</div>' +
+          '<div class="admin-list-sub">' + (r.dept || '(fără departament)') + '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' +
+          '<div><span class="badge ' + r.badgeClass + '">' + r.state + '</span></div>' +
+          (r.sinceLabel ? '<div style="font-size:11px;color:#6b7280;">de ' + r.sinceLabel + '</div>' : '') +
+        '</div>';
+
+      row.addEventListener('click', function(){
+        focusEmployeeAndMaybeDay(r.name, null);
+      });
+
+      liveBoardEl.appendChild(row);
+    });
+  }
+
+  function renderAlertsFromMeta(){
+    if (!alertsListEl) return;
+    alertsListEl.innerHTML = '';
+    const meta = window.__pontajAdminMeta || null;
+    const alerts = meta && Array.isArray(meta.alerts) ? meta.alerts : [];
+    if (!alerts.length){
+      alertsListEl.innerHTML = '<div class="admin-empty">Nicio alertă de la sistem.</div>';
+      return;
+    }
+    alerts.slice(0,10).forEach(a=>{
+      const row = document.createElement('div');
+      row.className = 'admin-list-row';
+      const when = a.ts ? fmtDateTime(a.ts) : '';
+      const level = (a.level || 'info').toLowerCase();
+      let badgeClass = 'badge-info';
+      if (level === 'warn' || level === 'warning') badgeClass = 'badge-warn';
+      if (level === 'error' || level === 'danger') badgeClass = 'badge-warn';
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + (a.title || 'Alertă sistem') + '</div>' +
+          '<div class="admin-list-sub">' + (when || '') + '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' +
+          '<span class="badge ' + badgeClass + '">' + (a.message || '') + '</span>' +
+        '</div>';
+      alertsListEl.appendChild(row);
+    });
+  }
+
+  // NOU: istoric detaliat de alerte din meta.alerts (toate zilele)
+    function renderSystemAlertsHistory(){
+    if (!systemAlertsHistoryBodyEl) return;
+    systemAlertsHistoryBodyEl.innerHTML = '';
+
+    const meta = window.__pontajAdminMeta || null;
+    const alerts = meta && Array.isArray(meta.alerts) ? meta.alerts : [];
+
+    if (!alerts.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Nu există alerte înregistrate în istoric.';
+      tr.appendChild(td);
+      systemAlertsHistoryBodyEl.appendChild(tr);
+      return;
+    }
+
+    const q = (ALERTS_FILTER_Q || '').trim().toLowerCase();
+
+    let sorted = alerts.slice().sort((a,b)=>{
+      const ta = a.ts ? new Date(a.ts).getTime() : 0;
+      const tb = b.ts ? new Date(b.ts).getTime() : 0;
+      return tb - ta;
+    });
+
+    // Tip alertă: meta.alerts e considerat "system"
+    if (ALERTS_FILTER_TYPE !== 'all' && ALERTS_FILTER_TYPE !== 'system'){
+      sorted = [];
+    }
+
+    if (ALERTS_FILTER_DEPT !== 'all'){
+      sorted = sorted.filter(x => (x.dept || '') === ALERTS_FILTER_DEPT);
+    }
+
+    if (q){
+      sorted = sorted.filter(x => alertHaystack(x).includes(q));
+    }
+
+    if (!sorted.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Nu există alerte sistem pentru filtrele curente.';
+      tr.appendChild(td);
+      systemAlertsHistoryBodyEl.appendChild(tr);
+      return;
+    }
+
+    sorted.forEach(a=>{
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.dataset.name = (a.name || '');
+      tr.dataset.dateKey = (a.dateKey || (a.ts ? (dateKeyFromIso(a.ts) || '') : ''));
+
+      const level = (a.level || 'info').toLowerCase();
+      let typeLabel = 'Info';
+      if (level === 'warn' || level === 'warning') typeLabel = 'Avertizare';
+      if (level === 'error' || level === 'danger')  typeLabel = 'Eroare';
+
+      tr.innerHTML =
+        '<td>' + (a.ts ? fmtDateTime(a.ts) : '') + '</td>' +
+        '<td>' + (a.name || '') + '</td>' +
+        '<td>' + (a.dept || '') + '</td>' +
+        '<td>' + typeLabel + '</td>' +
+        '<td>' + (a.message || a.title || '') + '</td>';
+
+      systemAlertsHistoryBodyEl.appendChild(tr);
+    });
+  }
+
+  function applySelfServiceConfig(cfg){
+    if (!selfServiceLink || !cfg) return;
+    const base = cfg.selfServiceBaseUrl || cfg.selfUrl || null;
+    SELF_SERVICE_BASE = base;
+    if (!base) return;
+    const q = [];
+    if (ADMIN_SESSION && ADMIN_SESSION.userEmail){
+      q.push('email=' + encodeURIComponent(ADMIN_SESSION.userEmail));
+    }
+    if (ADMIN_SESSION && ADMIN_SESSION.user){
+      q.push('name=' + encodeURIComponent(ADMIN_SESSION.user));
+    }
+    const url = base + (q.length ? ('?' + q.join('&')) : '');
+    selfServiceLink.href = url;
+  }
+
+    function setActiveTab(tab){
+    // tab: 'dashboard' | 'alerts'
+    if (!tabButtons || !tabButtons.length) return;
+    tabButtons.forEach(b=>{
+      const isActive = (b.dataset.tab === tab);
+      b.classList.toggle('active', isActive);
+    });
+    if (tab === 'alerts'){
+      if (dashboardEl) dashboardEl.style.display = 'none';
+      if (alertsPageEl) alertsPageEl.style.display = '';
+    } else {
+      if (dashboardEl) dashboardEl.style.display = '';
+      if (alertsPageEl) alertsPageEl.style.display = 'none';
+    }
+  }
+
+  function ensureEmployeeOption(name){
+    if (!employeeFilter || !name) return;
+    if (!employeeFilter.querySelector('option[value="'+name+'"]')){
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = name;
+      employeeFilter.appendChild(o);
+    }
+  }
+
+  function focusEmployeeAndMaybeDay(name, dateKey){
+    if (!name) return;
+    setActiveTab('dashboard');
+
+    SELECTED_EMPLOYEE = name;
+    if (dateKey) SELECTED_CALENDAR_DAY = dateKey;
+
+    if (employeeFilter){
+      ensureEmployeeOption(name);
+      employeeFilter.value = name;
+      employeeFilter.dispatchEvent(new Event('change'));
+    } else {
+      renderEmployeeDetails(name);
+      if (window.__pontajAdminRefresh) window.__pontajAdminRefresh();
+    }
+
+    // scroll către detalii
+    setTimeout(()=>{
+      if (employeeDetailsBodyEl && employeeDetailsBodyEl.scrollIntoView){
+        employeeDetailsBodyEl.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    }, 0);
+  }
+
+  function exportCsvGeneric(filename, header, rows){
+    if (!rows || !rows.length){
+      alert('Nu există date pentru export.');
+      return;
+    }
+    const csvLines = [header].concat(rows).map(row => row.map(cell => {
+      const s = String(cell == null ? '' : cell).replace(/"/g,'""');
+      return '"' + s + '"';
+    }).join(','));
+    const csv = csvLines.join('\r\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },0);
+  }
+
+  function alertHaystack(obj){
+    const s = [
+      obj && obj.name ? obj.name : '',
+      obj && obj.dept ? obj.dept : '',
+      obj && obj.message ? obj.message : '',
+      obj && obj.title ? obj.title : '',
+      obj && obj.detail ? obj.detail : ''
+    ].join(' ').toLowerCase();
+    return s;
+  }
+  
+  // --- HELPER pentru calculul stării de azi (pentru alerte LIVE) ---
+  function buildTodayStates(allEvents){
+    const now = new Date();
+    const todayKey = dateKeyFromIso(now.toISOString());
+    if (!todayKey) return { byName:new Map(), todayKey:null };
+
+    const todayEvents = (allEvents || []).filter(ev => dateKeyFromIso(ev.ts) === todayKey);
+    if (!todayEvents.length) return { byName:new Map(), todayKey };
+
+    todayEvents.sort((a,b)=>new Date(a.ts) - new Date(b.ts));
+    const byName = new Map();
+
+    todayEvents.forEach(ev=>{
+      if (!ev.name) return;
+      if (!byName.has(ev.name)){
+        byName.set(ev.name, {
+          name: ev.name,
+          dept: ev.dept || '',
+          hasLongActivity: false,
+          firstStartTs: null,
+          lastStartTs: null,
+          running: false,
+          paused: false,
+          pauseStartTs: null,
+          extraRunning: false,
+          extraStartTs: null
+        });
+      }
+      const st = byName.get(ev.name);
+      const t = new Date(ev.ts).getTime();
+      if (isNaN(t)) return;
+
+      if (ev.dept) st.dept = ev.dept;
+      if (ev.activity && ACTIVITATI_NORMA_8H30.indexOf(ev.activity) !== -1){
+        st.hasLongActivity = true;
+      }
+
+      if (ev.action === 'start'){
+        if (st.firstStartTs == null) st.firstStartTs = t;
+        st.lastStartTs = t;
+        st.running = true;
+        st.paused = false;
+        st.pauseStartTs = null;
+      } else if (ev.action === 'pause'){
+        if (st.running){
+          st.paused = true;
+          st.pauseStartTs = t;
+        }
+      } else if (ev.action === 'unpause'){
+        if (st.running){
+          st.paused = false;
+          st.pauseStartTs = null;
+        }
+      } else if (ev.action === 'finish'){
+        // închidem sesiunea curentă
+        st.running = false;
+        st.paused = false;
+        st.pauseStartTs = null;
+      } else if (ev.action === 'extra_start'){
+        st.extraRunning = true;
+        st.extraStartTs = t;
+      } else if (ev.action === 'extra_finish'){
+        st.extraRunning = false;
+        st.extraStartTs = null;
+      }
+    });
+
+    return { byName, todayKey };
+  }
+
+  function registerAlertSlot(key, overdueMs, freqMs, nowMs){
+    if (!LIVE_ALERT_STATE[key]){
+      LIVE_ALERT_STATE[key] = {
+        firstTriggeredAt: nowMs - overdueMs,
+        lastSlotIndex: -1
+      };
+    }
+    const slot = Math.floor(overdueMs / freqMs);
+    if (slot > LIVE_ALERT_STATE[key].lastSlotIndex){
+      LIVE_ALERT_STATE[key].lastSlotIndex = slot;
+      return true; // notificare nouă în acest interval
+    }
+    return false;
+  }
+
+  function pushAlertLogCollapsed(key, entry){
+    const idx = LIVE_ALERT_LOG.findIndex(e => e.key === key);
+    if (idx !== -1){
+      const ex = LIVE_ALERT_LOG[idx];
+      ex.repeatCount = (ex.repeatCount || 0) + 1;
+      ex.ts = entry.ts;
+      ex.message = entry.message;
+      ex.dept = entry.dept || ex.dept;
+      LIVE_ALERT_LOG.splice(idx, 1);
+      LIVE_ALERT_LOG.unshift(ex);
+    } else {
+      LIVE_ALERT_LOG.unshift(Object.assign({ key, repeatCount:0 }, entry));
+    }
+    if (LIVE_ALERT_LOG.length > ALERT_MAX_LOG){
+      LIVE_ALERT_LOG.length = ALERT_MAX_LOG;
+    }
+  }
+
+  function renderLiveAlertsActive(active){
+    if (!liveAlertsActiveEl) return;
+    liveAlertsActiveEl.innerHTML = '';
+
+    const q = (ALERTS_FILTER_Q || '').trim().toLowerCase();
+    let list = (active || []).slice();
+
+    // dept filter
+    if (ALERTS_FILTER_DEPT !== 'all'){
+      list = list.filter(x => (x.dept || '') === ALERTS_FILTER_DEPT);
+    }
+
+    // text filter (nume sau alert text)
+    if (q){
+      list = list.filter(x =>
+        (x.name || '').toLowerCase().includes(q) ||
+        (x.alerts || []).some(a => alertHaystack(a).includes(q))
+      );
+    }
+
+    // type filter (doar pentru LIVE; dacă e "system", LIVE devine gol)
+    if (ALERTS_FILTER_TYPE !== 'all'){
+      if (ALERTS_FILTER_TYPE === 'system'){
+        list = [];
+      } else {
+        list = list
+          .map(x => Object.assign({}, x, {
+            alerts: (x.alerts || []).filter(a => a.type === ALERTS_FILTER_TYPE)
+          }))
+          .filter(x => x.alerts && x.alerts.length);
+      }
+    }
+
+    if (!list.length){
+      liveAlertsActiveEl.innerHTML =
+        '<div class="admin-empty">Nu există alerte active pentru filtrele curente.</div>';
+      return;
+    }
+
+    list.sort((a,b)=>a.name.localeCompare(b.name,'ro'));
+
+    list.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'admin-list-row clickable';
+      row.dataset.name = item.name || '';
+      row.dataset.dateKey = dateKeyFromIso(new Date().toISOString()) || '';
+
+      let badgesHtml = '';
+      (item.alerts || []).forEach(a=>{
+        badgesHtml += '<div><span class="badge badge-warn">' + (a.label || a.type || 'Alertă') + '</span></div>';
+        if (a.detail){
+          badgesHtml += '<div style="font-size:11px;color:#6b7280;margin-top:2px;">' + a.detail + '</div>';
+        }
+      });
+
+      row.innerHTML =
+        '<div>' +
+          '<div class="admin-list-label">' + (item.name || '') + '</div>' +
+          '<div class="admin-list-sub">' + (item.dept || '(fără departament)') + '</div>' +
+        '</div>' +
+        '<div class="admin-list-value">' + badgesHtml + '</div>';
+
+      row.addEventListener('click', function(){
+        focusEmployeeAndMaybeDay(item.name, null);
+      });
+
+      liveAlertsActiveEl.appendChild(row);
+    });
+  }
+
+
+  function renderLiveAlertsHistory(){
+    if (!liveAlertsHistoryBodyEl) return;
+    liveAlertsHistoryBodyEl.innerHTML = '';
+
+    const q = (ALERTS_FILTER_Q || '').trim().toLowerCase();
+
+    let list = (LIVE_ALERT_LOG || []).slice();
+
+    // type filter
+    if (ALERTS_FILTER_TYPE !== 'all'){
+      if (ALERTS_FILTER_TYPE === 'system'){
+        list = [];
+      } else {
+        list = list.filter(e => e.type === ALERTS_FILTER_TYPE);
+      }
+    }
+
+    // dept filter
+    if (ALERTS_FILTER_DEPT !== 'all'){
+      list = list.filter(e => (e.dept || '') === ALERTS_FILTER_DEPT);
+    }
+
+    // text filter
+    if (q){
+      list = list.filter(e =>
+        (e.name || '').toLowerCase().includes(q) ||
+        (e.message || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (!list.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Nu există notificări pentru filtrele curente.';
+      tr.appendChild(td);
+      liveAlertsHistoryBodyEl.appendChild(tr);
+      return;
+    }
+
+    list.forEach(entry=>{
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.dataset.name = entry.name || '';
+      tr.dataset.dateKey = entry.ts ? (dateKeyFromIso(entry.ts) || '') : '';
+
+      let typeLabel = '';
+      if (entry.type === 'pause') typeLabel = 'Pauză';
+      else if (entry.type === 'norm') typeLabel = 'Normă';
+      else if (entry.type === 'extra') typeLabel = 'Extra';
+      else typeLabel = entry.type || '-';
+
+      const rep = entry.repeatCount ? ` (repetată de ${entry.repeatCount} ori)` : '';
+
+      tr.innerHTML =
+        '<td>' + fmtDateTime(entry.ts) + '</td>' +
+        '<td>' + (entry.name || '') + '</td>' +
+        '<td>' + (entry.dept || '') + '</td>' +
+        '<td>' + typeLabel + '</td>' +
+        '<td>' + (entry.message || '') + rep + '</td>';
+
+      liveAlertsHistoryBodyEl.appendChild(tr);
+    });
+  }
+
+  function scanAndUpdateLiveAlerts(){
+    const allEvents = window.__pontajAdminEvents || [];
+    const nowMs = Date.now();
+    const { byName } = buildTodayStates(allEvents);
+    const active = [];
+
+    byName.forEach(st=>{
+      const dept = st.dept || '';
+      const alertsForThis = [];
+
+      // Pauză > limită fără UNPAUSE
+      if (st.paused && st.pauseStartTs){
+        const thresholdMs = getPauseMarginMsFor(st.name, dept);
+        const elapsed = nowMs - st.pauseStartTs;
+        if (elapsed > thresholdMs){
+          const key = st.name + '|pause';
+          const freq = 15 * 60 * 1000; // la 15 minute
+          const overdueMs = elapsed - thresholdMs;
+          const newNotif = registerAlertSlot(key, overdueMs, freq, nowMs);
+          const baseMinutes = Math.round(thresholdMs / 60000);
+          const overMin = Math.round(elapsed / 60000);
+          if (newNotif){
+            pushAlertLogCollapsed(key,{
+              ts:new Date(nowMs).toISOString(),
+              name:st.name,
+              dept,
+              type:'pause',
+              message:'Pauză mai mare de ' + baseMinutes + ' min (în pauză de ' + overMin + ' min, fără UNPAUSE).'
+            });
+          }
+          alertsForThis.push({
+            type:'pause',
+            label:'Pauză > ' + baseMinutes + ' min',
+            detail:'În pauză de ' + overMin + ' min fără UNPAUSE.'
+          });
+        }
+      }
+
+      // Normă depășită (în funcție de normă configurată) fără FINISH
+      if ((st.running || st.paused) && st.firstStartTs){
+        const normMs = getNormMsFor(st.name, dept, st.hasLongActivity);
+        const elapsedNorm = nowMs - st.firstStartTs;
+        if (elapsedNorm > normMs){
+          const key = st.name + '|norm';
+          const freq = 30 * 60 * 1000; // din 30 în 30 de minute
+          const overdueMs = elapsedNorm - normMs;
+          const newNotif = registerAlertSlot(key, overdueMs, freq, nowMs);
+          const baseHours = (normMs/3600000).toFixed(1).replace('.', ',');
+          const elapsedHours = (elapsedNorm/3600000).toFixed(2).replace('.', ',');
+          if (newNotif){
+            pushAlertLogCollapsed(key,{
+              ts:new Date(nowMs).toISOString(),
+              name:st.name,
+              dept,
+              type:'norm',
+              message:'Normă depășită (' + elapsedHours + 'h de la primul START, peste ' + baseHours + 'h, fără FINISH).'
+            });
+          }
+          alertsForThis.push({
+            type:'norm',
+            label:'Normă depășită',
+            detail:'Peste ' + baseHours + 'h fără FINISH (acum ~' + elapsedHours + 'h).'
+          });
+        }
+      }
+
+      // EXTRA în curs > 30 min
+      if (st.extraRunning && st.extraStartTs){
+        const thresholdMs = 30 * 60 * 1000;
+        const elapsedExtra = nowMs - st.extraStartTs;
+        if (elapsedExtra > thresholdMs){
+          const key = st.name + '|extra';
+          const freq = 15 * 60 * 1000; // la 15 minute
+          const overdueMs = elapsedExtra - thresholdMs;
+          const newNotif = registerAlertSlot(key, overdueMs, freq, nowMs);
+          const overMin = Math.round(elapsedExtra / 60000);
+          if (newNotif){
+            pushAlertLogCollapsed(key,{
+              ts:new Date(nowMs).toISOString(),
+              name:st.name,
+              dept,
+              type:'extra',
+              message:'Sesiune EXTRA peste 30 min (în curs de ' + overMin + ' min).'
+            });
+          }
+          alertsForThis.push({
+            type:'extra',
+            label:'EXTRA > 30 min',
+            detail:'Sesiune EXTRA în curs de ' + overMin + ' min.'
+          });
+        }
+      }
+
+      if (alertsForThis.length){
+        active.push({
+          name:st.name,
+          dept,
+          alerts:alertsForThis
+        });
+      }
+    });
+    LAST_LIVE_ACTIVE = active.slice();
+    renderLiveAlertsActive(active);
+    renderLiveAlertsHistory();
+  }
+
+  async function init(){
+    try{
+      const CFG = await loadConfig();
+      applyNormSettingsFromConfig(CFG);
+      applySelfServiceConfig(CFG);
+
+      const adminUrl = CFG.adminEventsEndpoint + '?fn=adminEvents&v=' + Date.now();
+      const r2  = await fetch(adminUrl, { cache:'no-store' });
+      const txt = await r2.text();
+      let data;
+      try { data = JSON.parse(txt); } catch(e){ throw new Error('Răspuns invalid de la adminEventsEndpoint.'); }
+      if (!data || !data.ok || !Array.isArray(data.events)){
+        throw new Error('adminEventsEndpoint nu a întors un obiect ok cu events[].');
+      }
+
+      const meta = data.meta || null;
+      window.__pontajAdminMeta = meta || null;
+
+      let leavesData = null;
+      if (CFG.leaveEndpoint){
+        try{
+          const leaveUrl = CFG.leaveEndpoint + '?fn=adminLeave&v=' + Date.now();
+          const lr = await fetch(leaveUrl, {cache:'no-store'});
+          const ltxt = await lr.text();
+          let ljson = null;
+          try{ ljson = JSON.parse(ltxt); }catch(e){}
+          if (ljson && ljson.ok && Array.isArray(ljson.leaves)){
+            leavesData = ljson.leaves;
+          }
+        }catch(err){
+          // endpoint de concedii admin este opțional
+        }
+      }
+      if (leavesData){
+        buildLeaveIndex(leavesData);
+      } else {
+        buildLeaveIndex([]);
+      }
+
+      const events = data.events.map(ev => ({
+        ts: ev.ts,
+        name: ev.name || '',
+        action: _normAction(ev.action),
+        dept: ev.dept || '',
+        activity: ev.activity || '',
+        location: ev.location || ''
+      })).filter(ev => ev.ts);
+
+      window.__pontajAdminEvents = events;
+
+      if (loadingEl)  loadingEl.style.display = 'none';
+      if (dashboardEl) dashboardEl.style.display = '';
+
+      if (lastUpdateEl){
+        let stamp = new Date();
+        if (meta && meta.generatedAt){
+          const dMeta = new Date(meta.generatedAt);
+          if (!isNaN(dMeta.getTime())) {
+            stamp = dMeta;
+          }
+        }
+        const hh = String(stamp.getHours()).padStart(2,'0');
+        const mi = String(stamp.getMinutes()).padStart(2,'0');
+        lastUpdateEl.textContent = 'Actualizat la ' + hh + ':' + mi;
+      }
+
+      ALL_STATS = buildStatsFromEvents(events);
+      renderTopEmployees(ALL_STATS);
+
+      if (topModeHoursBtn && topModeAnomaliesBtn){
+        topModeHoursBtn.addEventListener('click', function(){
+          TOP_MODE = 'hours';
+          topModeHoursBtn.classList.add('active');
+          topModeAnomaliesBtn.classList.remove('active');
+          renderTopEmployees(ALL_STATS);
+        });
+        topModeAnomaliesBtn.addEventListener('click', function(){
+          TOP_MODE = 'anomalies';
+          topModeAnomaliesBtn.classList.add('active');
+          topModeHoursBtn.classList.remove('active');
+          renderTopEmployees(ALL_STATS);
+        });
+      }
+
+      let currentRange    = rangeSelect ? rangeSelect.value : 'today';
+      let currentDept     = 'all';
+      let currentEmployee = 'all';
+      let latestFiltered  = [];
+
+      buildDeptFilter(events);
+      buildEmployeeFilter(events, currentDept);
+      renderEmployeeIndex(ALL_STATS, CURRENT_DEPT_FILTER, EMPLOYEE_SEARCH_TEXT);
+      renderEmployeeDetails(null);
+
+      function setSelectedCalendarDay(dateKey){
+        if (SELECTED_CALENDAR_DAY === dateKey){
+          SELECTED_CALENDAR_DAY = null;
+        } else {
+          SELECTED_CALENDAR_DAY = dateKey;
+        }
+        refresh();
+      }
+
+       function renderPresenceCalendarMonthly(){
+        if (!presenceCalendarEl) return;
+        presenceCalendarEl.innerHTML = '';
+
+        const monthNames = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+        if (calendarMonthLabelEl){
+          calendarMonthLabelEl.textContent = monthNames[CALENDAR_MONTH] + ' ' + CALENDAR_YEAR;
+        }
+
+        const baseForCalendar = applyDeptEmployee(events, currentDept, currentEmployee);
+
+        const firstDay = new Date(CALENDAR_YEAR, CALENDAR_MONTH, 1);
+        const lastDay  = new Date(CALENDAR_YEAR, CALENDAR_MONTH + 1, 0);
+
+        const filtered = (baseForCalendar || []).filter(ev=>{
+          if (!ev.ts) return false;
+          const t = new Date(ev.ts);
+          if (isNaN(t.getTime())) return false;
+          return t >= firstDay && t <= new Date(CALENDAR_YEAR, CALENDAR_MONTH, lastDay.getDate(), 23,59,59,999);
+        });
+
+        const statsMonth = buildStatsFromEvents(filtered);
+       }
+      function applyRoleVisibility(){
+        const role = ADMIN_ROLE || 'admin';
+
+        if (role === 'viewer'){
+          if (exportCsvBtn) exportCsvBtn.style.display = 'none';
+          if (pdfBtn) pdfBtn.style.display = 'none';
+          if (deptPdfBtn) deptPdfBtn.style.display = 'none';
+          if (employeeExportBtn) employeeExportBtn.style.display = 'none';
+          if (payrollExportBtn) payrollExportBtn.style.display = 'none';
+        }
+
+        if (role === 'teamlead' && ADMIN_DEPT && deptFilter){
+          deptFilter.value = ADMIN_DEPT;
+          deptFilter.disabled = true;
+          currentDept = ADMIN_DEPT;
+          CURRENT_DEPT_FILTER = ADMIN_DEPT;
+        }
+      }
+
+      function refresh(){
+        let baseAll   = applyDeptEmployee(events, currentDept, currentEmployee);
+        let baseRange = filterByRange(baseAll, currentRange || 'today');
+        if (SELECTED_CALENDAR_DAY){
+          baseRange = baseRange.filter(ev => dateKeyFromIso(ev.ts) === SELECTED_CALENDAR_DAY);
+        }
+         window.__pontajAdminRefresh = refresh;
+        let filteredForMain = applyIncompleteFilter(baseRange);
+        latestFiltered = filteredForMain;
+
+        renderKpis(filteredForMain);
+        renderDept(filteredForMain);
+        renderRawLog(filteredForMain);
+
+        const statsBase = buildStatsFromEvents(baseRange);
+        updateCompletedTodayKpiFromStats(statsBase, currentRange);
+        renderDailyPresence(statsBase);
+        renderIncompleteDays(baseRange);
+        renderAnomalies(baseRange);
+
+        let lastBase   = applyDeptEmployee(events, currentDept, currentEmployee);
+        let lastByRange= filterLastEventsByRange(lastBase, lastEventsRange || 'today');
+        if (SELECTED_CALENDAR_DAY){
+          lastByRange = lastByRange.filter(ev => dateKeyFromIso(ev.ts) === SELECTED_CALENDAR_DAY);
+        }
+        let lastFinal  = applyIncompleteFilter(lastByRange);
+        renderLastEvents(lastFinal);
+
+        if (lastEventsTitleEl && lastEventsHintTextEl && rawLogTitleEl){
+          let baseHint = filterIncompleteOnly
+            ? 'Toate înregistrările din zilele fără FINISH pentru perioada aleasă și filtrul curent.'
+            : 'Toate înregistrările din perioada aleasă, după filtrele de mai sus.';
+          if (SELECTED_CALENDAR_DAY){
+            baseHint += ' (Filtrat pe ziua ' + SELECTED_CALENDAR_DAY + ' din calendar.)';
+          }
+          lastEventsHintTextEl.textContent = baseHint;
+
+          if (filterIncompleteOnly){
+            lastEventsTitleEl.textContent = 'Ultimele pontaje (doar zile fără FINISH)';
+            rawLogTitleEl.textContent = 'Log brut (doar zile fără FINISH)';
+          } else {
+            lastEventsTitleEl.textContent = 'Ultimele pontaje';
+            rawLogTitleEl.textContent = 'Log brut (filtru curent)';
+          }
+        }
+
+      
+
+        
+        renderPresenceCalendarMonthly();
+        renderLiveBoard();
+        renderAlertsFromMeta();
+        renderSystemAlertsHistory();
+      }
+
+      function handleDayRowClick(tr){
+        if (!tr || !tr.dataset || !tr.dataset.name || !tr.dataset.dateKey) return;
+        const name = tr.dataset.name;
+        const dk   = tr.dataset.dateKey;
+
+        SELECTED_EMPLOYEE     = name;
+        SELECTED_CALENDAR_DAY = dk;
+
+        if (employeeFilter){
+          if (!employeeFilter.querySelector('option[value="'+name+'"]')){
+            const o = document.createElement('option');
+            o.value = name;
+            o.textContent = name;
+            employeeFilter.appendChild(o);
+          }
+          employeeFilter.value = name;
+        }
+
+        currentEmployee = name;
+
+        markSelectedEmployee(name);
+        renderEmployeeDetails(name);
+        refresh();
+
+        if (employeeDetailsBodyEl && employeeDetailsBodyEl.scrollIntoView){
+          employeeDetailsBodyEl.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+
+      if (rangeSelect){
+        rangeSelect.addEventListener('change', function(){
+          currentRange = rangeSelect.value || 'today';
+          refresh();
+        });
+      }
+      if (deptFilter){
+        deptFilter.addEventListener('change', function(){
+          currentDept = deptFilter.value || 'all';
+          CURRENT_DEPT_FILTER = currentDept;
+          buildEmployeeFilter(events, currentDept);
+          if (currentEmployee !== 'all' && employeeFilter){
+            if (!employeeFilter.querySelector('option[value="'+currentEmployee+'"]')){
+              const o = document.createElement('option');
+              o.value = currentEmployee;
+              o.textContent = currentEmployee;
+              employeeFilter.appendChild(o);
+            }
+            employeeFilter.value = currentEmployee;
+          }
+          renderEmployeeIndex(ALL_STATS, CURRENT_DEPT_FILTER, EMPLOYEE_SEARCH_TEXT);
+          renderEmployeeDetails(SELECTED_EMPLOYEE);
+          refresh();
+        });
+      }
+      if (employeeFilter){
+        employeeFilter.addEventListener('change', function(){
+          currentEmployee = employeeFilter.value || 'all';
+          if (currentEmployee === 'all'){
+            SELECTED_EMPLOYEE = null;
+            renderEmployeeDetails(null);
+          } else {
+            SELECTED_EMPLOYEE = currentEmployee;
+            markSelectedEmployee(SELECTED_EMPLOYEE);
+            renderEmployeeDetails(SELECTED_EMPLOYEE);
+          }
+          refresh();
+        });
+      }
+      if (incompleteOnlyCheckbox){
+        incompleteOnlyCheckbox.addEventListener('change', function(){
+          filterIncompleteOnly = !!incompleteOnlyCheckbox.checked;
+          refresh();
+        });
+      }
+      if (lastEventsRangeSelect){
+        lastEventsRangeSelect.addEventListener('change', function(){
+          lastEventsRange = lastEventsRangeSelect.value || 'today';
+          refresh();
+        });
+      }
+
+      if (employeeSearchInput){
+        employeeSearchInput.addEventListener('input', function(){
+          EMPLOYEE_SEARCH_TEXT = (employeeSearchInput.value || '').trim();
+          renderEmployeeIndex(ALL_STATS, CURRENT_DEPT_FILTER, EMPLOYEE_SEARCH_TEXT);
+          if (SELECTED_EMPLOYEE){
+            markSelectedEmployee(SELECTED_EMPLOYEE);
+          }
+        });
+      }
+
+      if (incompleteDaysBodyEl){
+        incompleteDaysBodyEl.addEventListener('click', function(e){
+          const tr = e.target.closest('tr');
+          handleDayRowClick(tr);
+        });
+      }
+
+      if (anomaliesBodyEl){
+        anomaliesBodyEl.addEventListener('click', function(e){
+          const tr = e.target.closest('tr');
+          handleDayRowClick(tr);
+        });
+      }
+
+      if (exportCsvBtn){
+        exportCsvBtn.addEventListener('click', function(){
+          exportCsv(latestFiltered);
+        });
+      }
+
+      if (pdfBtn){
+        pdfBtn.addEventListener('click', async function(){
+          if (!SELECTED_EMPLOYEE){
+            alert('Selectează mai întâi un angajat din Index sau din filtrul de angajați.');
+            return;
+          }
+          try{
+            const cfg = await loadConfig();
+            if (!cfg.adminEventsEndpoint) throw new Error('Lipsește adminEventsEndpoint.');
+            const url = cfg.adminEventsEndpoint +
+              '?fn=adminPdf&name=' + encodeURIComponent(SELECTED_EMPLOYEE) +
+              '&v=' + Date.now();
+            window.open(url, '_blank');
+          }catch(err){
+            alert('Eroare configurare PDF: ' + (err && err.message ? err.message : err));
+          }
+        });
+      }
+
+      if (deptPdfBtn){
+        deptPdfBtn.addEventListener('click', async function(){
+          let dept = CURRENT_DEPT_FILTER && CURRENT_DEPT_FILTER !== 'all'
+            ? CURRENT_DEPT_FILTER
+            : '';
+          if (!dept){
+            const listOpts = Array.from(deptFilter ? deptFilter.options : [])
+              .map(o => o.value)
+              .filter(v => v && v !== 'all');
+            const suggestion = listOpts.length ? listOpts[0] : '';
+            const input = prompt('Introdu numele departamentului pentru raport (exact cum apare în filtrul de departamente):', suggestion);
+            dept = input ? input.trim() : '';
+          }
+          if (!dept){
+            alert('Nu a fost ales niciun departament.');
+            return;
+          }
+          try{
+            const cfg = await loadConfig();
+            if (!cfg.adminEventsEndpoint) throw new Error('Lipsește adminEventsEndpoint.');
+            const url = cfg.adminEventsEndpoint +
+              '?fn=adminPdfDept&dept=' + encodeURIComponent(dept) +
+              '&v=' + Date.now();
+            const r   = await fetch(url, {cache:'no-store'});
+            const resp= await r.json();
+            if (!resp.ok || !resp.url){
+              throw new Error(resp.error || 'Nu am primit un URL de raport.');
+            }
+            window.open(resp.url, '_blank');
+          }catch(err){
+            alert('Eroare la generarea raportului departamental: ' + (err.message || err));
+          }
+        });
+      }
+
+      if (employeeExportBtn){
+        employeeExportBtn.addEventListener('click', function(){
+          if (!SELECTED_EMPLOYEE){
+            alert('Selectează mai întâi un angajat din Index sau din filtrul de angajați.');
+            return;
+          }
+          if (!ALL_STATS || !ALL_STATS.employees || !ALL_STATS.employees.has(SELECTED_EMPLOYEE)){
+            alert('Nu găsesc date pentru acest angajat.');
+            return;
+          }
+          const emp = ALL_STATS.employees.get(SELECTED_EMPLOYEE);
+          const t   = emp.totals;
+          const daysArr = Array.from(emp.days.values())
+            .sort((a,b)=>a.dateKey < b.dateKey ? -1 : (a.dateKey > b.dateKey ? 1 : 0));
+
+          const totalNormH = msToHours(t.totalWorkMs);
+          const totalExtraH= msToHours(t.totalExtraMs);
+          const totalOverH = msToHours(t.overtimeMs);
+          const pctComplete = t.daysWithStart ? Math.round(100 * t.daysCompleted / t.daysWithStart) : 0;
+
+          const header = [
+            'Nume','Departament','Total ore norma (h)','Total ore extra (h)',
+            'Total overtime (h)','Zile cu START','Zile cu FINISH','Zile complete',
+            'Zile cu norma validata','Procent zile complete (%)',
+            'Data','Norma (h)','Extra (h)','Overtime (h)','Complet','Norma validata'
+          ];
+
+          const rows = daysArr.map(d => {
+            const flagIncomplete = isDayIncomplete(d);
+            return [
+              emp.name,
+              emp.dept || '',
+              totalNormH.toFixed(2),
+              totalExtraH.toFixed(2),
+              totalOverH.toFixed(2),
+              t.daysWithStart,
+              t.daysWithFinish,
+              t.daysCompleted,
+              t.normValidatedDays,
+              pctComplete,
+              d.dateKey,
+              (msToHours(d.workMs) || 0).toFixed(2),
+              (msToHours(d.extraMs) || 0).toFixed(2),
+              (msToHours(d.overtimeMs) || 0).toFixed(2),
+              d.completed ? 'DA' : (flagIncomplete ? 'INCOMPLETA (fara FINISH)' : '-'),
+              d.normValidated ? 'VALIDATA' : 'NU'
+            ];
+          });
+
+          const csvLines = [header].concat(rows).map(row => row.map(cell => {
+            const s = String(cell).replace(/"/g,'""');
+            return '"' + s + '"';
+          }).join(','));
+          const csv = csvLines.join('\r\n');
+
+          const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href = url;
+          a.download = 'pontaj-' + SELECTED_EMPLOYEE.replace(/\s+/g,'_') + '.csv';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 0);
+        });
+      }
+
+      if (payrollExportBtn){
+        payrollExportBtn.addEventListener('click', function(){
+          const now = new Date();
+          let year = now.getFullYear();
+          let month = now.getMonth() - 1;
+          if (month < 0){
+            month = 11;
+            year--;
+          }
+          const start = new Date(year, month, 1, 0,0,0);
+          const end   = new Date(year, month+1, 0, 23,59,59,999);
+          const monthLabel = (month+1).toString().padStart(2,'0') + '.' + year;
+
+          const confirmMsg = 'Generezi exportul de salarizare pentru luna ' + monthLabel + '?';
+          if (!confirm(confirmMsg)) return;
+
+          const subset = (events || []).filter(ev=>{
+            if (!ev.ts) return false;
+            const t = new Date(ev.ts);
+            if (isNaN(t.getTime())) return false;
+            return t >= start && t <= end;
+          });
+          if (!subset.length){
+            alert('Nu există pontaje în luna ' + monthLabel + ' pentru export.');
+            return;
+          }
+          const statsMonth = buildStatsFromEvents(subset);
+          if (!statsMonth.employees || !statsMonth.employees.size){
+            alert('Nu există date agregate pentru această lună.');
+            return;
+          }
+
+          const header = [
+            'Luna',
+            'Nume',
+            'Departament',
+            'Total ore normă (h)',
+            'Total ore extra (h)',
+            'Total overtime (h)',
+            'Zile cu START',
+            'Zile cu FINISH',
+            'Zile complete',
+            'Zile cu normă validată'
+          ];
+
+          const rows = [];
+          statsMonth.employees.forEach(emp=>{
+            const t = emp.totals;
+            rows.push([
+              monthLabel,
+              emp.name,
+              emp.dept || '',
+              msToHours(t.totalWorkMs).toFixed(2),
+              msToHours(t.totalExtraMs).toFixed(2),
+              msToHours(t.overtimeMs).toFixed(2),
+              t.daysWithStart,
+              t.daysWithFinish,
+              t.daysCompleted,
+              t.normValidatedDays
+            ]);
+          });
+
+          const csvLines = [header].concat(rows).map(row => row.map(cell => {
+            const s = String(cell).replace(/"/g,'""');
+            return '"' + s + '"';
+          }).join(','));
+          const csv = csvLines.join('\r\n');
+
+          const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href = url;
+          a.download = 'pontaj-salarizare-' + year + '-' + String(month+1).padStart(2,'0') + '.csv';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 0);
+        });
+      }
+
+      // TAB-uri Dashboard / Alerte LIVE (link-ul spre reports.html e tratat separat, e <a>, nu intră aici)
+      if (tabButtons && tabButtons.length){
+        tabButtons.forEach(btn=>{
+          btn.addEventListener('click', function(){
+            const tab = btn.dataset.tab;
+            tabButtons.forEach(b=>b.classList.toggle('active', b === btn));
+            if (tab === 'alerts'){
+              if (dashboardEl) dashboardEl.style.display = 'none';
+              if (alertsPageEl) alertsPageEl.style.display = '';
+            } else {
+              if (dashboardEl) dashboardEl.style.display = '';
+              if (alertsPageEl) alertsPageEl.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // Butoane pentru Live board: azi / zile anterioare
+      if (liveBoardTodayBtn && liveBoardPastBtn){
+        liveBoardTodayBtn.addEventListener('click', function(){
+          LIVE_BOARD_MODE = 'today';
+          liveBoardTodayBtn.classList.add('active');
+          liveBoardPastBtn.classList.remove('active');
+        if (liveBoardHintTextEl){
+  liveBoardHintTextEl.textContent = 'Starea curentă a pontajului pentru ziua de azi (START / PAUSE / EXTRA / FINISH).';
+}
+
+          renderLiveBoard();
+        });
+        liveBoardPastBtn.addEventListener('click', function(){
+          LIVE_BOARD_MODE = 'past';
+          liveBoardPastBtn.classList.add('active');
+          liveBoardTodayBtn.classList.remove('active');
+       if (liveBoardHintTextEl){
+  liveBoardHintTextEl.textContent = 'Zile anterioare până la azi în care lipsesc acțiuni de FINISH pentru cel puțin un angajat.';
+}
+
+          renderLiveBoard();
+        });
+      }
+
+          // --- Live alerts filters ---
+      function rerenderAlertsUI(){
+        // LIVE
+        renderLiveAlertsActive(LAST_LIVE_ACTIVE);
+        renderLiveAlertsHistory();
+        // SYSTEM
+        renderAlertsFromMeta();
+        renderSystemAlertsHistory();
+      }
+
+      if (alertsTypeFilterEl){
+        alertsTypeFilterEl.addEventListener('change', function(){
+          ALERTS_FILTER_TYPE = alertsTypeFilterEl.value || 'all';
+          rerenderAlertsUI();
+        });
+      }
+      if (alertsDeptFilterEl){
+        alertsDeptFilterEl.addEventListener('change', function(){
+          ALERTS_FILTER_DEPT = alertsDeptFilterEl.value || 'all';
+          rerenderAlertsUI();
+        });
+      }
+      if (alertsSearchEl){
+        alertsSearchEl.addEventListener('input', function(){
+          ALERTS_FILTER_Q = (alertsSearchEl.value || '').trim();
+          rerenderAlertsUI();
+        });
+      }
+
+      // Umple dropdown-ul de departamente din tab-ul Alerte (reuse din deptFilter)
+      function syncAlertsDeptFilter(){
+        if (!alertsDeptFilterEl || !deptFilter) return;
+
+        const cur = alertsDeptFilterEl.value || 'all';
+        alertsDeptFilterEl.innerHTML = '';
+
+        const optAll = document.createElement('option');
+        optAll.value = 'all';
+        optAll.textContent = 'Toate';
+        alertsDeptFilterEl.appendChild(optAll);
+
+        Array.from(deptFilter.options).forEach(o=>{
+          if (!o.value || o.value === 'all') return;
+          const x = document.createElement('option');
+          x.value = o.value;
+          x.textContent = o.textContent;
+          alertsDeptFilterEl.appendChild(x);
+        });
+
+        // teamlead -> lock pe dept
+        if (ADMIN_ROLE === 'teamlead' && ADMIN_DEPT){
+          alertsDeptFilterEl.value = ADMIN_DEPT;
+          alertsDeptFilterEl.disabled = true;
+          ALERTS_FILTER_DEPT = ADMIN_DEPT;
+        } else {
+          alertsDeptFilterEl.value = (cur && alertsDeptFilterEl.querySelector('option[value="'+cur+'"]')) ? cur : 'all';
+        }
+      }
+      syncAlertsDeptFilter();
+
+      // click pe LIVE alerts history -> focus
+      if (liveAlertsHistoryBodyEl){
+        liveAlertsHistoryBodyEl.addEventListener('click', function(e){
+          const tr = e.target.closest('tr');
+          if (!tr) return;
+          const name = tr.dataset.name;
+          const dk   = tr.dataset.dateKey;
+          if (name) focusEmployeeAndMaybeDay(name, dk || null);
+        });
+      }
+
+      // click pe SYSTEM alerts history -> focus
+      if (systemAlertsHistoryBodyEl){
+        systemAlertsHistoryBodyEl.addEventListener('click', function(e){
+          const tr = e.target.closest('tr');
+          if (!tr) return;
+          const name = tr.dataset.name;
+          const dk   = tr.dataset.dateKey;
+          if (name) focusEmployeeAndMaybeDay(name, dk || null);
+        });
+      }
+    
+      applyRoleVisibility();
+      refresh();
+
+      // PORNIM motorul de alerte LIVE (scan la fiecare 60s)
+      scanAndUpdateLiveAlerts();
+      if (LIVE_ALERT_TIMER) clearInterval(LIVE_ALERT_TIMER);
+      LIVE_ALERT_TIMER = setInterval(scanAndUpdateLiveAlerts, 60 * 1000);
+
+    }catch(e){
+      showError(e.message || String(e));
+    }
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
+
+
+
