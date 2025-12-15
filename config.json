@@ -15,8 +15,10 @@
     "mapsLink": "entry.692020218"
   },
   "leaveEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
-  "stateEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=state",
-  "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec?fn=guard",
+  "stateEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
+  "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
+  "adminEventsEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
+	
   "departmentsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/refs/heads/main/departments.csv",
  
   "employees": [
@@ -25,4 +27,62 @@
     "Vlad Georgescu",
     "Ana Radu"
   ]
+  
+    "adminAuthUrl": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/refs/heads/main/admin-auth.json",
+	
+	"normSettings": {
+    "timezone": "Europe/Bucharest",
+
+    "default": {
+      "normHours": 8,
+      "pauseMaxMinutes": 40
+    },
+
+    "departments": {
+      "Atelier": {
+        "normHours": 8.5,
+        "pauseMaxMinutes": 40
+      },
+      "Deplasari": {
+        "normHours": 8.5,
+        "pauseMaxMinutes": 40
+      },
+      "pe drum": {
+        "normHours": 8.5,
+        "pauseMaxMinutes": 40
+      }
+    },
+
+    "employees": {
+      "Ion Popescu": {
+        "normHours": 8,
+        "pauseMaxMinutes": 30
+      }
+    }
+  },
+
+  "notifications": {
+    "telegram": {
+      "enabled": false,
+      "botEndpoint": ""
+    }
+  },
+
+  "selfService": {
+    "enabled": true
+  },
+
+  "payroll": {
+    "defaultMonth": "previous"
+  },
+
+  "sheet": {
+    "gvizUrl": "https://docs.google.com/spreadsheets/d/1Zq0AyY8-m8yGcAzD1guPgvnKuF3oS0rC5_noWx0AwX4/edit?gid=389179164#gid=389179164",
+    "csvUrl": "",
+    "cols": {
+      "timestamp": "Marcaj de timp",
+      "name": "Nume",
+      "action": "Acțiune"
+    }
+   }
 }
