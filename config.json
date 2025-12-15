@@ -19,7 +19,7 @@
   "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
   "adminEventsEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
 	
-  "departmentsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/departments.csv",
+  "departmentsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/refs/heads/main/departments.csv",
  
   "employees": [
     "Ion Popescu",
@@ -28,7 +28,7 @@
     "Ana Radu"
   ]
   
-    "adminAuthUrl": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/admin-auth.json",
+    "adminAuthUrl": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/refs/heads/main/admin-auth.json",
 	
 	"normSettings": {
     "timezone": "Europe/Bucharest",
