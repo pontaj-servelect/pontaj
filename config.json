@@ -28,7 +28,7 @@
     "Ana Radu"
   ]
   
-    "adminAuthUrl": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/refs/heads/main/admin-auth.json",
+    "adminAuthUrl": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/admin-auth.json",
 	
 	"normSettings": {
     "timezone": "Europe/Bucharest",
