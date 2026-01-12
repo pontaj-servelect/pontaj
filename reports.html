@@ -244,20 +244,25 @@
             <code>?fn=reports&amp;type=daily|weekly|monthly|rebuild</code>.
           </p>
 
-          <div class="reports-actions" style="margin-bottom:10px;">
-            <button id="dailyReportBtn" type="button" class="btn primary">
-              📅 Raport zi (dailyReports)
-            </button>
-            <button id="weeklyReportBtn" type="button" class="btn">
-              🗓 Raport săptămână (weeklyReports)
-            </button>
-            <button id="monthlyReportBtn" type="button" class="btn">
-              📆 Raport lună (monthlyReports)
-            </button>
-            <button id="rebuildReportBtn" type="button" class="btn">
-              ♻️ Rebuild statistici (rebuildReports)
-            </button>
-          </div>
+  <div class="reports-actions" style="margin-bottom:10px;">
+  <button id="dailyReportBtn" type="button" class="btn primary">
+    📅 Raport zi (dailyReports)
+  </button>
+  <button id="weeklyReportBtn" type="button" class="btn">
+    🗓 Raport săptămână (weeklyReports)
+  </button>
+  <button id="monthlyReportBtn" type="button" class="btn">
+    📆 Raport lună (monthlyReports)
+  </button>
+  <!-- NOU -->
+  <button id="monthlyCurrentReportBtn" type="button" class="btn">
+    📆 Raport lunar current (monthlyReportsLatest)
+  </button>
+  <!-- /NOU -->
+  <button id="rebuildReportBtn" type="button" class="btn">
+    ♻️ Rebuild statistici (rebuildReports)
+  </button>
+</div>
 
           <div id="reportsStatus" class="admin-small-text">
             Nicio acțiune rulată încă.
@@ -355,10 +360,12 @@
     const dailyBtn         = document.getElementById('dailyReportBtn');
     const weeklyBtn        = document.getElementById('weeklyReportBtn');
     const monthlyBtn       = document.getElementById('monthlyReportBtn');
+    const monthlyCurrentBtn= document.getElementById('monthlyCurrentReportBtn'); // NOU
     const rebuildBtn       = document.getElementById('rebuildReportBtn');
     const statusEl         = document.getElementById('reportsStatus');
     const logEl            = document.getElementById('reportsLog');
     const filesEl          = document.getElementById('reportsFiles');
+
 
     if (adminLabelEl) adminLabelEl.textContent = session.user || 'Admin';
 
@@ -370,13 +377,15 @@
     }
 
     // Dacă ai rol "viewer", nu are voie să forțeze rapoarte
-    if (session.role === 'viewer'){
+      if (session.role === 'viewer'){
       if (dailyBtn) dailyBtn.disabled = true;
       if (weeklyBtn) weeklyBtn.disabled = true;
       if (monthlyBtn) monthlyBtn.disabled = true;
+      if (monthlyCurrentBtn) monthlyCurrentBtn.disabled = true; // NOU
       if (rebuildBtn) rebuildBtn.disabled = true;
       if (statusEl) statusEl.textContent = 'Rolul tău nu permite rularea manuală a rapoartelor.';
     }
+
 
          async function callReport(fnKey, label){
       if (!statusEl) return;
@@ -387,8 +396,9 @@
         filesEl.textContent = 'Aștept răspuns de la server pentru ' + label + '...';
       }
 
-      const btns = [dailyBtn, weeklyBtn, monthlyBtn, rebuildBtn].filter(Boolean);
+      const btns = [dailyBtn, weeklyBtn, monthlyBtn, monthlyCurrentBtn, rebuildBtn].filter(Boolean);
       btns.forEach(b => b.disabled = true);
+
 
       try{
         const cfg = await loadConfig();
@@ -487,6 +497,12 @@
         callReport('monthlyReports', 'Raport lună (monthlyReports)');
       });
     }
+    if (monthlyCurrentBtn){
+      monthlyCurrentBtn.addEventListener('click', function(){
+        // apelează endpoint-ul nou: fn=monthlyReportsLatest
+        callReport('monthlyReportsLatest', 'Raport lunar current (monthlyReportsLatest)');
+      });
+    }
     if (rebuildBtn){
       rebuildBtn.addEventListener('click', function(){
         // rulează rebuildAllReports() prin doGet (fn === 'rebuildReports')
@@ -497,6 +513,7 @@
   </script>
 </body>
 </html>
+
 
 
 
