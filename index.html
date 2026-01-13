@@ -1102,12 +1102,18 @@ function sumPausesFromEvents(events, fallbackPair){
       });
     }
 
-    // click pe tot chip-ul
-    cfgMenu.addEventListener('click', (e)=>{
-      // dacă am apăsat fix pe butonul de hamburger, îl lăsăm pe handler-ul lui
-      if (cfgToggle && (e.target === cfgToggle || cfgToggle.contains(e.target))) return;
-      toggleCfgMenu();
-    });
+  // click pe chip (label + icon), dar NU în interiorul dropdown-ului
+cfgMenu.addEventListener('click', (e)=>{
+  // dacă am apăsat fix pe butonul de hamburger, îl lăsăm pe handler-ul lui
+  if (cfgToggle && (e.target === cfgToggle || cfgToggle.contains(e.target))) return;
+
+  // dacă am apăsat în interiorul meniului deschis (input user/parolă, buton etc),
+  // NU togglăm meniul ca să nu se închidă
+  if (cfgDropdown && cfgDropdown.contains(e.target)) return;
+
+  toggleCfgMenu();
+});
+
 
     // click în afara meniului => închide
     document.addEventListener('click', (e)=>{
