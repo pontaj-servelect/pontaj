@@ -1844,27 +1844,25 @@ if (!window.__pontajAdminErrBound){
   window.__pontajAdminErrBound = true;
 
   window.addEventListener('error', function(e){
-  console.error('[window.error]', e);
-  ...
-});
-window.addEventListener('unhandledrejection', function(e){
-  console.error('[unhandledrejection]', e.reason || e);
-  ...
-});
-
-  
-  window.addEventListener('error', function(e){
+    console.error('[window.error]', e);
     try{
-      const msg = (e && e.message) ? e.message : (e && e.error && e.error.message) ? e.error.message : String(e);
-      const where = (e && e.filename ? e.filename.split('/').pop() : 'admin.html') +
+      const msg =
+        (e && e.message) ? e.message :
+        (e && e.error && e.error.message) ? e.error.message :
+        String(e);
+
+      const where =
+        (e && e.filename ? e.filename.split('/').pop() : 'admin.html') +
         ':' + (e && e.lineno ? e.lineno : '?') +
         ':' + (e && e.colno ? e.colno : '?');
+
       const stack = (e && e.error && e.error.stack) ? e.error.stack : '';
       showError('Eroare JS: ' + msg + ' @ ' + where + (stack ? '\n\n' + stack : ''));
     }catch(_){}
   });
 
   window.addEventListener('unhandledrejection', function(e){
+    console.error('[unhandledrejection]', e && e.reason ? e.reason : e);
     try{
       const r = e && e.reason;
       const msg = (r && r.message) ? r.message : String(r);
@@ -1873,6 +1871,7 @@ window.addEventListener('unhandledrejection', function(e){
     }catch(_){}
   });
 }
+
 
   function _norm(s){ return String(s==null?'':s).trim(); }
   function _normAction(a){
@@ -5074,6 +5073,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
