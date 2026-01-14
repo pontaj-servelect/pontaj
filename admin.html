@@ -1837,21 +1837,27 @@ function showError(msg){
 }
 
 // bind o singură dată
+// bind o singură dată (cu stack + linie)
 if (!window.__pontajAdminErrBound){
   window.__pontajAdminErrBound = true;
 
   window.addEventListener('error', function(e){
     try{
-      const m = e && e.message ? e.message : (e && e.error && e.error.message ? e.error.message : String(e));
-      showError('Eroare JS: ' + m);
+      const msg = (e && e.message) ? e.message : (e && e.error && e.error.message) ? e.error.message : String(e);
+      const where = (e && e.filename ? e.filename.split('/').pop() : 'admin.html') +
+        ':' + (e && e.lineno ? e.lineno : '?') +
+        ':' + (e && e.colno ? e.colno : '?');
+      const stack = (e && e.error && e.error.stack) ? e.error.stack : '';
+      showError('Eroare JS: ' + msg + ' @ ' + where + (stack ? '\n\n' + stack : ''));
     }catch(_){}
   });
 
   window.addEventListener('unhandledrejection', function(e){
     try{
       const r = e && e.reason;
-      const m = r && r.message ? r.message : String(r);
-      showError('Promise reject: ' + m);
+      const msg = (r && r.message) ? r.message : String(r);
+      const stack = (r && r.stack) ? r.stack : '';
+      showError('Promise reject: ' + msg + (stack ? '\n\n' + stack : ''));
     }catch(_){}
   });
 }
@@ -5049,6 +5055,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
