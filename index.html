@@ -1082,10 +1082,13 @@ if (!admin){
 const label = admin.label || u;
 saveAdminSession({
   user: label,
+  id: admin.usernameHash,        // ✅ IMPORTANT pentru presence
+  userHash: admin.usernameHash,  // ✅ IMPORTANT pentru presence
   role: admin.role || 'admin',
   dept: admin.dept || '',
   at: new Date().toISOString()
 });
+
 
 updateAdminUiLoggedIn(label);
 
