@@ -20,6 +20,8 @@
       --ring:#cfe0e7;
       --danger:#ef4444;
       --warn:#f59e0b;
+      --border: rgba(148,163,184,.35);
+
     }
     *{box-sizing:border-box}
     html,body{height:100%; width:100%}
@@ -3690,19 +3692,19 @@ async function fetchAdminsFromAuth(){
 }
 
 async function fetchAdminPresence(){
-  let base = '';
-  try { base = adminEndpointBase(); } catch(e) {}
-  if (!base) return [];
+  const base = adminEndpointBase();
+  if (!base) return { list: [] };
 
   try{
-    const r = await fetch(`${base}?fn=adminPresence`, { cache:'no-store' });
+    const r = await fetch(`${base}?fn=adminPresence&ttlMin=${PRES_TTL_MIN}`, { cache:'no-store' });
     const j = await r.json();
-    return (j && j.list) ? j.list : [];
+    return { list: Array.isArray(j.list) ? j.list : [] };
   }catch(err){
     console.warn('[adminPresence] fetch failed', err);
-    return [];
+    return { list: [] };
   }
 }
+
 
 
 function renderAdminPresence(adminsAll, presence){
@@ -3725,23 +3727,26 @@ function renderAdminPresence(adminsAll, presence){
 
   const now = Date.now();
   const fmtAgo = (iso) => {
-    if (!iso) return 'niciodată';
-    const t = new Date(iso).getTime();
-    if (!t || isNaN(t)) return '—';
-    const s = Math.max(0, Math.floor((now - t)/1000));
-    if (s < 60) return `${s}s ago`;
-    const m = Math.floor(s/60);
-    if (m < 60) return `${m}m ago`;
-    const h = Math.floor(m/60);
-    return `${h}h ago`;
-  };
+  if (!iso) return 'niciodată';
+  const t = new Date(iso).getTime();
+  if (!t || isNaN(t)) return '—';
+  const s = Math.max(0, Math.floor((now - t)/1000));
+  if (s < 60) return `${s} sec`;
+  const m = Math.floor(s/60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m/60);
+  return `${h} h`;
+};
+
 
   listEl.innerHTML = merged.map(a => `
     <div class="pres-item">
       <div class="pres-left">
         <div class="pres-name">${escapeHtml(a.label)}</div>
-        <div class="pres-last">Ultimul ping: ${escapeHtml(fmtAgo(a.lastSeen))}</div>
-      </div>
+    <div class="pres-last">
+  ${a.online ? '🟢 Online' : `⚪ acum ${escapeHtml(String(a.ageSec || 0))} sec`}
+</div>
+
       <div class="pres-badge ${a.online ? 'pres-on' : 'pres-off'}">
         ${a.online ? 'ACTIV' : 'INACTIV'}
       </div>
@@ -4283,15 +4288,12 @@ function triggerOneShotAnim(el, cls){
 async function init(){
   try{
     CFG = await loadConfig();
+    window.CFG = CFG; 
     applyNormSettingsFromConfig(CFG);
     applySelfServiceConfig(CFG);
 
     initAdminPresence().catch(()=>{}); // ✅ AICI (foarte important)
 
-
-      // ✅ Admin presence (cine e online) — start
-      initAdminPresence().catch(()=>{});
-      // ✅ Admin presence — end
       
       const adminUrl = CFG.adminEventsEndpoint + '?fn=adminEvents&v=' + Date.now();
       const r2  = await fetch(adminUrl, { cache:'no-store' });
@@ -5371,6 +5373,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
