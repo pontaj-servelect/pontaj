@@ -1570,6 +1570,7 @@
   let CURRENT_DEPT_FILTER = 'all';
   let filterIncompleteOnly = false;
   let GLOBAL_CFG = null;
+  let CFG = null; // <-- NOU (global)
   let lastEventsRange = 'today';
   let SELECTED_CALENDAR_DAY = null;
   let EMPLOYEE_SEARCH_TEXT = '';
@@ -4262,11 +4263,14 @@ function triggerOneShotAnim(el, cls){
     renderLiveAlertsHistory();
   }
 
-  async function init(){
-    try{
-      const CFG = await loadConfig();
-      applyNormSettingsFromConfig(CFG);
-      applySelfServiceConfig(CFG);
+async function init(){
+  try{
+    CFG = await loadConfig();
+    applyNormSettingsFromConfig(CFG);
+    applySelfServiceConfig(CFG);
+
+    initAdminPresence().catch(()=>{}); // ✅ AICI (foarte important)
+
 
       // ✅ Admin presence (cine e online) — start
       initAdminPresence().catch(()=>{});
@@ -5350,4 +5354,5 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
