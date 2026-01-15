@@ -562,6 +562,50 @@
       gap:12px;
     }
 
+/* ===== Admin presence ===== */
+.pres-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.pres-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+}
+.pres-left{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.pres-name{
+  font-weight:800;
+  font-size:14px;
+}
+.pres-last{
+  font-size:12px;
+  opacity:.75;
+}
+.pres-badge{
+  font-size:12px;
+  font-weight:800;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+}
+.pres-on{
+  background:rgba(40,200,120,.12);
+  border-color:rgba(40,200,120,.35);
+}
+.pres-off{
+  background:rgba(255,255,255,.06);
+}
+
+    
     .btn{
       --bg:#e2e8f0;
       --fg:#0f172a;
@@ -1458,6 +1502,16 @@
 <div id="liveBoardInactive" class="admin-list"></div>
           </div>
         </section>
+<!-- A5.5. Admin presence (cine e online) -->
+<section class="card" id="adminPresenceCard">
+  <div class="card-head">
+    <h3>Admini activi</h3>
+    <div class="muted" id="adminPresenceHint">—</div>
+  </div>
+  <div class="card-body">
+    <div id="adminPresenceList" class="pres-list"></div>
+  </div>
+</section>
 
         <!-- A6: Alerte sistem (pliabil) -->
         <section class="card admin-card collapsible">
@@ -3603,6 +3657,137 @@ if (!window.CSS.escape) {
     return String(s).replace(/["\\]/g, '\\$&');
   };
 }
+
+// =================== Admin presence (online/offline) ===================
+const PRES_TTL_MIN = 2;                 // după 2 minute fără ping -> INACTIV
+const PRES_REFRESH_MS = 15000;          // refresh listă la 15 sec
+const PRES_PING_MS = 20000;             // ping la 20 sec
+
+let presTimerRefresh = null;
+let presTimerPing = null;
+
+async function fetchAdminsFromAuth(){
+  try{
+    const cfg = await loadConfig(); // ✅ ia configul corect
+    const authUrl = (cfg && cfg.adminAuthUrl) ? cfg.adminAuthUrl : '';
+    if (!authUrl) return [];
+
+    const r = await fetch(authUrl, { cache: 'no-store' });
+    const j = await r.json();
+
+    const admins = Array.isArray(j.admins) ? j.admins : [];
+
+    // IMPORTANT: id-ul adminului = usernameHash
+    return admins.map(a => ({
+      id: a.id || a.usernameHash || a.userHash || '',
+      label: a.label || 'Admin'
+    })).filter(a => a.id);
+
+  }catch(e){
+    return [];
+  }
+}
+
+async function fetchAdminPresence(){
+  const base = adminEndpointBase();
+  const url = base + '?fn=adminPresence&ttlMin=' + encodeURIComponent(PRES_TTL_MIN);
+  const r = await fetch(url, { cache: 'no-store' });
+  return await r.json();
+}
+
+function renderAdminPresence(adminsAll, presence){
+  const listEl = document.getElementById('adminPresenceList');
+  const hintEl = document.getElementById('adminPresenceHint');
+  if (!listEl) return;
+
+  const presList = (presence && Array.isArray(presence.list)) ? presence.list : [];
+  const presMap = new Map(presList.map(x => [x.id, x]));
+
+  const merged = adminsAll.map(a => {
+    const p = presMap.get(a.id) || null;
+    const online = !!(p && p.online);
+    const lastSeen = p && p.lastSeen ? p.lastSeen : null;
+    return { ...a, online, lastSeen, ageSec: p ? p.ageSec : 999999 };
+  });
+
+  // sort: online sus
+  merged.sort((x,y) => (x.online===y.online ? x.ageSec-y.ageSec : (x.online?-1:1)));
+
+  const now = Date.now();
+  const fmtAgo = (iso) => {
+    if (!iso) return 'niciodată';
+    const t = new Date(iso).getTime();
+    if (!t || isNaN(t)) return '—';
+    const s = Math.max(0, Math.floor((now - t)/1000));
+    if (s < 60) return `${s}s ago`;
+    const m = Math.floor(s/60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m/60);
+    return `${h}h ago`;
+  };
+
+  listEl.innerHTML = merged.map(a => `
+    <div class="pres-item">
+      <div class="pres-left">
+        <div class="pres-name">${escapeHtml(a.label)}</div>
+        <div class="pres-last">Ultimul ping: ${escapeHtml(fmtAgo(a.lastSeen))}</div>
+      </div>
+      <div class="pres-badge ${a.online ? 'pres-on' : 'pres-off'}">
+        ${a.online ? 'ACTIV' : 'INACTIV'}
+      </div>
+    </div>
+  `).join('');
+
+  const onCount = merged.filter(x => x.online).length;
+  hintEl.textContent = `${onCount}/${merged.length} activi`;
+}
+
+async function adminPing(){
+  const session = getAdminSession();
+  if (!session || !session.user) return;
+
+  // IMPORTANT: id trebuie să fie usernameHash (salvat din index.html)
+  const id = session.id || session.userHash;
+  if (!id) return;
+
+  const base = adminEndpointBase();
+  const url = base + '?fn=adminPing';
+
+  try{
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        id,
+        label: session.user,
+        ua: navigator.userAgent
+      })
+    });
+  }catch(e){}
+}
+
+async function initAdminPresence(){
+  // 1) ping imediat (dacă e logat)
+  await adminPing();
+
+  // 2) refresh listă (admins + presence)
+  async function tick(){
+    const adminsAll = await fetchAdminsFromAuth();
+    const presence = await fetchAdminPresence();
+    renderAdminPresence(adminsAll, presence);
+  }
+
+  await tick();
+
+  // refresh periodic
+  if (presTimerRefresh) clearInterval(presTimerRefresh);
+  presTimerRefresh = setInterval(tick, PRES_REFRESH_MS);
+
+  // ping periodic
+  if (presTimerPing) clearInterval(presTimerPing);
+  presTimerPing = setInterval(adminPing, PRES_PING_MS);
+}
+
   
 function getSelectLabel(selectEl, value){
   if (!selectEl) return String(value || '');
@@ -4083,6 +4268,10 @@ function triggerOneShotAnim(el, cls){
       applyNormSettingsFromConfig(CFG);
       applySelfServiceConfig(CFG);
 
+      // ✅ Admin presence (cine e online) — start
+      initAdminPresence().catch(()=>{});
+      // ✅ Admin presence — end
+      
       const adminUrl = CFG.adminEventsEndpoint + '?fn=adminEvents&v=' + Date.now();
       const r2  = await fetch(adminUrl, { cache:'no-store' });
       const txt = await r2.text();
@@ -5161,3 +5350,4 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
