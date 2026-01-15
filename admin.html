@@ -3690,11 +3690,20 @@ async function fetchAdminsFromAuth(){
 }
 
 async function fetchAdminPresence(){
-  const base = adminEndpointBase();
-  const url = base + '?fn=adminPresence&ttlMin=' + encodeURIComponent(PRES_TTL_MIN);
-  const r = await fetch(url, { cache: 'no-store' });
-  return await r.json();
+  let base = '';
+  try { base = adminEndpointBase(); } catch(e) {}
+  if (!base) return [];
+
+  try{
+    const r = await fetch(`${base}?fn=adminPresence`, { cache:'no-store' });
+    const j = await r.json();
+    return (j && j.list) ? j.list : [];
+  }catch(err){
+    console.warn('[adminPresence] fetch failed', err);
+    return [];
+  }
 }
+
 
 function renderAdminPresence(adminsAll, presence){
   const listEl = document.getElementById('adminPresenceList');
@@ -3743,6 +3752,14 @@ function renderAdminPresence(adminsAll, presence){
   hintEl.textContent = `${onCount}/${merged.length} activi`;
 }
 
+function adminEndpointBase(){
+  const cfg = window.CFG || {};
+  // IMPORTANT: adminEventsEndpoint trebuie să fie baza WebApp-ului (fără ?fn=...)
+  const raw = cfg.adminEventsEndpoint || cfg.webappUrl || cfg.scriptUrl || '';
+  return String(raw || '').replace(/\?.*$/, '').trim();
+}
+
+  
 async function adminPing(){
   const session = getAdminSession();
   if (!session || !session.user) return;
@@ -5354,5 +5371,6 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
