@@ -3763,22 +3763,21 @@ async function fetchAdminsFromAuth(){
 }
 
 async function fetchAdminPresence() {
-  const base = CONFIG.adminEventsEndpoint; // sau CONFIG.adminPresenceEndpoint dacă ai separat
-  const url = `${base}?fn=adminPresence&ttlMin=2`;
+  const base = adminEndpointBase(); // ✅ baza webapp fără ?fn=...
+  if (!base) return null;
 
-  try {
+  const url = `${base}?fn=adminPresence&ttlMin=${PRES_TTL_MIN}&_=${Date.now()}`;
+
+  try{
     const data = await jsonp(url, 10000);
-
-    if (!data || data.ok !== true) {
-      console.warn("[adminPresence] bad payload", data);
-      return null;
-    }
+    if (!data || data.ok !== true) return null;
     return data;
-  } catch (err) {
+  }catch(err){
     console.error("[adminPresence] jsonp failed", err);
     return null;
   }
 }
+
 
 
 
@@ -3857,11 +3856,15 @@ async function initAdminPresence(){
   await adminPing();
 
   // 2) refresh listă (admins + presence)
-  async function tick(){
-    const adminsAll = await fetchAdminsFromAuth();
-    const presence = await fetchAdminPresence();
-    renderAdminPresence(adminsAll, presence);
-  }
+async function tick(){
+  let adminsAll = [];
+  let presence  = null;
+
+  try{ adminsAll = await fetchAdminsFromAuth(); }catch(_){}
+  try{ presence  = await fetchAdminPresence(); }catch(_){}
+
+  renderAdminPresence(adminsAll, presence);
+}
 
   await tick();
 
@@ -4358,7 +4361,9 @@ async function init(){
     initAdminPresence().catch(()=>{}); // ✅ AICI (foarte important)
 
       
-      const adminUrl = CFG.adminEventsEndpoint + '?fn=adminEvents&v=' + Date.now();
+      const base = adminEndpointBase();
+      const adminUrl = base + '?fn=adminEvents&v=' + Date.now();
+
       const r2  = await fetch(adminUrl, { cache:'no-store' });
       const txt = await r2.text();
       let data;
@@ -4491,7 +4496,9 @@ if (saved){
   const CFG = await loadConfig();
 
   // refetch admin events
-  const adminUrl = CFG.adminEventsEndpoint + '?fn=adminEvents&v=' + Date.now();
+  const base = adminEndpointBase();
+  const adminUrl = base + '?fn=adminEvents&v=' + Date.now();
+
   const r2  = await fetch(adminUrl, { cache:'no-store' });
   const txt = await r2.text();
   let data;
@@ -5436,6 +5443,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
