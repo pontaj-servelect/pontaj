@@ -607,6 +607,37 @@
   background:rgba(255,255,255,.06);
 }
 
+    /* ✅ Admin presence: GRID (nu se suprapun) */
+#adminPresenceList{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+#adminPresenceList .pres-item{
+  position: relative;     /* ✅ nu absolute */
+  transform: none;        /* ✅ fără translate */
+  width: auto;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  padding: 12px;
+}
+
+#adminPresenceList .pres-left{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
     
     .btn{
       --bg:#e2e8f0;
@@ -3653,6 +3684,14 @@ renderInactiveToday(activeNames, todayKey);
   }[c]));
 }
 
+  function fmtAgo(ageSec) {
+  const n = Number(ageSec);
+  if (!isFinite(n) || n >= 999000) return "niciodată";
+  if (n < 60) return `acum ${Math.floor(n)} sec`;
+  if (n < 3600) return `acum ${Math.floor(n / 60)} min`;
+  return `acum ${Math.floor(n / 3600)} h`;
+}
+
 // Fallback pentru CSS.escape (în caz că nu există)
 if (!window.CSS) window.CSS = {};
 if (!window.CSS.escape) {
@@ -3663,8 +3702,8 @@ if (!window.CSS.escape) {
 
 // =================== Admin presence (online/offline) ===================
 const PRES_TTL_MIN = 2;                 // după 2 minute fără ping -> INACTIV
-const PRES_REFRESH_MS = 15000;          // refresh listă la 15 sec
-const PRES_PING_MS = 20000;             // ping la 20 sec
+const PRES_REFRESH_MS = 10000; // la 10 sec
+const PRES_PING_MS    = 20000; // ping la 20 sec
 
 let presTimerRefresh = null;
 let presTimerPing = null;
@@ -3726,32 +3765,19 @@ function renderAdminPresence(adminsAll, presence){
   merged.sort((x,y) => (x.online===y.online ? x.ageSec-y.ageSec : (x.online?-1:1)));
 
   const now = Date.now();
-  const fmtAgo = (iso) => {
-  if (!iso) return 'niciodată';
-  const t = new Date(iso).getTime();
-  if (!t || isNaN(t)) return '—';
-  const s = Math.max(0, Math.floor((now - t)/1000));
-  if (s < 60) return `${s} sec`;
-  const m = Math.floor(s/60);
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m/60);
-  return `${h} h`;
-};
 
 
-  listEl.innerHTML = merged.map(a => `
-    <div class="pres-item">
-      <div class="pres-left">
-        <div class="pres-name">${escapeHtml(a.label)}</div>
-    <div class="pres-last">
-  ${a.online ? '🟢 Online' : `⚪ acum ${escapeHtml(String(a.ageSec || 0))} sec`}
-</div>
-
-      <div class="pres-badge ${a.online ? 'pres-on' : 'pres-off'}">
-        ${a.online ? 'ACTIV' : 'INACTIV'}
-      </div>
+ listEl.innerHTML = merged.map(a => `
+  <div class="pres-item">
+    <div class="pres-left">
+      <div class="pres-name">${escapeHtml(a.label)}</div>
+      <div class="pres-last">${a.online ? '🟢 Online' : `⚪ ${escapeHtml(fmtAgo(a.ageSec))}`}</div>
     </div>
-  `).join('');
+    <div class="pres-badge ${a.online ? 'pres-on' : 'pres-off'}">
+      ${a.online ? 'ACTIV' : 'INACTIV'}
+    </div>
+  </div>
+`).join('');
 
   const onCount = merged.filter(x => x.online).length;
   hintEl.textContent = `${onCount}/${merged.length} activi`;
@@ -5373,6 +5399,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
