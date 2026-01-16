@@ -3699,7 +3699,39 @@ if (!window.CSS.escape) {
     return String(s).replace(/["\\]/g, '\\$&');
   };
 }
+function jsonp(url, timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+      const cbName = "jsonp_cb_" + Math.random().toString(36).slice(2);
+      const script = document.createElement("script");
 
+      const cleanup = () => {
+        try { delete window[cbName]; } catch {}
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error("JSONP timeout"));
+      }, timeoutMs);
+
+      window[cbName] = (data) => {
+        clearTimeout(timer);
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        clearTimeout(timer);
+        cleanup();
+        reject(new Error("JSONP load error"));
+      };
+
+      const sep = url.includes("?") ? "&" : "?";
+      script.src = url + sep + "callback=" + cbName + "&_=" + Date.now();
+      document.head.appendChild(script);
+    });
+  }
+  
 // =================== Admin presence (online/offline) ===================
 const PRES_TTL_MIN = 2;                 // după 2 minute fără ping -> INACTIV
 const PRES_REFRESH_MS = 10000; // la 10 sec
@@ -3730,19 +3762,24 @@ async function fetchAdminsFromAuth(){
   }
 }
 
-async function fetchAdminPresence(){
-  const base = adminEndpointBase();
-  if (!base) return { list: [] };
+async function fetchAdminPresence() {
+  const base = CONFIG.adminEventsEndpoint; // sau CONFIG.adminPresenceEndpoint dacă ai separat
+  const url = `${base}?fn=adminPresence&ttlMin=2`;
 
-  try{
-    const r = await fetch(`${base}?fn=adminPresence&ttlMin=${PRES_TTL_MIN}`, { cache:'no-store' });
-    const j = await r.json();
-    return { list: Array.isArray(j.list) ? j.list : [] };
-  }catch(err){
-    console.warn('[adminPresence] fetch failed', err);
-    return { list: [] };
+  try {
+    const data = await jsonp(url, 10000);
+
+    if (!data || data.ok !== true) {
+      console.warn("[adminPresence] bad payload", data);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("[adminPresence] jsonp failed", err);
+    return null;
   }
 }
+
 
 
 
@@ -5399,6 +5436,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
