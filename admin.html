@@ -1588,8 +1588,6 @@
   let DEFAULT_NORM_MS             = 8   * 60 * 60 * 1000;
   let LONG_NORM_MS                = 8.5 * 60 * 60 * 1000;
   let DEFAULT_PAUSE_MARGIN_MS     = 40  * 60 * 1000;
-  // ✅ Pauză normă (din normă): 30 minute
-  let DEFAULT_NORM_BREAK_MS = 30 * 60 * 1000;
 
   // Config normă/pauză per departament / angajat (A1)
   let NORM_CFG = null;
@@ -1679,10 +1677,6 @@
           NORM_CFG.defaultPauseMarginMs = cfg.normSettings.default.pauseMaxMinutes * 60 * 1000;
         }
       }
-      // opțional: breakNormMinutes în config.json
-if (cfg.normSettings && cfg.normSettings.default && typeof cfg.normSettings.default.breakNormMinutes === 'number'){
-  DEFAULT_NORM_BREAK_MS = cfg.normSettings.default.breakNormMinutes * 60 * 1000;
-}
       if (cfg.normSettings.departments){
         Object.keys(cfg.normSettings.departments).forEach(dep=>{
           const nd = cfg.normSettings.departments[dep] || {};
@@ -2355,16 +2349,6 @@ function applyIncompleteFilter(events, stats){
           completed:false,
           overtimeMs:0,
           normMs: DEFAULT_NORM_MS,
-          // ✅ NOU: normă lucru efectiv (8h => 7h30) + prezență totală
-          normWorkMs: 0,
-          presenceMs: 0,
-          presenceMet: false,
-
-          // ✅ NOU: ore (start/finish) + intervale pauză
-          firstStartIso: null,
-          lastFinishIso: null,
-          pauseIntervals: [],
-
           normValidated:false,
           incomplete:false,
           startCount:0,
@@ -2381,7 +2365,7 @@ function applyIncompleteFilter(events, stats){
           normMet:false,
           pauseOk:true,
           pauseOverMs:0,
-          pauseMarginMsUsed:0,
+          pauseMarginMsUsed:0
         };
         emp.days.set(dk, day);
       } else {
@@ -2405,7 +2389,6 @@ function applyIncompleteFilter(events, stats){
       let startTs        = null;
       let pauseStartTs   = null;
       let extraStartTs   = null;
-      const pauseIntervals = [];
       let sumPauseMs     = 0;   // pauza din segmentul curent
       let totalPauseMs   = 0;   // pauza totală pe zi
       let workMs         = 0;
@@ -2418,7 +2401,6 @@ function applyIncompleteFilter(events, stats){
         const act = ev.action;
 
         if (act === 'start') {
-          if (!day.firstStartIso) day.firstStartIso = ev.ts;
           day.hasStart = true;
           day.startCount++;
           if (!running) {
@@ -2446,29 +2428,20 @@ function applyIncompleteFilter(events, stats){
     const delta = Math.max(0, t - pauseStartTs);
     sumPauseMs   += delta;
     totalPauseMs += delta;
-
-    // ✅ salvează intervalul pauzei
-    pauseIntervals.push({ from: pauseStartTs, to: t });
-
     paused = false;
     pauseStartTs = null;
   }
         } else if (act === 'finish') {
-          day.lastFinishIso = ev.ts;
           day.hasFinish = true;
           day.finishCount++;
           if (running && startTs != null) {
             if (paused && pauseStartTs != null) {
-  const delta = Math.max(0, t - pauseStartTs);
-  sumPauseMs   += delta;
-  totalPauseMs += delta;
-
-  // ✅ închide pauza la FINISH dacă a rămas deschisă
-  pauseIntervals.push({ from: pauseStartTs, to: t });
-
-  pauseStartTs = null;
-  paused = false;
-}
+          const delta = Math.max(0, t - pauseStartTs);
+          sumPauseMs   += delta;
+          totalPauseMs += delta;
+          pauseStartTs = null;
+          paused = false;
+          }
             const diff    = Math.max(0, t - startTs);
             const segment = Math.max(0, diff - sumPauseMs);
             workMs += segment;
@@ -2497,36 +2470,35 @@ function applyIncompleteFilter(events, stats){
       });
 
       day.workMs   = workMs;
-day.extraMs  = extraMs;
-day.pauseMs  = totalPauseMs;
+      day.extraMs  = extraMs;
+      day.pauseMs  = totalPauseMs;
 
-// ✅ intervale pauză
-day.pauseIntervals = pauseIntervals;
+      emp.totals.totalWorkMs  += workMs;
+      emp.totals.totalExtraMs += extraMs;
 
-// ✅ prezență totală (lucru + pauză)
-day.presenceMs = (day.workMs || 0) + (day.pauseMs || 0);
+      if (day.hasStart)  emp.totals.daysWithStart++;
+      if (day.hasFinish) emp.totals.daysWithFinish++;
 
-// ✅ normă lucru efectiv = normă totală - pauză normă (8h => 7h30)
-const normShiftMs = day.normMs || DEFAULT_NORM_MS;
-const normWorkMs  = Math.max(0, normShiftMs - DEFAULT_NORM_BREAK_MS);
-day.normWorkMs = normWorkMs;
+      day.openRunning = day.startCount > day.finishCount;
+      day.openExtra        = day.extraStartCount > day.extraFinishCount;
+      day.hasPauseMismatch = day.pauseCount !== day.unpauseCount;
+      day.hasExtraMismatch = day.extraStartCount !== day.extraFinishCount;
 
-// ✅ verificare: norma “program” atinsă (lucru + pauză >= 8h)
-day.presenceMet = day.presenceMs >= normShiftMs;
+      day.incomplete = isDayIncomplete(day);
+      if (day.incomplete) emp.totals.incompleteDays++;
 
-// ✅ OVERTIME NOU: doar lucru efectiv peste 7h30 (NU scade pauza extra!)
-day.overtimeMs = 0;
-if (!day.incomplete && day.completed){
-  day.overtimeMs = Math.max(0, (day.workMs || 0) - normWorkMs);
-  emp.totals.overtimeMs += day.overtimeMs;
-}
+      if (day.hasStart && day.hasFinish && workMs > 0) {
+        day.completed = true;
+        emp.totals.daysCompleted++;
+      }
 
-// ✅ NORMA NOUĂ: îndeplinită dacă munca efectivă >= 7h30 (nu contează pauza extra)
-day.normMet = false;
-if (!day.incomplete && day.completed){
-  day.normMet = (day.workMs || 0) >= normWorkMs;
-  if (day.normMet) emp.totals.normMetDays++;
-}
+      const normForDay     = day.normMs || getNormMsFor(name, day.dept || emp.dept || '', false);
+      const pauseMarginMs  = getPauseMarginMsFor(name, day.dept || emp.dept || '');
+
+      if (day.completed && workMs > normForDay){
+        day.overtimeMs = workMs - normForDay;
+        emp.totals.overtimeMs += day.overtimeMs;
+      }
 
 // ========= NORMA (nou) =========
 // 1) normMet = muncă efectivă >= normă (indiferent de pauză)
@@ -2537,25 +2509,14 @@ day.normValidated = false;
 day.pauseOk = true;
 day.pauseOverMs = 0;
 day.pauseMarginMsUsed = pauseMarginMs;
-day.openRunning = running;          // dacă a rămas START fără FINISH
-day.openExtra   = extraRunning;
-
-day.hasPauseMismatch = (day.pauseCount !== day.unpauseCount) || (paused && pauseStartTs != null);
-day.hasExtraMismatch = (day.extraStartCount !== day.extraFinishCount) || extraRunning;
-
-day.completed  = day.hasStart && day.hasFinish && !day.openRunning;
-day.incomplete = isDayIncomplete(day);
 
 if (!day.incomplete && day.completed){
   const pauseMs = day.pauseMs || 0;
-const pauseMarginMs = getPauseMarginMsFor(name, day.dept || emp.dept || '');
-const normForDay = normWorkMs; // cel mai logic în regula ta (7h30 pt normă 8h)
 
   day.pauseOk = pauseMs <= pauseMarginMs;
   day.pauseOverMs = Math.max(0, pauseMs - pauseMarginMs);
   day.pauseMarginMsUsed = pauseMarginMs;
 
-  
   // ✅ AICI e regula ta:
   // dacă după scăderea pauzei, munca efectivă >= normă -> normă îndeplinită
   day.normMet = workMs >= normForDay;
@@ -2728,67 +2689,38 @@ const compStatus = d.completed
       : '-');
 
 
-let normStatus = '-';
+    let normStatus = '-';
 if (d.completed){
-  const normWorkMs = d.normWorkMs || Math.max(0, (d.normMs || DEFAULT_NORM_MS) - DEFAULT_NORM_BREAK_MS);
-  const deficitMs  = Math.max(0, normWorkMs - (d.workMs || 0));
-
-  if ((d.workMs || 0) >= normWorkMs){
-    normStatus = '<span class="badge badge-ok">DA</span>';
+  if (d.normValidated){
+    normStatus = '<span class="badge badge-ok">VALIDATĂ</span>';
+  } else if (d.normMet){
+    normStatus =
+      '<span class="badge badge-info">ÎNDEPLINITĂ</span>' +
+      '<div style="font-size:10px;color:#92400e;">pauză depășită, compensată</div>';
   } else {
-    normStatus = '<span class="badge badge-warn">NU</span>' +
-      '<div style="font-size:10px;color:#92400e;">lipsește ' + fmtHoursHM(deficitMs) + '</div>';
+    normStatus = '<span class="badge badge-warn">NU</span>';
   }
 }
 
+
       const isLeave = isEmployeeOnLeave(name, d.dateKey);
- const pauseMs = d.pauseMs || 0;
+      const pauseMs = d.pauseMs || 0;
+const pauseLimitMs = (typeof d.pauseMarginMsUsed === 'number' && !isNaN(d.pauseMarginMsUsed))
+  ? d.pauseMarginMsUsed
+  : getPauseMarginMsFor(name, d.dept || dept);
 
-// ✅ pauză normă = max 30 min (sau cât a fost, dacă e mai mică)
-const pauseNormMs  = Math.min(pauseMs, DEFAULT_NORM_BREAK_MS);
-const pauseExtraMs = Math.max(0, pauseMs - DEFAULT_NORM_BREAK_MS);
-
-// ✅ (nul) doar când norma de program e atinsă (lucru+pauză >= 8h)
-const extraIsNull = (pauseExtraMs > 0) && !!d.presenceMet;
-
-let pauseIntervalsLine = '';
-if (Array.isArray(d.pauseIntervals) && d.pauseIntervals.length){
-  const parts = d.pauseIntervals.map(p=>{
-    const a = new Date(p.from);
-    const b = new Date(p.to);
-    const ah = String(a.getHours()).padStart(2,'0');
-    const am = String(a.getMinutes()).padStart(2,'0');
-    const bh = String(b.getHours()).padStart(2,'0');
-    const bm = String(b.getMinutes()).padStart(2,'0');
-    return `${ah}:${am}–${bh}:${bm}`;
-  });
-  pauseIntervalsLine = '<div style="font-size:10px;color:#6b7280;">pauze: ' + parts.join(', ') + '</div>';
-}
+const pauseOverMs = Math.max(0, pauseMs - pauseLimitMs);
 
 const pauseCell =
   (pauseMs ? fmtHoursHM(pauseMs) : '0h 00m') +
-  '<div style="font-size:10px;color:#6b7280;">' +
-    'pauză normă ' + fmtHoursHM(pauseNormMs) +
-    (pauseExtraMs > 0
-      ? (' • pauză extra ' + fmtHoursHM(pauseExtraMs) + (extraIsNull ? ' (nul)' : ''))
-      : '') +
-  '</div>' +
-  pauseIntervalsLine;
-
-
-const startLine = d.firstStartIso ? fmtDateTime(d.firstStartIso).split(' ')[1] : '';
-const finishLine = d.lastFinishIso ? fmtDateTime(d.lastFinishIso).split(' ')[1] : '';
-
-const normWorkMs = (typeof d.normWorkMs === 'number' && d.normWorkMs > 0)
-  ? d.normWorkMs
-  : Math.max(0, (d.normMs || DEFAULT_NORM_MS) - DEFAULT_NORM_BREAK_MS);
+  '<div style="font-size:10px;color:#6b7280;">limită ' + fmtHoursHM(pauseLimitMs) +
+  (pauseOverMs > 0 ? (' • +' + fmtHoursHM(pauseOverMs)) : ' • OK') +
+  '</div>';
 
 const workCell =
   (d.workMs ? fmtHoursHM(d.workMs) : '-') +
-  '<div style="font-size:10px;color:#6b7280;">' +
-    'normă lucru ' + fmtHoursHM(normWorkMs) +
-    (startLine || finishLine ? (' • ' + (startLine ? ('START ' + startLine) : '') + (finishLine ? (' • FINISH ' + finishLine) : '')) : '') +
-  '</div>';
+  '<div style="font-size:10px;color:#6b7280;">normă ' + fmtHoursHM(d.normMs || 0) + '</div>';
+
       html += '<tr>' +
   '<td>' + d.dateKey + '</td>' +
   '<td>' + (d.dept || '') + '</td>' +
@@ -5511,11 +5443,6 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
-
-
-
-
-
 
 
 
