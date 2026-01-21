@@ -1745,7 +1745,18 @@ function applyNormSettingsFromConfig(cfg){
     return cfg.defaultPauseMarginMs || DEFAULT_PAUSE_MARGIN_MS;
   }
 
-  
+  function getPauseNormMsFor(name, dept){
+  const cfg = NORM_CFG || {};
+
+  const empCfg = (cfg.perEmployee && name) ? cfg.perEmployee[name] : null;
+  if (empCfg && typeof empCfg.pauseNormMs === 'number') return Math.max(0, empCfg.pauseNormMs);
+
+  const depCfg = (cfg.perDept && dept) ? cfg.perDept[dept] : null;
+  if (depCfg && typeof depCfg.pauseNormMs === 'number') return Math.max(0, depCfg.pauseNormMs);
+
+  return Math.max(0, cfg.defaultPauseNormMs || DEFAULT_PAUSE_NORM_MS);
+}
+
 
   function buildLeaveIndex(leaves){
     LEAVE_BY_DAY = new Map();
@@ -5488,6 +5499,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
