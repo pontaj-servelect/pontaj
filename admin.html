@@ -2537,14 +2537,25 @@ day.normValidated = false;
 day.pauseOk = true;
 day.pauseOverMs = 0;
 day.pauseMarginMsUsed = pauseMarginMs;
+day.openRunning = running;          // dacă a rămas START fără FINISH
+day.openExtra   = extraRunning;
+
+day.hasPauseMismatch = (day.pauseCount !== day.unpauseCount) || (paused && pauseStartTs != null);
+day.hasExtraMismatch = (day.extraStartCount !== day.extraFinishCount) || extraRunning;
+
+day.completed  = day.hasStart && day.hasFinish && !day.openRunning;
+day.incomplete = isDayIncomplete(day);
 
 if (!day.incomplete && day.completed){
   const pauseMs = day.pauseMs || 0;
+const pauseMarginMs = getPauseMarginMsFor(name, day.dept || emp.dept || '');
+const normForDay = normWorkMs; // cel mai logic în regula ta (7h30 pt normă 8h)
 
   day.pauseOk = pauseMs <= pauseMarginMs;
   day.pauseOverMs = Math.max(0, pauseMs - pauseMarginMs);
   day.pauseMarginMsUsed = pauseMarginMs;
 
+  
   // ✅ AICI e regula ta:
   // dacă după scăderea pauzei, munca efectivă >= normă -> normă îndeplinită
   day.normMet = workMs >= normForDay;
@@ -5500,6 +5511,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
