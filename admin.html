@@ -1588,6 +1588,8 @@
   let DEFAULT_NORM_MS             = 8   * 60 * 60 * 1000;
   let LONG_NORM_MS                = 8.5 * 60 * 60 * 1000;
   let DEFAULT_PAUSE_MARGIN_MS     = 40  * 60 * 1000;
+  // A1: pauză inclusă în normă (fallback) – 30 min
+  let DEFAULT_PAUSE_NORM_MS = 30 * 60 * 1000;
 
   // Config normă/pauză per departament / angajat (A1)
   let NORM_CFG = null;
@@ -1659,45 +1661,68 @@
     return GLOBAL_CFG;
   }
 
-  function applyNormSettingsFromConfig(cfg){
-    NORM_CFG = {
-      timezone: (cfg.normSettings && cfg.normSettings.timezone) || 'Europe/Bucharest',
-      defaultNormMs: DEFAULT_NORM_MS,
-      defaultLongNormMs: LONG_NORM_MS,
-      defaultPauseMarginMs: DEFAULT_PAUSE_MARGIN_MS,
-      perDept: {},
-      perEmployee: {}
-    };
-    if (cfg.normSettings){
-      if (cfg.normSettings.default){
-        if (typeof cfg.normSettings.default.normHours === 'number'){
-          NORM_CFG.defaultNormMs = cfg.normSettings.default.normHours * 60 * 60 * 1000;
-        }
-        if (typeof cfg.normSettings.default.pauseMaxMinutes === 'number'){
-          NORM_CFG.defaultPauseMarginMs = cfg.normSettings.default.pauseMaxMinutes * 60 * 1000;
-        }
+function applyNormSettingsFromConfig(cfg){
+  NORM_CFG = {
+    timezone: (cfg.normSettings && cfg.normSettings.timezone) || 'Europe/Bucharest',
+    defaultNormMs: DEFAULT_NORM_MS,
+    defaultLongNormMs: LONG_NORM_MS,
+
+    // ✅ limită alertă (ce aveai tu deja - 40m default)
+    defaultPauseMarginMs: DEFAULT_PAUSE_MARGIN_MS,
+
+    // ✅ NOU: pauză inclusă în normă (30m default)
+    defaultPauseNormMs: DEFAULT_PAUSE_NORM_MS,
+
+    perDept: {},
+    perEmployee: {}
+  };
+
+  if (cfg.normSettings){
+    if (cfg.normSettings.default){
+      const def = cfg.normSettings.default;
+
+      if (typeof def.normHours === 'number'){
+        NORM_CFG.defaultNormMs = def.normHours * 60 * 60 * 1000;
       }
-      if (cfg.normSettings.departments){
-        Object.keys(cfg.normSettings.departments).forEach(dep=>{
-          const nd = cfg.normSettings.departments[dep] || {};
-          NORM_CFG.perDept[dep] = {
-            normMs: (typeof nd.normHours === 'number' ? nd.normHours * 60 * 60 * 1000 : null),
-            pauseMarginMs: (typeof nd.pauseMaxMinutes === 'number' ? nd.pauseMaxMinutes * 60 * 1000 : null)
-          };
-        });
+      if (typeof def.pauseMaxMinutes === 'number'){
+        NORM_CFG.defaultPauseMarginMs = def.pauseMaxMinutes * 60 * 1000;
       }
-      if (cfg.normSettings.employees){
-        Object.keys(cfg.normSettings.employees).forEach(name=>{
-          const ne = cfg.normSettings.employees[name] || {};
-          NORM_CFG.perEmployee[name] = {
-            normMs: (typeof ne.normHours === 'number' ? ne.normHours * 60 * 60 * 1000 : null),
-            pauseMarginMs: (typeof ne.pauseMaxMinutes === 'number' ? ne.pauseMaxMinutes * 60 * 1000 : null)
-          };
-        });
+
+      // ✅ NOU: pauză inclusă în normă (minute)
+      if (typeof def.pauseNormMinutes === 'number'){
+        NORM_CFG.defaultPauseNormMs = def.pauseNormMinutes * 60 * 1000;
       }
     }
-    TZ = NORM_CFG.timezone || 'Europe/Bucharest';
+
+    if (cfg.normSettings.departments){
+      Object.keys(cfg.normSettings.departments).forEach(dep=>{
+        const nd = cfg.normSettings.departments[dep] || {};
+        NORM_CFG.perDept[dep] = {
+          normMs: (typeof nd.normHours === 'number' ? nd.normHours * 60 * 60 * 1000 : null),
+          pauseMarginMs: (typeof nd.pauseMaxMinutes === 'number' ? nd.pauseMaxMinutes * 60 * 1000 : null),
+
+          // ✅ NOU
+          pauseNormMs: (typeof nd.pauseNormMinutes === 'number' ? nd.pauseNormMinutes * 60 * 1000 : null)
+        };
+      });
+    }
+
+    if (cfg.normSettings.employees){
+      Object.keys(cfg.normSettings.employees).forEach(name=>{
+        const ne = cfg.normSettings.employees[name] || {};
+        NORM_CFG.perEmployee[name] = {
+          normMs: (typeof ne.normHours === 'number' ? ne.normHours * 60 * 60 * 1000 : null),
+          pauseMarginMs: (typeof ne.pauseMaxMinutes === 'number' ? ne.pauseMaxMinutes * 60 * 1000 : null),
+
+          // ✅ NOU
+          pauseNormMs: (typeof ne.pauseNormMinutes === 'number' ? ne.pauseNormMinutes * 60 * 1000 : null)
+        };
+      });
+    }
   }
+
+  TZ = NORM_CFG.timezone || 'Europe/Bucharest';
+}
 
   function getNormMsFor(name, dept, hasLongActivity){
     const cfg = NORM_CFG || {};
@@ -1719,6 +1744,8 @@
     if (depCfg && typeof depCfg.pauseMarginMs === 'number') return depCfg.pauseMarginMs;
     return cfg.defaultPauseMarginMs || DEFAULT_PAUSE_MARGIN_MS;
   }
+
+  
 
   function buildLeaveIndex(leaves){
     LEAVE_BY_DAY = new Map();
@@ -2492,18 +2519,30 @@ function applyIncompleteFilter(events, stats){
         emp.totals.daysCompleted++;
       }
 
-      const normForDay     = day.normMs || getNormMsFor(name, day.dept || emp.dept || '', false);
-      const pauseMarginMs  = getPauseMarginMsFor(name, day.dept || emp.dept || '');
+     const normForDay     = day.normMs || getNormMsFor(name, day.dept || emp.dept || '', false);
+const pauseMarginMs  = getPauseMarginMsFor(name, day.dept || emp.dept || '');
 
-      if (day.completed && workMs > normForDay){
-        day.overtimeMs = workMs - normForDay;
-        emp.totals.overtimeMs += day.overtimeMs;
-      }
+// ✅ pauză inclusă în normă (ex: 30m)
+const pauseNormMs = getPauseNormMsFor(name, day.dept || emp.dept || '');
+const workRequiredMs = Math.max(0, normForDay - pauseNormMs);
 
-// ========= NORMA (nou) =========
-// 1) normMet = muncă efectivă >= normă (indiferent de pauză)
-// 2) normValidated = normMet + pauză în limită
+day.pauseNormMs    = pauseNormMs;
+day.pauseExtraMs   = Math.max(0, (day.pauseMs || 0) - pauseNormMs);
+day.workRequiredMs = workRequiredMs;
 
+day.diffNormMs     = 0;
+day.missingMs      = 0;
+day.overtimeMs     = 0;
+
+if (!day.incomplete && day.completed){
+  day.diffNormMs = workMs - workRequiredMs;
+  day.overtimeMs = Math.max(0, day.diffNormMs);
+  day.missingMs  = Math.max(0, -day.diffNormMs);
+
+  emp.totals.overtimeMs += day.overtimeMs;
+}
+
+// ========= NORMA =========
 day.normMet = false;
 day.normValidated = false;
 day.pauseOk = true;
@@ -2517,14 +2556,10 @@ if (!day.incomplete && day.completed){
   day.pauseOverMs = Math.max(0, pauseMs - pauseMarginMs);
   day.pauseMarginMsUsed = pauseMarginMs;
 
-  // ✅ AICI e regula ta:
-  // dacă după scăderea pauzei, munca efectivă >= normă -> normă îndeplinită
-  day.normMet = workMs >= normForDay;
-  if (day.normMet){
-    emp.totals.normMetDays++;
-  }
+  // ✅ CORECT: normă îndeplinită = muncă efectivă >= (normă - pauză inclusă)
+  day.normMet = workMs >= workRequiredMs;
+  if (day.normMet) emp.totals.normMetDays++;
 
-  // ✅ normă VALIDATĂ doar dacă pauza e în limită
   if (day.normMet && day.pauseOk){
     day.normValidated = true;
     emp.totals.normValidatedDays++;
@@ -2667,7 +2702,7 @@ employeeDetailsHeaderEl.innerHTML =
 
     html += '<div class="table-wrap">';
     html += '<table class="admin-table">';
-  html += '<thead><tr>' +
+html += '<thead><tr>' +
   '<th>Data</th>' +
   '<th>Departament</th>' +
   '<th>Concediu</th>' +
@@ -2676,9 +2711,9 @@ employeeDetailsHeaderEl.innerHTML =
   '<th>Extra</th>' +
   '<th>Completă</th>' +
   '<th>Normă</th>' +
-  '<th>Overtime</th>' +
+  '<th>Diferență normă</th>' +
+  '<th>Suplimentar</th>' +
 '</tr></thead><tbody>';
-
 
     daysArr.forEach(d => {
      const reasons = getIncompleteReasons(d);
@@ -2702,6 +2737,15 @@ if (d.completed){
   }
 }
 
+let diffCell = '-';
+let suplCell = '-';
+
+if (d.completed && !d.incomplete){
+  const diff = d.diffNormMs || 0;
+  const sign = diff >= 0 ? '+' : '-';
+  diffCell = sign + ' ' + fmtHoursHM(Math.abs(diff));
+  suplCell = (d.overtimeMs ? fmtHoursHM(d.overtimeMs) : '0h 00m');
+}
 
       const isLeave = isEmployeeOnLeave(name, d.dateKey);
       const pauseMs = d.pauseMs || 0;
@@ -2721,7 +2765,7 @@ const workCell =
   (d.workMs ? fmtHoursHM(d.workMs) : '-') +
   '<div style="font-size:10px;color:#6b7280;">normă ' + fmtHoursHM(d.normMs || 0) + '</div>';
 
-      html += '<tr>' +
+ html += '<tr>' +
   '<td>' + d.dateKey + '</td>' +
   '<td>' + (d.dept || '') + '</td>' +
   '<td>' + (isLeave ? '<span class="badge badge-info">CONCEDIU</span>' : '-') + '</td>' +
@@ -2730,9 +2774,9 @@ const workCell =
   '<td>' + (d.extraMs ? fmtHoursHM(d.extraMs) : '-') + '</td>' +
   '<td>' + compStatus + '</td>' +
   '<td>' + normStatus + '</td>' +
-  '<td>' + (d.overtimeMs ? fmtHoursHM(d.overtimeMs) : '-') + '</td>' +
+  '<td>' + diffCell + '</td>' +
+  '<td>' + suplCell + '</td>' +
 '</tr>';
-
     });
 
     html += '</tbody></table></div>';
@@ -2903,7 +2947,7 @@ const workCell =
     const t = emp.totals;
     if (t.daysWithStart || t.daysWithFinish){
       total++;
-      if (t.daysCompleted > 0) completed++;
+      if ((t.normMetDays || 0) > 0) completed++;
     }
   });
 
@@ -5089,6 +5133,7 @@ if (systemAlertsHistoryBodyEl && !systemAlertsHistoryBodyEl.dataset.boundClick){
   });
 }
 
+
       
       if (exportCsvBtn){
         exportCsvBtn.addEventListener('click', function(){
@@ -5443,6 +5488,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
