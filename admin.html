@@ -2535,10 +2535,17 @@ const pauseMarginMs  = getPauseMarginMsFor(name, day.dept || emp.dept || '');
 
 // ✅ pauză inclusă în normă (ex: 30m)
 const pauseNormMs = getPauseNormMsFor(name, day.dept || emp.dept || '');
-const workRequiredMs = Math.max(0, normForDay - pauseNormMs);
+const pauseMsNow  = day.pauseMs || 0;
+
+// ✅ credităm pauza DOAR dacă există, max pauza standard (ex: 30m)
+const pauseCreditMs = Math.min(pauseMsNow, pauseNormMs);
+
+// ✅ muncă necesară = normă - pauza creditată
+const workRequiredMs = Math.max(0, normForDay - pauseCreditMs);
 
 day.pauseNormMs    = pauseNormMs;
-day.pauseExtraMs   = Math.max(0, (day.pauseMs || 0) - pauseNormMs);
+day.pauseCreditMs  = pauseCreditMs; // (opțional, dar util pt UI/debug)
+day.pauseExtraMs   = Math.max(0, pauseMsNow - pauseNormMs);
 day.workRequiredMs = workRequiredMs;
 
 day.diffNormMs     = 0;
@@ -2690,7 +2697,7 @@ const compensated = Math.max(0, met - validated);
 employeeDetailsHeaderEl.innerHTML =
   'Statistici all time pentru <b>' + name + '</b> (' + dept + '). ' +
   'Zile închise (START + FINISH): <b>' + t.daysCompleted + '</b> din <b>' + t.daysWithStart + '</b> cu START. ' +
-  'Zile cu <b>normă îndeplinită</b> (muncă efectivă ≥ normă): <b>' + met + '</b>. ' +
+  'Zile cu <b>normă îndeplinită</b> (muncă efectivă ≥ normă - pauză creditată): <b>' + met + '</b>. ' +
   'Din acestea: <b>validată</b> (pauză în limită): <b>' + validated + '</b>, ' +
   '<b>compensată</b> (pauză depășită, dar normă făcută): <b>' + compensated + '</b>.';
 
@@ -5499,6 +5506,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
