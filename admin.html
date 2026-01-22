@@ -3761,38 +3761,75 @@ if (!window.CSS.escape) {
     return String(s).replace(/["\\]/g, '\\$&');
   };
 }
-function jsonp(url, timeoutMs = 10000) {
-    return new Promise((resolve, reject) => {
-      const cbName = "jsonp_cb_" + Math.random().toString(36).slice(2);
-      const script = document.createElement("script");
+function jsonp(url, timeoutMs = 20000) {
+  return new Promise((resolve, reject) => {
+    const cbName = "jsonp_cb_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
 
-      const cleanup = () => {
+    let settled = false;
+
+    const cleanupScript = () => {
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    const cleanupAll = () => {
+      cleanupScript();
+      // ștergem callback-ul puțin mai târziu, safe
+      setTimeout(() => {
         try { delete window[cbName]; } catch {}
-        if (script && script.parentNode) script.parentNode.removeChild(script);
-      };
+      }, 1000);
+    };
 
-      const timer = setTimeout(() => {
-        cleanup();
-        reject(new Error("JSONP timeout"));
-      }, timeoutMs);
+    // IMPORTANT: callback-ul există mereu, chiar și dacă timeout-ul a trecut
+    window[cbName] = (data) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanupAll();
+      resolve(data);
+    };
 
-      window[cbName] = (data) => {
-        clearTimeout(timer);
-        cleanup();
-        resolve(data);
-      };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
 
-      script.onerror = () => {
-        clearTimeout(timer);
-        cleanup();
-        reject(new Error("JSONP load error"));
-      };
+      // ✅ CHEIA: NU îl ștergem imediat -> îl transformăm în NO-OP
+      // ca să nu crape dacă răspunsul vine târziu
+      window[cbName] = function () {};
 
-      const sep = url.includes("?") ? "&" : "?";
-      script.src = url + sep + "callback=" + cbName + "&_=" + Date.now();
-      document.head.appendChild(script);
-    });
-  }
+      cleanupScript();
+
+      // îl curățăm definitiv mai târziu
+      setTimeout(() => {
+        try { delete window[cbName]; } catch {}
+      }, 60000);
+
+      reject(new Error("JSONP timeout"));
+    }, timeoutMs);
+
+    script.onerror = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+
+      window[cbName] = function () {};
+      cleanupScript();
+
+      setTimeout(() => {
+        try { delete window[cbName]; } catch {}
+      }, 60000);
+
+      reject(new Error("JSONP load error"));
+    };
+
+    const sep = url.includes("?") ? "&" : "?";
+    script.async = true;
+    script.src = url + sep + "callback=" + cbName + "&_=" + Date.now();
+
+    document.head.appendChild(script);
+  });
+}
+
   
 // =================== Admin presence (online/offline) ===================
 const PRES_TTL_MIN = 2;                 // după 2 minute fără ping -> INACTIV
@@ -3831,7 +3868,7 @@ async function fetchAdminPresence() {
   const url = `${base}?fn=adminPresence&ttlMin=${PRES_TTL_MIN}&_=${Date.now()}`;
 
   try{
-    const data = await jsonp(url, 10000);
+    const data = await jsonp(url, 20000);
     if (!data || data.ok !== true) return null;
     return data;
   }catch(err){
@@ -3913,26 +3950,39 @@ async function adminPing(){
   }catch(e){}
 }
 
+let presTimerRefresh = null;
+let presTickBusy = false;
+
 async function initAdminPresence(){
   // 1) ping imediat (dacă e logat)
   await adminPing();
 
   // 2) refresh listă (admins + presence)
 async function tick(){
-  let adminsAll = [];
-  let presence  = null;
+  if (presTickBusy) return;
+  presTickBusy = true;
 
-  try{ adminsAll = await fetchAdminsFromAuth(); }catch(_){}
-  try{ presence  = await fetchAdminPresence(); }catch(_){}
+  try{
+    let adminsAll = [];
+    let presence  = null;
 
-  renderAdminPresence(adminsAll, presence);
+    try{ adminsAll = await fetchAdminsFromAuth(); }catch(_){}
+    try{ presence  = await fetchAdminPresence(); }catch(_){}
+
+    renderAdminPresence(adminsAll, presence);
+  } finally {
+    presTickBusy = false;
+  }
 }
+
 
   await tick();
 
   // refresh periodic
   if (presTimerRefresh) clearInterval(presTimerRefresh);
+  tick();
   presTimerRefresh = setInterval(tick, PRES_REFRESH_MS);
+
 
   // ping periodic
   if (presTimerPing) clearInterval(presTimerPing);
@@ -5506,6 +5556,7 @@ if (exportAnomaliesBtn){
 
 </body>
 </html>
+
 
 
 
