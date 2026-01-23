@@ -305,15 +305,26 @@
     catch { return null; }
   }
 
-  function requireAdmin(){
-    const s = getAdminSession();
-    if (!s || !s.email) {
-      toast("Nu ești logat", "Te trimit către pagina de pontaj pentru autentificare.");
-      setTimeout(()=> location.href = "index.html", 700);
-      return null;
-    }
-    return s;
+async function requireAdmin(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw){
+    toast("Nu ești autentificat ca Admin. Te trimit la Admin Dashboard.");
+    setTimeout(()=> window.location.href="admin.html", 600);
+    return null;
   }
+
+  let s = null;
+  try { s = JSON.parse(raw); } catch(e){}
+
+  // ✅ sesiunea ta NU are email — are role + usernameHash + userHash
+  if(!s || s.role !== "admin" || !s.usernameHash){
+    toast("Sesiune Admin invalidă/expirată. Te trimit la Admin Dashboard.");
+    setTimeout(()=> window.location.href="admin.html", 600);
+    return null;
+  }
+
+  return s;
+}
 
   async function loadConfig(){
     // presupunem că fix-day.html e în același repo cu config.json
@@ -388,15 +399,17 @@
   }
 
 function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, m => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&lt;",
-    ">":"&gt;",
-    "\"":"&quot;",
-    "'":"&#039;"
-  }[m]));
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[m];
+  });
 }
+
 
   function renderEvents(events){
     const body = el("eventsBody");
