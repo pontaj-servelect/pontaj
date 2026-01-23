@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Pontaj Admin • Fix Day (Editor de zi)</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#121a33; --card2:#0f1730; --muted:#9fb0d0; --text:#e9f0ff;
+      --accent:#6aa8ff; --good:#38d37c; --warn:#ffcc66; --bad:#ff5d5d; --line:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans);
+      background: radial-gradient(1200px 700px at 30% 10%, rgba(106,168,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 70% 0%, rgba(56,211,124,.12), transparent 55%),
+                  radial-gradient(900px 600px at 30% 90%, rgba(255,204,102,.10), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:16px 16px 56px}
+    header{
+      position: sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,16,32,.85), rgba(11,16,32,.45));
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px}
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{
+      width:34px; height:34px; border-radius:12px;
+      background: linear-gradient(135deg, rgba(106,168,255,.9), rgba(56,211,124,.8));
+      box-shadow: var(--shadow);
+    }
+    .title{display:flex; flex-direction:column; line-height:1.05}
+    .title b{font-size:14px; letter-spacing:.2px}
+    .title span{font-size:12px; color:var(--muted)}
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      appearance:none; border:1px solid var(--line); color:var(--text);
+      background: rgba(255,255,255,.04);
+      padding:10px 12px; border-radius:14px; cursor:pointer;
+      font-weight:700; letter-spacing:.2px;
+      transition: transform .06s ease, background .15s ease, border .15s ease;
+      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn:hover{background: rgba(255,255,255,.07)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{background: rgba(106,168,255,.16); border-color: rgba(106,168,255,.45)}
+    .btn.good{background: rgba(56,211,124,.14); border-color: rgba(56,211,124,.38)}
+    .btn.bad{background: rgba(255,93,93,.14); border-color: rgba(255,93,93,.38)}
+    .btn.ghost{background: transparent}
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: 1.1fr .9fr;
+      margin-top:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background: linear-gradient(to bottom, rgba(18,26,51,.95), rgba(15,23,48,.92));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .card h2{margin:0 0 10px; font-size:14px; color:var(--muted); font-weight:800; letter-spacing:.3px; text-transform:uppercase}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:end}
+    label{display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--muted)}
+    input, select, textarea{
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      outline:none;
+      min-width: 180px;
+    }
+    textarea{min-height: 84px; resize:vertical; width:100%}
+    input:focus, select:focus, textarea:focus{border-color: rgba(106,168,255,.45)}
+    .small{min-width:130px}
+    .mono{font-family:var(--mono)}
+    .muted{color:var(--muted)}
+    .pill{
+      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line);
+      background: rgba(255,255,255,.03); display:inline-flex; gap:6px; align-items:center
+    }
+    .pill.good{border-color: rgba(56,211,124,.42); background: rgba(56,211,124,.11)}
+    .pill.warn{border-color: rgba(255,204,102,.42); background: rgba(255,204,102,.11)}
+    .pill.bad{border-color: rgba(255,93,93,.42); background: rgba(255,93,93,.11)}
+    .hr{height:1px; background:var(--line); margin:12px 0}
+    table{width:100%; border-collapse: collapse}
+    th, td{border-bottom:1px solid var(--line); padding:10px 8px; text-align:left; vertical-align:middle}
+    th{font-size:12px; color:var(--muted); font-weight:900; letter-spacing:.25px}
+    td{font-size:13px}
+    .right{display:flex; justify-content:flex-end}
+    .actions-cell{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .tag{
+      font-family: var(--mono);
+      font-size:11px;
+      padding:4px 8px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+    .warnbox{
+      border:1px solid rgba(255,204,102,.42);
+      background: rgba(255,204,102,.10);
+      padding:10px 12px;
+      border-radius:14px;
+      color: var(--text);
+      margin-top:10px;
+    }
+    .okbox{
+      border:1px solid rgba(56,211,124,.42);
+      background: rgba(56,211,124,.10);
+      padding:10px 12px;
+      border-radius:14px;
+      color: var(--text);
+      margin-top:10px;
+    }
+    .badbox{
+      border:1px solid rgba(255,93,93,.42);
+      background: rgba(255,93,93,.10);
+      padding:10px 12px;
+      border-radius:14px;
+      color: var(--text);
+      margin-top:10px;
+    }
+    .spinner{
+      width:14px; height:14px; border-radius:999px;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color: rgba(106,168,255,.9);
+      animation: spin .8s linear infinite;
+      display:inline-block;
+    }
+    @keyframes spin{to{transform: rotate(360deg)}}
+    .kbd{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div class="title">
+        <b>Fix Day • Editor de zi</b>
+        <span>corectează acțiunile și orele direct în “Formular fără titlu (răspunsuri)”</span>
+      </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn ghost" href="./admin.html">← Înapoi la Admin</a>
+      <button class="btn primary" id="btnReload">Reîncarcă ziua</button>
+      <button class="btn good" id="btnSave">Salvează modificările</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="grid">
+    <section class="card">
+      <h2>Selecție</h2>
+      <div class="row">
+        <label>
+          Angajat (nume exact)
+          <input id="inpName" placeholder="ex: Popescu Ion" />
+        </label>
+        <label>
+          Data
+          <input id="inpDay" type="date" class="small"/>
+        </label>
+        <label>
+          Listă angajați (opțional)
+          <select id="selPeople">
+            <option value="">(încarcă lista…)</option>
+          </select>
+        </label>
+        <div style="flex:1"></div>
+        <button class="btn primary" id="btnLoad">
+          <span id="loadSpin" style="display:none" class="spinner"></span>
+          Încarcă ziua
+        </button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="align-items:flex-start">
+        <div style="flex:1; min-width:260px">
+          <label style="width:100%">
+            Motiv / notă (salvat în audit log)
+            <textarea id="inpReason" placeholder="ex: A uitat FINISH / pauză accidentală / dublu START…"></textarea>
+          </label>
+          <div class="muted" style="font-size:12px; margin-top:8px">
+            Tips: modifică rapid ora cu input-ul de timp, schimbă acțiunea din dropdown, apoi apasă <span class="kbd">Salvează modificările</span>.
+          </div>
+        </div>
+
+        <div style="flex:1; min-width:260px">
+          <div class="pill" id="pillStatus"><span class="spinner" style="display:none" id="globalSpin"></span><span id="statusText">Neinițializat</span></div>
+          <div id="warnings"></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Evenimente (acțiuni) în ziua selectată</h2>
+      <div style="overflow:auto; border-radius:14px; border:1px solid var(--line)">
+        <table id="tblEvents">
+          <thead>
+            <tr>
+              <th style="width:110px">Ora</th>
+              <th style="width:180px">Acțiune</th>
+              <th>Detalii</th>
+              <th style="width:220px; text-align:right">Operații</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="muted">Încarcă o zi ca să vezi evenimentele.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <aside class="card">
+      <h2>Adaugă eveniment nou</h2>
+
+      <div class="row">
+        <label>
+          Ora
+          <input id="newTime" type="time" class="small" step="60"/>
+        </label>
+        <label>
+          Acțiune
+          <select id="newAction">
+            <option value="START">START</option>
+            <option value="PAUSE">PAUSE</option>
+            <option value="UNPAUSE">UNPAUSE</option>
+            <option value="FINISH">FINISH</option>
+            <option value="EXTRA START">EXTRA START</option>
+            <option value="EXTRA FINISH">EXTRA FINISH</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <button class="btn good" id="btnAdd">Adaugă în listă (preview)</button>
+        <div class="muted" style="font-size:12px">Nu scrie în Excel până nu apeși <b>Salvează modificările</b>.</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Helper buttons</h2>
+      <div class="muted" style="font-size:12px; margin-bottom:10px">
+        Butoane rapide pentru scenarii comune (poți edita apoi manual).
+      </div>
+      <div class="row">
+        <button class="btn" id="btnAutoFinish">+ FINISH la 17:00</button>
+        <button class="btn" id="btnAutoUnpause">+ UNPAUSE după PAUSE (5 min)</button>
+        <button class="btn bad" id="btnMarkDupStarts">Marchează START-uri duplicate</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Audit</h2>
+      <div class="muted" style="font-size:12px">
+        Fiecare schimbare salvată se scrie în foaia: <span class="tag">Audit FixDay</span><br/>
+        cu: data, admin, angajat, zi, before/after și motiv.
+      </div>
+
+      <div id="saveResult"></div>
+    </aside>
+  </div>
+
+</div>
+
+<script>
+/** ========= CONFIG ========= */
+let CONFIG = null;
+const DEFAULT_CONFIG_URL = './config.json';
+
+/** ========= STATE ========= */
+let originalEvents = [];   // from server
+let workingEvents  = [];   // editable copy
+let pendingOps     = [];   // ops to send
+let lastLoaded     = { name:'', day:'' };
+
+const ACTIONS = ["START","PAUSE","UNPAUSE","FINISH","EXTRA START","EXTRA FINISH","IGNORE"];
+
+/** ========= DOM ========= */
+const $ = (id)=>document.getElementById(id);
+const inpName = $("inpName");
+const inpDay  = $("inpDay");
+const selPeople = $("selPeople");
+const tblBody = $("tblEvents").querySelector("tbody");
+const warningsBox = $("warnings");
+const statusText = $("statusText");
+const globalSpin = $("globalSpin");
+const loadSpin = $("loadSpin");
+const btnLoad = $("btnLoad");
+const btnReload = $("btnReload");
+const btnSave = $("btnSave");
+const inpReason = $("inpReason");
+const saveResult = $("saveResult");
+
+const newTime = $("newTime");
+const newAction = $("newAction");
+const btnAdd = $("btnAdd");
+const btnAutoFinish = $("btnAutoFinish");
+const btnAutoUnpause = $("btnAutoUnpause");
+const btnMarkDupStarts = $("btnMarkDupStarts");
+
+/** ========= HELPERS ========= */
+function setStatus(text, kind="neutral", spinning=false){
+  statusText.textContent = text;
+  globalSpin.style.display = spinning ? "inline-block" : "none";
+  const pill = $("pillStatus");
+  pill.className = "pill";
+  if(kind==="good") pill.classList.add("good");
+  if(kind==="warn") pill.classList.add("warn");
+  if(kind==="bad")  pill.classList.add("bad");
+}
+function pad2(n){ return String(n).padStart(2,"0"); }
+function msToTimeLocal(ms){
+  const d = new Date(ms);
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function timeToMsForDay(dayStr, timeStr){
+  // dayStr: YYYY-MM-DD, timeStr: HH:MM
+  const [Y,M,D] = dayStr.split("-").map(Number);
+  const [h,m] = timeStr.split(":").map(Number);
+  return new Date(Y, M-1, D, h||0, m||0, 0, 0).getTime();
+}
+function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function makeActionSelect(value){
+  const sel = document.createElement("select");
+  sel.className = "small";
+  for(const a of ACTIONS){
+    const op = document.createElement("option");
+    op.value = a;
+    op.textContent = a;
+    if(a===value) op.selected = true;
+    sel.appendChild(op);
+  }
+  return sel;
+}
+function makeTimeInput(value){
+  const inp = document.createElement("input");
+  inp.type = "time";
+  inp.step = "60";
+  inp.className = "small mono";
+  inp.value = value || "08:00";
+  return inp;
+}
+
+/** ========= API ========= */
+async function loadConfig(){
+  const res = await fetch(DEFAULT_CONFIG_URL, {cache:"no-store"});
+  if(!res.ok) throw new Error("Nu pot încărca config.json");
+  CONFIG = await res.json();
+  if(!CONFIG.adminEventsEndpoint) throw new Error("config.json nu are adminEventsEndpoint");
+}
+function baseEndpoint(){
+  // Folosim același endpoint ca Admin (fn diferit).
+  return CONFIG.adminEventsEndpoint;
+}
+async function apiGet(fn, params={}){
+  const url = new URL(baseEndpoint());
+  url.searchParams.set("fn", fn);
+  for(const [k,v] of Object.entries(params)){
+    if(v!==undefined && v!==null && v!=="") url.searchParams.set(k, v);
+  }
+  const res = await fetch(url.toString(), {cache:"no-store"});
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || "Eroare API");
+  return json;
+}
+async function apiPost(fn, payloadObj){
+  const body = new URLSearchParams();
+  body.set("fn", fn);
+  body.set("payload", JSON.stringify(payloadObj));
+  const res = await fetch(baseEndpoint(), {
+    method:"POST",
+    headers: {"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+    body
+  });
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || "Eroare API");
+  return json;
+}
+
+/** ========= RENDER ========= */
+function renderWarnings(list){
+  warningsBox.innerHTML = "";
+  if(!list || !list.length) return;
+  const box = document.createElement("div");
+  box.className = "warnbox";
+  box.innerHTML = `<b>Atenționări detectate:</b><br/>` + list.map(x=>`• ${escapeHtml(x)}`).join("<br/>");
+  warningsBox.appendChild(box);
+}
+function renderTable(){
+  tblBody.innerHTML = "";
+  if(!workingEvents.length){
+    tblBody.innerHTML = `<tr><td colspan="4" class="muted">Nu există evenimente în ziua selectată.</td></tr>`;
+    return;
+  }
+
+  workingEvents.sort((a,b)=>a.ts-b.ts);
+
+  for(const ev of workingEvents){
+    const tr = document.createElement("tr");
+
+    const tdTime = document.createElement("td");
+    const timeInp = makeTimeInput(msToTimeLocal(ev.ts));
+    timeInp.addEventListener("change", ()=>{
+      const ms = timeToMsForDay(lastLoaded.day, timeInp.value);
+      ev.ts = ms;
+      ev._dirty = true;
+      setStatus("Ai modificări nesalvate", "warn");
+      renderTable(); // re-sort in UI
+    });
+    tdTime.appendChild(timeInp);
+
+    const tdAct = document.createElement("td");
+    const sel = makeActionSelect(ev.action);
+    sel.addEventListener("change", ()=>{
+      ev.action = sel.value;
+      ev._dirty = true;
+      setStatus("Ai modificări nesalvate", "warn");
+    });
+    tdAct.appendChild(sel);
+
+    const tdInfo = document.createElement("td");
+    tdInfo.innerHTML = `<span class="tag">row ${ev.row ?? "NEW"}</span> <span class="muted">raw:</span> <span class="mono">${escapeHtml(ev.rawAction||"")}</span>` +
+                       (ev.note ? `<div class="muted" style="margin-top:6px">note: ${escapeHtml(ev.note)}</div>` : "");
+
+    const tdOps = document.createElement("td");
+    tdOps.style.textAlign = "right";
+    const cell = document.createElement("div");
+    cell.className = "actions-cell";
+
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn bad";
+    btnDel.textContent = ev.action==="IGNORE" ? "Restaurare" : "Șterge";
+    btnDel.addEventListener("click", ()=>{
+      if(ev.action==="IGNORE"){
+        // restore from original
+        const orig = originalEvents.find(o=>o.row===ev.row);
+        if(orig){
+          ev.action = orig.action;
+          ev.ts = orig.ts;
+          ev.rawAction = orig.rawAction;
+          ev._dirty = true;
+        }else{
+          ev.action = "START";
+          ev._dirty = true;
+        }
+      }else{
+        ev.action = "IGNORE";
+        ev._dirty = true;
+      }
+      setStatus("Ai modificări nesalvate", "warn");
+      renderTable();
+    });
+
+    const btnReset = document.createElement("button");
+    btnReset.className = "btn";
+    btnReset.textContent = "Reset";
+    btnReset.addEventListener("click", ()=>{
+      if(ev.row==null){
+        // new item -> remove it
+        workingEvents = workingEvents.filter(x=>x!==ev);
+      }else{
+        const orig = originalEvents.find(o=>o.row===ev.row);
+        if(orig){
+          ev.ts = orig.ts;
+          ev.action = orig.action;
+          ev.rawAction = orig.rawAction;
+          ev.note = orig.note || "";
+          ev._dirty = false;
+        }
+      }
+      setStatus("Resetat", "good");
+      renderTable();
+    });
+
+    cell.appendChild(btnReset);
+    cell.appendChild(btnDel);
+    tdOps.appendChild(cell);
+
+    tr.appendChild(tdTime);
+    tr.appendChild(tdAct);
+    tr.appendChild(tdInfo);
+    tr.appendChild(tdOps);
+
+    tblBody.appendChild(tr);
+  }
+}
+
+/** ========= LOGIC ========= */
+async function loadPeople(){
+  try{
+    const json = await apiGet("fixDayPeople", {});
+    const people = json.people || [];
+    selPeople.innerHTML = `<option value="">(alege…)</option>` + people.map(p=>`<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+  }catch(err){
+    selPeople.innerHTML = `<option value="">(nu pot încărca)</option>`;
+    console.warn(err);
+  }
+}
+async function loadDay(){
+  const name = (inpName.value || selPeople.value || "").trim();
+  const day = (inpDay.value || "").trim();
+  if(!name){ alert("Completează numele angajatului."); return; }
+  if(!day){ alert("Alege data."); return; }
+
+  lastLoaded = {name, day};
+  btnLoad.disabled = true;
+  loadSpin.style.display = "inline-block";
+  setStatus("Se încarcă ziua…", "neutral", true);
+  warningsBox.innerHTML = "";
+
+  try{
+    const json = await apiGet("fixDayGet", {name, day});
+    originalEvents = (json.events || []).map(e=>({
+      row: e.row,
+      ts: e.ts,
+      action: e.action,
+      rawAction: e.rawAction,
+      note: e.note || ""
+    }));
+    workingEvents = deepClone(originalEvents);
+    renderWarnings(json.warnings || []);
+    renderTable();
+    setStatus(`Încărcat: ${name} • ${day}`, "good");
+    saveResult.innerHTML = "";
+  }catch(err){
+    console.error(err);
+    setStatus("Eroare la încărcare", "bad");
+    saveResult.innerHTML = `<div class="badbox"><b>Eroare:</b> ${escapeHtml(err.message||err)}</div>`;
+  }finally{
+    btnLoad.disabled = false;
+    loadSpin.style.display = "none";
+  }
+}
+
+function buildOps(){
+  const ops = [];
+  const byRowOrig = new Map(originalEvents.map(e=>[e.row, e]));
+
+  for(const ev of workingEvents){
+    // new rows
+    if(ev.row == null){
+      ops.push({
+        type: "insert",
+        name: lastLoaded.name,
+        ts: ev.ts,
+        action: ev.action
+      });
+      continue;
+    }
+    const orig = byRowOrig.get(ev.row);
+    if(!orig) continue;
+
+    // delete (IGNORE) -> mark deleted in sheet
+    const wantsDelete = (ev.action === "IGNORE");
+    const origWasDelete = (orig.action === "IGNORE");
+    if(wantsDelete && !origWasDelete){
+      ops.push({type:"delete", row: ev.row, name:lastLoaded.name, ts: orig.ts, action: orig.action});
+      continue;
+    }
+
+    // edit
+    const changedTs = ev.ts !== orig.ts;
+    const changedAction = ev.action !== orig.action;
+    if(changedTs || changedAction){
+      ops.push({
+        type:"edit",
+        row: ev.row,
+        name:lastLoaded.name,
+        before: {ts: orig.ts, action: orig.action, rawAction: orig.rawAction},
+        after:  {ts: ev.ts, action: ev.action, rawAction: ev.action}
+      });
+    }
+  }
+  return ops;
+}
+
+async function saveChanges(){
+  if(!lastLoaded.name || !lastLoaded.day){
+    alert("Încarcă mai întâi o zi.");
+    return;
+  }
+  const ops = buildOps();
+  if(!ops.length){
+    setStatus("Nu ai modificări de salvat", "good");
+    saveResult.innerHTML = `<div class="okbox">Nu există modificări. ✅</div>`;
+    return;
+  }
+
+  btnSave.disabled = true;
+  setStatus("Se salvează…", "neutral", true);
+
+  try{
+    const payload = {
+      admin: "admin-ui",
+      reason: (inpReason.value || "").trim(),
+      name: lastLoaded.name,
+      day: lastLoaded.day,
+      ops
+    };
+    const json = await apiPost("fixDayApply", payload);
+    saveResult.innerHTML = `<div class="okbox"><b>Salvat!</b> Operații aplicate: ${json.applied || 0}</div>`;
+    setStatus("Modificări salvate", "good");
+    await loadDay();
+  }catch(err){
+    console.error(err);
+    saveResult.innerHTML = `<div class="badbox"><b>Eroare la salvare:</b> ${escapeHtml(err.message||err)}</div>`;
+    setStatus("Eroare la salvare", "bad");
+  }finally{
+    btnSave.disabled = false;
+    globalSpin.style.display = "none";
+  }
+}
+
+/** ========= UI EVENTS ========= */
+selPeople.addEventListener("change", ()=>{ if(selPeople.value) inpName.value = selPeople.value; });
+
+btnLoad.addEventListener("click", loadDay);
+btnReload.addEventListener("click", loadDay);
+btnSave.addEventListener("click", saveChanges);
+
+btnAdd.addEventListener("click", ()=>{
+  const day = inpDay.value;
+  const t = (newTime.value || "").trim();
+  if(!day){ alert("Alege data."); return; }
+  if(!t){ alert("Alege ora (time)."); return; }
+  const ms = timeToMsForDay(day, t);
+  workingEvents.push({
+    row: null,
+    ts: ms,
+    action: newAction.value,
+    rawAction: newAction.value,
+    note: ""
+  });
+  setStatus("Eveniment adăugat (preview)", "warn");
+  renderTable();
+});
+
+btnAutoFinish.addEventListener("click", ()=>{
+  const day = inpDay.value;
+  if(!day){ alert("Alege data."); return; }
+  workingEvents.push({row:null, ts: timeToMsForDay(day,"17:00"), action:"FINISH", rawAction:"FINISH"});
+  setStatus("FINISH adăugat (preview)", "warn");
+  renderTable();
+});
+
+btnAutoUnpause.addEventListener("click", ()=>{
+  const day = inpDay.value;
+  if(!day){ alert("Alege data."); return; }
+  // find last PAUSE and add UNPAUSE 5 min later
+  const pauses = workingEvents.filter(e=>e.action==="PAUSE").sort((a,b)=>b.ts-a.ts);
+  if(!pauses.length){ alert("Nu există PAUSE în listă."); return; }
+  const p = pauses[0];
+  workingEvents.push({row:null, ts: p.ts + 5*60*1000, action:"UNPAUSE", rawAction:"UNPAUSE"});
+  setStatus("UNPAUSE adăugat (preview)", "warn");
+  renderTable();
+});
+
+btnMarkDupStarts.addEventListener("click", ()=>{
+  const starts = workingEvents.filter(e=>e.action==="START").sort((a,b)=>a.ts-b.ts);
+  if(starts.length <= 1){ alert("Nu există START-uri duplicate."); return; }
+  // keep first START, mark rest IGNORE
+  for(let i=1;i<starts.length;i++){
+    starts[i].action = "IGNORE";
+    starts[i]._dirty = true;
+  }
+  setStatus("START-uri duplicate marcate (IGNORE)", "warn");
+  renderTable();
+});
+
+/** ========= BOOT ========= */
+(async ()=>{
+  try{
+    setStatus("Inițializare…", "neutral", true);
+    await loadConfig();
+    // default day = today
+    const now = new Date();
+    inpDay.value = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+    await loadPeople();
+    setStatus("Gata. Alege angajat + zi.", "good");
+  }catch(err){
+    console.error(err);
+    setStatus("Eroare inițializare", "bad");
+    saveResult.innerHTML = `<div class="badbox"><b>Eroare:</b> ${escapeHtml(err.message||err)}</div>`;
+  }finally{
+    globalSpin.style.display = "none";
+  }
+})();
+</script>
+</body>
+</html>
