@@ -387,9 +387,16 @@
     });
   }
 
-  function escapeHtml(s){
-    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#039;" }[m]));
-  }
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&lt;",
+    ">":"&gt;",
+    "\"":"&quot;",
+    "'":"&#039;"
+  }[m]));
+}
 
   function renderEvents(events){
     const body = el("eventsBody");
