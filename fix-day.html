@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pontaj Admin — Fix Day</title>
+  <style>
+    :root{
+      --bg:#07130e;
+      --panel:#0d1f15;
+      --panel2:#0b1912;
+      --border:#163323;
+      --text:#e6fff1;
+      --muted:#98c9ad;
+      --accent:#19c37d;
+      --accent2:#0fae6f;
+      --warn:#ffcf5c;
+      --bad:#ff6b6b;
+      --shadow: 0 8px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 30% 0%, rgba(25,195,125,.18), transparent 55%),
+                  radial-gradient(900px 700px at 80% 20%, rgba(25,195,125,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .nav{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+      background: linear-gradient(180deg, rgba(7,19,14,.88), rgba(7,19,14,.72));
+      border-bottom:1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex; gap:10px; align-items:center}
+    .logo{
+      width:36px;height:36px;border-radius:12px;
+      background: linear-gradient(145deg, rgba(25,195,125,.35), rgba(25,195,125,.08));
+      border:1px solid rgba(25,195,125,.35);
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      font-weight:800; color:var(--accent);
+    }
+    .title{font-weight:800}
+    .subtitle{font-size:12px;color:var(--muted); margin-top:2px}
+    .nav-actions{display:flex; gap:10px; align-items:center}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 12px; border-radius:12px;
+      color:var(--text);
+      background: rgba(25,195,125,.10);
+      border:1px solid rgba(25,195,125,.28);
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      text-decoration:none;
+      font-weight:700;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(25,195,125,.22), rgba(25,195,125,.10));
+      border-color: rgba(25,195,125,.42);
+    }
+    .btn.danger{background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.35)}
+    .container{max-width:1180px; margin: 16px auto; padding: 0 16px 28px;}
+    .grid{display:grid; grid-template-columns: 1.15fr .85fr; gap:14px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background: linear-gradient(180deg, rgba(13,31,21,.88), rgba(11,25,18,.88));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:0 0 10px; font-size:16px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    input, select, textarea{
+      width: 100%;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(22,51,35,.9);
+      border-radius:12px;
+      color:var(--text);
+      padding:10px 10px;
+      outline:none;
+    }
+    textarea{min-height:74px; resize:vertical}
+    .field{flex:1; min-width:180px}
+    .small{flex:0; min-width:150px}
+    .muted{color:var(--muted)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px;
+      border:1px solid rgba(25,195,125,.28);
+      background: rgba(25,195,125,.10);
+      font-size:12px; color:var(--muted)
+    }
+    .pill.bad{border-color: rgba(255,107,107,.35); background: rgba(255,107,107,.12); color: #ffd5d5}
+    .pill.warn{border-color: rgba(255,207,92,.35); background: rgba(255,207,92,.12); color: #ffe9b5}
+    .kpi{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .kpi .pill{font-weight:700; color:var(--text)}
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(0,0,0,.12);
+    }
+    table{width:100%; border-collapse:collapse; min-width:820px}
+    th, td{padding:10px 10px; border-bottom:1px solid rgba(22,51,35,.55); font-size:13px; vertical-align:top}
+    th{text-align:left; color: var(--muted); font-weight:800; position:sticky; top:0; background: rgba(7,19,14,.75); backdrop-filter: blur(8px)}
+    td input, td select, td textarea{padding:8px 8px; border-radius:10px}
+    .right{text-align:right}
+    .ops{display:flex; gap:8px; justify-content:flex-end}
+    .tag{font-size:11px; padding:5px 8px; border-radius:999px; border:1px solid rgba(152,201,173,.25); color:var(--muted); background: rgba(0,0,0,.10)}
+    .issues{display:flex; flex-direction:column; gap:8px; margin-top:10px}
+    .issue{
+      border:1px solid rgba(255,207,92,.28);
+      background: rgba(255,207,92,.08);
+      border-radius: 14px;
+      padding:10px 10px;
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start
+    }
+    .issue.bad{border-color: rgba(255,107,107,.30); background: rgba(255,107,107,.10)}
+    .issue .msg{font-size:13px}
+    .issue .meta{font-size:12px; color:var(--muted)}
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: rgba(13,31,21,.95);
+      border: 1px solid rgba(25,195,125,.35);
+      border-radius: 14px;
+      padding: 12px 12px;
+      box-shadow: var(--shadow);
+      max-width: 420px;
+      display:none;
+      z-index: 50;
+    }
+    .toast.show{display:block}
+    .toast .t1{font-weight:800}
+    .toast .t2{color:var(--muted); font-size:12px; margin-top:4px}
+    .sep{height:1px; background: rgba(22,51,35,.55); margin:12px 0}
+    .hint{font-size:12px; color:var(--muted); margin-top:6px}
+    .checkbox{display:flex; align-items:center; gap:8px}
+    .checkbox input{width:auto}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <div class="logo">P</div>
+      <div>
+        <div class="title">Pontaj Admin — Fix Day</div>
+        <div class="subtitle">Editor de zi pentru corectarea marcajelor direct în „Formular… (răspunsuri)” + Audit Log</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a class="btn" href="admin.html">← Dashboard</a>
+      <a class="btn primary" href="index.html">🏠 Pontaj</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <h2>1) Alege angajatul și ziua</h2>
+        <div class="row">
+          <div class="field">
+            <label>Angajat</label>
+            <input id="employeeInput" list="employeesList" placeholder="ex: Ion Popescu" />
+            <datalist id="employeesList"></datalist>
+            <div class="hint">Poți scrie manual chiar dacă nu apare în listă.</div>
+          </div>
+          <div class="small">
+            <label>Data</label>
+            <input id="dateInput" type="date" />
+          </div>
+          <div class="small">
+            <button class="btn primary" id="btnLoad">Încarcă ziua</button>
+            <div class="hint" id="statusLine">—</div>
+          </div>
+        </div>
+
+        <div class="kpi" id="kpiRow" style="display:none"></div>
+
+        <div class="issues" id="issuesBox" style="display:none"></div>
+
+        <div class="sep"></div>
+
+        <h2>2) Evenimente (START/PAUSE/UNPAUSE/FINISH)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:90px">Rând</th>
+                <th style="width:120px">Ora</th>
+                <th style="width:170px">Acțiune</th>
+                <th>Note</th>
+                <th class="right" style="width:260px">Operații</th>
+              </tr>
+            </thead>
+            <tbody id="eventsBody">
+              <tr><td colspan="5" class="muted">Încarcă o zi…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="btnApplyAll" disabled>Aplică schimbările</button>
+          <button class="btn" id="btnReload" disabled>Reîncarcă</button>
+          <span class="muted" id="dirtyHint"></span>
+        </div>
+
+        <div class="sep"></div>
+
+        <h2>3) Adaugă un eveniment nou</h2>
+        <div class="row">
+          <div class="small">
+            <label>Ora</label>
+            <input id="newTime" type="time" step="60" />
+          </div>
+          <div class="field">
+            <label>Acțiune</label>
+            <select id="newAction"></select>
+          </div>
+          <div class="field">
+            <label>Note (opțional)</label>
+            <input id="newNotes" placeholder="ex: Finish lipsă adăugat de admin" />
+          </div>
+          <div class="small">
+            <button class="btn primary" id="btnAdd" disabled>Adaugă</button>
+            <div class="hint">Va fi adăugat ca rând nou în sheet.</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2>Audit Log (ultimele modificări)</h2>
+        <div class="muted" style="font-size:13px">Se completează automat în sheet-ul <span class="mono">Audit FixDay</span>.</div>
+        <div class="sep"></div>
+        <div class="table-wrap">
+          <table style="min-width:560px">
+            <thead>
+              <tr>
+                <th style="width:130px">TS</th>
+                <th style="width:120px">Op</th>
+                <th>Detalii</th>
+              </tr>
+            </thead>
+            <tbody id="auditBody">
+              <tr><td colspan="3" class="muted">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sep"></div>
+        <h2>Hint-uri rapide</h2>
+        <div class="muted" style="font-size:13px; line-height:1.45">
+          <div class="pill warn" style="margin:6px 0">• Zi “ruptă”: lipsește FINISH</div>
+          <div class="pill warn" style="margin:6px 0">• Pauză rămasă deschisă: lipsește UNPAUSE</div>
+          <div class="pill warn" style="margin:6px 0">• Start dublu / Finish fără Start</div>
+          <div class="hint">
+            Recomandare: fă corecțiile minimal necesare și lasă în note motivul (audit îl reține oricum).
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">
+    <div class="t1" id="toastTitle">—</div>
+    <div class="t2" id="toastText">—</div>
+  </div>
+
+<script>
+(() => {
+  const LS_KEY = "pontaj/admin/v1";
+  const ACTIONS = ["START","PAUSE","UNPAUSE","FINISH","EXTRA_START","EXTRA_FINISH"];
+
+  const el = (id) => document.getElementById(id);
+
+  const state = {
+    config: null,
+    employee: "",
+    date: "",
+    original: [],
+    current: [],
+    deleted: new Set(),
+    dirty: false
+  };
+
+  function toast(title, text){
+    el("toastTitle").textContent = title;
+    el("toastText").textContent = text || "";
+    el("toast").classList.add("show");
+    setTimeout(()=> el("toast").classList.remove("show"), 2800);
+  }
+
+  function getAdminSession(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || "null"); }
+    catch { return null; }
+  }
+
+  function requireAdmin(){
+    const s = getAdminSession();
+    if (!s || !s.email) {
+      toast("Nu ești logat", "Te trimit către pagina de pontaj pentru autentificare.");
+      setTimeout(()=> location.href = "index.html", 700);
+      return null;
+    }
+    return s;
+  }
+
+  async function loadConfig(){
+    // presupunem că fix-day.html e în același repo cu config.json
+    const url = "config.json?ts=" + Date.now();
+    const r = await fetch(url, { cache:"no-store" });
+    if (!r.ok) throw new Error("Nu pot citi config.json din GitHub Pages.");
+    return await r.json();
+  }
+
+  function setStatus(text){
+    el("statusLine").textContent = text;
+  }
+
+  function fmtMin(min){
+    const h = Math.floor(min/60);
+    const m = min%60;
+    return (h ? (h + "h ") : "") + m + "m";
+  }
+
+  function markDirty(v){
+    state.dirty = v;
+    el("dirtyHint").textContent = v ? "Ai modificări nesalvate." : "";
+    el("btnApplyAll").disabled = !v;
+  }
+
+  function renderKpi(analysis){
+    const k = el("kpiRow");
+    if (!analysis || !analysis.totals) { k.style.display="none"; return; }
+    const { workMinutes, pauseMinutes, extraWorkMinutes } = analysis.totals;
+    k.innerHTML = "";
+    const p1 = document.createElement("div"); p1.className="pill"; p1.textContent = "Lucru: " + fmtMin(workMinutes||0);
+    const p2 = document.createElement("div"); p2.className="pill"; p2.textContent = "Pauză: " + fmtMin(pauseMinutes||0);
+    const p3 = document.createElement("div"); p3.className="pill"; p3.textContent = "Extra: " + fmtMin(extraWorkMinutes||0);
+    k.append(p1,p2,p3);
+    k.style.display="flex";
+  }
+
+  function renderIssues(analysis){
+    const box = el("issuesBox");
+    const issues = (analysis && analysis.issues) || [];
+    if (!issues.length) { box.style.display="none"; box.innerHTML=""; return; }
+    box.innerHTML = "";
+    issues.forEach(it=>{
+      const d = document.createElement("div");
+      const isBad = String(it.type||"").includes("MISSING") || String(it.type||"").includes("INVALID");
+      d.className = "issue" + (isBad ? " bad" : "");
+      const left = document.createElement("div");
+      left.innerHTML = `<div class="msg"><b>${it.type}</b> — ${it.message}</div>
+                        <div class="meta">rând: ${it.row ?? "—"} • ora: ${it.time ?? "—"} • acțiune: ${it.action ?? "—"}</div>`;
+      const right = document.createElement("div");
+      right.innerHTML = `<span class="tag">suggestion</span>`;
+      d.append(left,right);
+      box.appendChild(d);
+    });
+    box.style.display="flex";
+  }
+
+  function renderAudit(audit){
+    const body = el("auditBody");
+    if (!audit || !audit.length){
+      body.innerHTML = `<tr><td colspan="3" class="muted">—</td></tr>`;
+      return;
+    }
+    body.innerHTML = "";
+    audit.slice(0, 50).forEach(a=>{
+      const ts = (a.ts || "").replace("T"," ").replace("Z","");
+      const details = `${a.adminName || a.adminEmail || "admin"} • rând ${a.row} • ${a.reason || ""}`.trim();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="mono">${ts.slice(0,16)}</td><td><span class="tag">${a.op}</span></td><td class="muted">${escapeHtml(details)}</td>`;
+      body.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#039;" }[m]));
+  }
+
+  function renderEvents(events){
+    const body = el("eventsBody");
+    if (!events || !events.length){
+      body.innerHTML = `<tr><td colspan="5" class="muted">Nu există evenimente în ziua selectată.</td></tr>`;
+      return;
+    }
+    body.innerHTML = "";
+    events.forEach((ev, idx)=>{
+      const tr = document.createElement("tr");
+      tr.dataset.row = ev.row;
+      tr.innerHTML = `
+        <td class="mono">${ev.row}</td>
+        <td><input type="time" step="60" value="${ev.time || ""}" data-k="time"></td>
+        <td>${actionSelectHtml(ev.action || "")}</td>
+        <td><textarea data-k="notes" placeholder="(opțional)">${escapeHtml(ev.notes || "")}</textarea></td>
+        <td class="right">
+          <div class="ops">
+            <button class="btn" data-op="save">Salvează</button>
+            <button class="btn danger" data-op="void">VOID</button>
+          </div>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+
+    // events listeners
+    body.querySelectorAll("input,select,textarea").forEach(inp=>{
+      inp.addEventListener("input", () => markDirty(true));
+    });
+
+    body.querySelectorAll("button[data-op]").forEach(btn=>{
+      btn.addEventListener("click", async (e)=>{
+        const op = btn.getAttribute("data-op");
+        const tr = btn.closest("tr");
+        const row = Number(tr.dataset.row);
+        const time = tr.querySelector('[data-k="time"]').value;
+        const action = tr.querySelector('[data-k="action"]').value;
+        const notes = tr.querySelector('[data-k="notes"]').value;
+
+        if (op === "save") {
+          await applyOps([{ type:"update", row, time, action, notes, reason:"edit single row" }]);
+        } else if (op === "void") {
+          await applyOps([{ type:"void", row, reason:"Marked VOID in FixDay" }]);
+        }
+      });
+    });
+  }
+
+  function actionSelectHtml(selected){
+    const opts = ACTIONS.map(a => `<option value="${a}" ${a===selected?"selected":""}>${a}</option>`).join("");
+    return `<select data-k="action">${opts}</select>`;
+  }
+
+  async function fetchDay(){
+    const config = state.config;
+    const name = state.employee;
+    const date = state.date;
+    if (!config || !config.adminEventsEndpoint) throw new Error("adminEventsEndpoint lipsește din config.json");
+    const url = config.adminEventsEndpoint + `?fn=fixDay&name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&ts=${Date.now()}`;
+    setStatus("Se încarcă…");
+    const r = await fetch(url, { cache:"no-store" });
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || "Eroare necunoscută");
+    setStatus("OK • " + (data.sheet && data.sheet.name ? data.sheet.name : "responses sheet"));
+    state.original = data.events || [];
+    state.current = JSON.parse(JSON.stringify(state.original));
+    markDirty(false);
+
+    renderKpi(data.analysis);
+    renderIssues(data.analysis);
+    renderEvents(state.current);
+    renderAudit(data.audit);
+
+    el("btnReload").disabled = false;
+    el("btnAdd").disabled = false;
+  }
+
+  function collectDiffOps(){
+    const body = el("eventsBody");
+    const ops = [];
+
+    body.querySelectorAll("tr[data-row]").forEach(tr=>{
+      const row = Number(tr.dataset.row);
+      const time = tr.querySelector('[data-k="time"]').value;
+      const action = tr.querySelector('[data-k="action"]').value;
+      const notes = tr.querySelector('[data-k="notes"]').value;
+
+      const orig = state.original.find(x => Number(x.row) === row);
+      if (!orig) return;
+
+      const changed = (orig.time !== time) || (orig.action !== action) || ((orig.notes||"") !== (notes||""));
+      if (changed) ops.push({ type:"update", row, time, action, notes, reason:"bulk apply" });
+    });
+
+    return ops;
+  }
+
+  async function applyOps(ops){
+    const admin = requireAdmin();
+    if (!admin) return;
+
+    const config = state.config;
+    const payload = {
+      fn: "fixDayApply",
+      name: state.employee,
+      date: state.date,
+      ops,
+      admin: { email: admin.email || "", name: admin.name || "" }
+    };
+
+    setStatus("Se aplică…");
+    const r = await fetch(config.adminEventsEndpoint, {
+      method: "POST",
+      headers: { "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (!data.ok) {
+      setStatus("Eroare la aplicare");
+      toast("Eroare", data.error || "Nu s-a putut aplica.");
+      return;
+    }
+    toast("Salvat", `Modificări aplicate: ${data.changedCount || 0}`);
+    await fetchDay();
+  }
+
+  function initActionSelect(){
+    const sel = el("newAction");
+    sel.innerHTML = ACTIONS.map(a=>`<option value="${a}">${a}</option>`).join("");
+    el("newTime").value = "08:00";
+  }
+
+  async function boot(){
+    requireAdmin();
+    initActionSelect();
+
+    // defaults
+    const today = new Date();
+    el("dateInput").valueAsDate = today;
+
+    // load config + employees list
+    try{
+      state.config = await loadConfig();
+      const list = el("employeesList");
+      (state.config.employees || []).forEach(n=>{
+        const o = document.createElement("option");
+        o.value = n;
+        list.appendChild(o);
+      });
+      setStatus("Config încărcat.");
+    } catch (e){
+      setStatus("Config ERROR");
+      toast("Config", e.message || String(e));
+    }
+
+    el("btnLoad").addEventListener("click", async ()=>{
+      const name = el("employeeInput").value.trim();
+      const date = el("dateInput").value;
+      if (!name) return toast("Lipsește angajatul", "Scrie numele angajatului.");
+      if (!date) return toast("Lipsește data", "Alege o dată.");
+
+      state.employee = name;
+      state.date = date;
+      try {
+        await fetchDay();
+      } catch (e){
+        toast("Eroare", e.message || String(e));
+        setStatus("Eroare");
+      }
+    });
+
+    el("btnReload").addEventListener("click", async ()=>{
+      if (!state.employee || !state.date) return;
+      await fetchDay();
+    });
+
+    el("btnApplyAll").addEventListener("click", async ()=>{
+      if (!state.employee || !state.date) return;
+      const ops = collectDiffOps();
+      if (!ops.length) return toast("Nimic de aplicat", "Nu ai modificări.");
+      await applyOps(ops);
+    });
+
+    el("btnAdd").addEventListener("click", async ()=>{
+      if (!state.employee || !state.date) return toast("Încarcă ziua", "Alege angajat + dată și apasă Încarcă.");
+      const time = el("newTime").value;
+      const action = el("newAction").value;
+      const notes = el("newNotes").value;
+      if (!time || !action) return toast("Lipsă date", "Completează ora și acțiunea.");
+      await applyOps([{ type:"insert", time, action, notes, reason:"manual insert" }]);
+      el("newNotes").value = "";
+    });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
