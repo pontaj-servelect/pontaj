@@ -55,8 +55,8 @@
     },
 
     "employees": {
-      "Ion Popescu": {
-        "normHours": 8,
+      "Dragos Bleant": {
+        "normHours": 4.5,
         "pauseMaxMinutes": 30
       }
     }
