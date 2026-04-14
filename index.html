@@ -349,7 +349,7 @@
         </header>
         <p class="sub">
           Alege <b>Departament</b> → <b>Angajat</b>, apoi <b>Tip de activitate</b>,
-          completează <b>Client</b> <i>(opțional pentru Comercial)</i>, alege <b>Proiect</b> <i>(opțional)</i> și (opțional) o <b>Notă</b>.
+          completează <b>Client</b> <i>(opțional pentru Comercial)</i> și (opțional) o <b>Notă</b>.
           Apoi folosește butoanele de mai jos.
         </p>
 
@@ -393,7 +393,7 @@
           <div>
             <label for="projectSelect">Proiect</label>
             <select id="projectSelect">
-              <option value="" selected>Fără proiect selectat</option>
+              <option value="" selected>Alege proiectul...</option>
             </select>
           </div>
         </div>
@@ -510,7 +510,6 @@
     <input type="hidden" id="f_name" />
     <input type="hidden" id="f_activity" />
     <input type="hidden" id="f_location" />
-    <input type="hidden" id="f_project" />
     <input type="hidden" id="f_lat" />
     <input type="hidden" id="f_lon" />
     <input type="hidden" id="f_acc" />
@@ -878,6 +877,28 @@ function sumPausesFromEvents(events, fallbackPair){
     totalMs += seg; curMs = seg;
   }
   return { totalMs, curMs };
+}
+
+
+function parseProjectsCSV(text){
+  if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+  if (!text) return [];
+  const lines = text.split('\n').map(s=>s.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const sep = lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
+  const rows = lines.map(line => line.split(sep).map(s=>s.trim().replace(/^"|"$/g, '')));
+  if (!rows.length) return [];
+  const first = rows[0][0] || '';
+  const hasHeader = /^(proiect|project)$/i.test(first);
+  const dataRows = hasHeader ? rows.slice(1) : rows;
+  return Array.from(new Set(dataRows.map(r => String((r[0] || '')).trim()).filter(Boolean)));
+}
+function withProjectMarker_(notes, project){
+  const cleanNotes = String(notes || '').replace(/\[\[PROJECT::.*?\]\]\s*/g, '').trim();
+  const cleanProject = String(project || '').trim();
+  if (!cleanProject) return cleanNotes;
+  return `[[PROJECT::${cleanProject}]]${cleanNotes ? ' ' + cleanNotes : ''}`;
 }
 
 /* ================== App logic ================== */
@@ -1253,7 +1274,6 @@ cfgMenu.addEventListener('click', (e)=>{
       'f_name':     names.name,
       'f_activity': names.activityType,
       'f_location': names.location,
-      'f_project':  names.project || '',
       'f_lat':      names.latitude,
       'f_lon':      names.longitude,
       'f_acc':      names.accuracy,
@@ -1355,97 +1375,6 @@ cfgMenu.addEventListener('click', (e)=>{
     return { byDept, byName, deptList };
   }
 
-  function parseProjectsCSV(text){
-    if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-    text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-    if (!text) return [];
-
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-    if (!lines.length) return [];
-
-    if (!/,|;/.test(text)) {
-      let rows = lines.slice();
-      if (rows.length && /^(proiect|project|lucrare|denumire)$/i.test(rows[0])) rows = rows.slice(1);
-      return rows.filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).sort((a,b)=>a.localeCompare(b,'ro'));
-    }
-
-    const comma = (text.match(/,/g) || []).length;
-    const semiCount = (text.match(/;/g) || []).length;
-    const delim = semiCount > comma ? ';' : ',';
-
-    const rows = lines.map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,''))).filter(r => r.length && r.join('').length);
-    const header = rows[0].map(h => (h || '').toLowerCase());
-
-    let startIdx = 0, col = 0;
-    const idx = header.findIndex(h => /proiect|project|lucrare|denumire/.test(h));
-    if (idx >= 0){
-      col = idx;
-      startIdx = 1;
-    }
-
-    const list = [];
-    for (let i = startIdx; i < rows.length; i++) {
-      const v = (rows[i][col] || '').trim();
-      if (v && !list.includes(v)) list.push(v);
-    }
-    return list.sort((a,b)=>a.localeCompare(b,'ro'));
-  }
-
-  function fillProjects(projects){
-    if (!projectSel) return;
-    const current = projectSel.value || '';
-    projectSel.innerHTML = '';
-
-    const ph = document.createElement('option');
-    ph.value = '';
-    ph.textContent = 'Fără proiect selectat';
-    projectSel.appendChild(ph);
-
-    (projects || []).forEach(v => {
-      const o = document.createElement('option');
-      o.value = v;
-      o.textContent = v;
-      projectSel.appendChild(o);
-    });
-
-    if (current && Array.from(projectSel.options).some(o => o.value === current)) {
-      projectSel.value = current;
-    }
-  }
-
-  async function loadProjects(){
-    if (!projectSel) return;
-    try{
-      if (window.CFG && window.CFG.projectsCsv){
-        const url = window.CFG.projectsCsv + (window.CFG.projectsCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
-        const r = await fetch(url, {cache:'no-store'});
-        if (r.ok){
-          const list = parseProjectsCSV(await r.text());
-          fillProjects(list);
-          if (list.length){
-            setStatus('Lista de proiecte a fost încărcată.', 'ok');
-          }
-          return;
-        }
-      }
-    }catch(e){}
-    fillProjects([]);
-  }
-
-  function composeNotesWithProject(rawNotes, projectName){
-    const note = String(rawNotes || '').trim();
-    const project = String(projectName || '').trim();
-    if (!project) return note;
-
-    const cleanNote = note.replace(/^\[PROIECT\][^|]*(\|\s*)?/i, '').trim();
-    const marker = `[PROIECT] ${project}`;
-
-    if (CFG && CFG.fields && CFG.fields.project) {
-      return cleanNote;
-    }
-    return cleanNote ? `${marker} | ${cleanNote}` : marker;
-  }
-
   let DEPTMAP = { byDept:new Map(), byName:new Map(), deptList:[] };
 
   function fillDepartments(deptList){
@@ -1454,6 +1383,38 @@ cfgMenu.addEventListener('click', (e)=>{
     ph.value=''; ph.textContent='Alege departamentul...'; ph.disabled = true; ph.selected = true;
     deptSel.appendChild(ph);
     deptList.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; deptSel.appendChild(o); });
+  }
+
+  function fillProjects(projects){
+    if (!projectSel) return;
+    projectSel.innerHTML = '';
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = 'Alege proiectul...';
+    ph.selected = true;
+    projectSel.appendChild(ph);
+    (projects || []).forEach(v => {
+      const o = document.createElement('option');
+      o.value = v;
+      o.textContent = v;
+      projectSel.appendChild(o);
+    });
+  }
+
+  async function loadProjects(){
+    try {
+      if (window.CFG && window.CFG.projectsCsv){
+        const url = window.CFG.projectsCsv + (window.CFG.projectsCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        const r = await fetch(url, {cache:'no-store'});
+        if (r.ok){
+          const txt = await r.text();
+          const list = parseProjectsCSV(txt);
+          fillProjects(list);
+          return;
+        }
+      }
+    } catch(e) {}
+    fillProjects([]);
   }
 
   function fillEmployeesFromDept(dept){
@@ -1686,12 +1647,11 @@ function fmtMinToHM(min){
     document.getElementById('f_name').value      = empSel.value;
     document.getElementById('f_activity').value  = actSel.value;
     document.getElementById('f_location').value  = (locInput.value||'').trim();
-    document.getElementById('f_project').value   = (projectSel && projectSel.value ? projectSel.value : '');
     document.getElementById('f_lat').value       = gps.lat;
     document.getElementById('f_lon').value       = gps.lon;
     document.getElementById('f_acc').value       = gps.acc;
     document.getElementById('f_device').value    = navigator.userAgent;
-    document.getElementById('f_notes').value     = composeNotesWithProject((notesEl.value || ''), (projectSel && projectSel.value ? projectSel.value : ''));
+    document.getElementById('f_notes').value     = withProjectMarker_((notesEl.value || ''), (projectSel && projectSel.value) || '');
     document.getElementById('f_maps').value      = `https://maps.google.com/?q=${gps.lat},${gps.lon}`;
     const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get) ? (DEPTMAP.byName.get(empSel.value) || '') : '';
     document.getElementById('f_department').value = (deptSel.value || deptFromMap || '');
@@ -1941,6 +1901,12 @@ showToast(
 
     const cached = loadLS();
     if (cached) STATE = Object.assign(blankState(), cached);
+
+    try { const lastProject = localStorage.getItem('pontaj:lastProject') || ''; if (projectSel && lastProject) projectSel.value = lastProject; } catch(e) {}
+
+    if (projectSel){
+      projectSel.addEventListener('change', ()=>{ try { localStorage.setItem('pontaj:lastProject', projectSel.value || ''); } catch(e){} });
+    }
 
     if (STATE.name && DEPTMAP.byName && DEPTMAP.byName.has(STATE.name)){
       const d = DEPTMAP.byName.get(STATE.name);
