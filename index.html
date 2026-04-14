@@ -349,7 +349,7 @@
         </header>
         <p class="sub">
           Alege <b>Departament</b> → <b>Angajat</b>, apoi <b>Tip de activitate</b>,
-          completează <b>Client</b> <i>(opțional pentru Comercial)</i> și (opțional) o <b>Notă</b>.
+          completează <b>Client</b> <i>(opțional pentru Comercial)</i>, alege <b>Proiect</b> și (opțional) o <b>Notă</b>.
           Apoi folosește butoanele de mai jos.
         </p>
 
@@ -517,6 +517,7 @@
     <input type="hidden" id="f_notes" />
     <input type="hidden" id="f_maps" />
     <input type="hidden" id="f_department" />
+    <input type="hidden" id="f_project" />
     <input type="hidden" id="f_nonce" />
   </form>
 
@@ -1280,7 +1281,8 @@ cfgMenu.addEventListener('click', (e)=>{
       'f_device':   names.device,
       'f_notes':    names.notes,
       'f_maps':     names.mapsLink,
-      'f_department': names.department || ''
+      'f_department': names.department || '',
+      'f_project':  names.project || ''
     };
     Object.entries(idMap).forEach(([id,name]) => {
       const el = document.getElementById(id);
@@ -1655,6 +1657,9 @@ function fmtMinToHM(min){
     document.getElementById('f_maps').value      = `https://maps.google.com/?q=${gps.lat},${gps.lon}`;
     const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get) ? (DEPTMAP.byName.get(empSel.value) || '') : '';
     document.getElementById('f_department').value = (deptSel.value || deptFromMap || '');
+    const projectVal = (projectSel && projectSel.value) || '';
+    const fProjectEl = document.getElementById('f_project');
+    if (fProjectEl) fProjectEl.value = projectVal;
     document.getElementById('f_nonce').value      = randomNonce();
   }
 
@@ -1754,6 +1759,11 @@ showToast(
     }
     if (['concediu de odihna','concediu medical','concediu pentru ore suplimentare'].includes((actSel.value||'').toLowerCase())){
       setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn');
+      return;
+    }
+    if ((actNorm === 'start' || actNorm === 'extra_start') && !(projectSel && projectSel.value)) {
+      setStatus('Alege proiectul înainte de START / EXTRA START.', 'err');
+      if (projectSel) projectSel.focus();
       return;
     }
 
