@@ -78,6 +78,7 @@
     .btn.unpause{ --bg: var(--brand); --fg:#fff }
     .btn.finish{ --bg: var(--accent); --fg:#fff }
     .btn.extra{ --bg:#64748b; --fg:#fff }
+    .btn.invoire{ --bg: var(--brand); --fg:#fff }
     .btn:disabled{opacity:.6;cursor:not-allowed;}
     .btn-slot{display:inline-flex;}
     .leave{ border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc; }
@@ -268,6 +269,13 @@
       color:var(--muted);
       margin-top:6px;
     }
+    .invoire-actions{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      margin-top:12px;
+    }
 
     /* ===== SPLASH ===== */
     .splash{ position:fixed; inset:0; z-index:2000; display:grid; place-items:center;
@@ -434,7 +442,7 @@
         <!-- Invoire panel -->
         <div id="invoireBox" class="invoire-box">
           <div class="kicker">
-            <b>Învoire</b> — selectează intervalul orar. Acesta va fi trimis automat în formular și salvat în Excel.
+            <b>Învoire</b> — selectează intervalul orar în format 24h. Se trimite separat cu butonul <b>Trimite învoirea</b>.
           </div>
 
           <div class="invoire-mode-row">
@@ -466,7 +474,12 @@
                 <input type="text" id="invoireOneHourStart" inputmode="numeric" maxlength="5" placeholder="10:00" autocomplete="off" />
               </div>
             </div>
-            <div class="invoire-hint">Se salvează automat ca interval de 1 oră.</div>
+            <div class="invoire-hint">Se salvează automat ca interval de 1 oră. Exemplu: 10:00 → 10:00-11:00.</div>
+          </div>
+
+          <div class="invoire-actions">
+            <button id="btnInvoire" class="btn invoire" type="button">Trimite învoirea</button>
+            <span class="status" id="invoireStatus"></span>
           </div>
         </div>
 
@@ -514,7 +527,7 @@
           </div>
         </div>
 
-        <!-- Main + EXTRA action buttons (3 slot-uri: Start/Finish, Pause/Unpause, Extra Start/Extra Finish) -->
+        <!-- Main + EXTRA action buttons -->
         <div class="btnbar" style="margin-top:16px">
           <div class="btn-slot">
             <button class="btn primary" id="btnStart"  type="button">Start</button>
@@ -545,6 +558,7 @@
           <div class="item"><b>Pause</b> / <b>Unpause</b> marchează pauzele.</div>
           <div class="item"><b>Finish</b> încheie ziua de lucru.</div>
           <div class="item"><b>Extra Start/Finish</b> — ore extra separate de suplimentare.</div>
+          <div class="item"><b>Învoire</b> — alege „invoire”, selectează ora/intervalul și apasă „Trimite învoirea”.</div>
           <div class="item"><b>Concedii</b> — alege tipul și trimite cererea.</div>
         </div>
         <div class="footer">© <span id="year"></span> SERVELECT. Toate drepturile rezervate.</div>
@@ -597,7 +611,6 @@ Ana Radu
 
   <!-- ================== SPLASH AUDIO & ANIM (RESYNCED) ================== -->
   <script>
-/* ===== ServelectAudio — sincronizare strictă + pornire după user-gesture ===== */
 const ServelectAudio = (() => {
   let ctx = null;
   const wait = (ms)=>new Promise(r=>setTimeout(r, ms));
@@ -721,9 +734,13 @@ const ServelectAudio = (() => {
 })();
   </script>
 
-  <!-- ================== APP LOGIC (ANTI-SPAM păstrat) ================== -->
+  <!-- ================== APP LOGIC ================== -->
   <script>
-function setText(el, msg, cls){ el.className = (el.className.split(' ')[0] || 'status') + (cls?(' '+cls):''); el.textContent = msg; }
+function setText(el, msg, cls){
+  if (!el) return;
+  el.className = (el.className.split(' ')[0] || 'status') + (cls ? (' ' + cls) : '');
+  el.textContent = msg;
+}
 function _norm(s){ return String(s==null?'':s).trim(); }
 function _normAction(a){
   let s = _norm(a).toLowerCase().replace(/[-\s]+/g,'_');
@@ -855,8 +872,14 @@ function isoFromAny(x){
   if (x && typeof x === 'object' && typeof x.getTime === 'function'){ return x.toISOString(); }
   return null;
 }
-function msBetween(isoA, isoB){ const a = new Date(isoA).getTime(); const b = new Date(isoB).getTime(); return Math.max(0, b - a); }
-function closeIso(a, b, ms=120000){ return Math.abs(new Date(a).getTime() - new Date(b).getTime()) <= ms; }
+function msBetween(isoA, isoB){
+  const a = new Date(isoA).getTime();
+  const b = new Date(isoB).getTime();
+  return Math.max(0, b - a);
+}
+function closeIso(a, b, ms=120000){
+  return Math.abs(new Date(a).getTime() - new Date(b).getTime()) <= ms;
+}
 
 async function getSheetEventsForDay(name, dayKeyLocalWanted, unpauseTsIso){
   const S = (window.CFG && window.CFG.sheet) || {};
@@ -971,8 +994,16 @@ function withProjectMarker_(notes, project){
   const invoireFrom = document.getElementById('invoireFrom');
   const invoireTo = document.getElementById('invoireTo');
   const invoireOneHourStart = document.getElementById('invoireOneHourStart');
+  const invoireStatus = document.getElementById('invoireStatus');
+  const btnInvoire = document.getElementById('btnInvoire');
 
   let LEAVE_DAYS = [];
+
+  const LEAVE_TYPES_SET = new Set([
+    'concediu de odihna',
+    'concediu medical',
+    'concediu pentru ore suplimentare'
+  ]);
 
   function setStatus(m, c){ setText(statusEl, m, c); }
   function setCfg(m, c){
@@ -983,9 +1014,18 @@ function withProjectMarker_(notes, project){
   }
   function setEmp(m, c){ setText(empStatus, m, c); }
   function setLeaveStatus(m, c){ setText(leaveStatus, m, c); }
+  function setInvoireStatus(m, c){ setText(invoireStatus, m, c); }
 
   function isInvoireActivity(){
     return _norm(actSel && actSel.value).toLowerCase() === 'invoire';
+  }
+
+  function isLeaveActivity(){
+    return LEAVE_TYPES_SET.has(_norm(actSel && actSel.value).toLowerCase());
+  }
+
+  function isTimeButtonsBlockedByActivity(){
+    return isLeaveActivity() || isInvoireActivity();
   }
 
   function getInvoireMode(){
@@ -994,42 +1034,40 @@ function withProjectMarker_(notes, project){
   }
 
   function normalizeHHMM(v){
-  let s = String(v || '').trim();
+    let s = String(v || '').trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return '';
 
-  // acceptă și 8:00, dar îl transformă în 08:00
-  const m = s.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return '';
+    const hh = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
 
-  const hh = parseInt(m[1], 10);
-  const mm = parseInt(m[2], 10);
+    if (isNaN(hh) || isNaN(mm)) return '';
+    if (hh < 0 || hh > 23) return '';
+    if (mm < 0 || mm > 59) return '';
 
-  if (isNaN(hh) || isNaN(mm)) return '';
-  if (hh < 0 || hh > 23) return '';
-  if (mm < 0 || mm > 59) return '';
-
-  return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
-}
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  }
 
   function setupHHMM24Input(el){
-  if (!el) return;
+    if (!el) return;
 
-  el.addEventListener('input', () => {
-    let raw = String(el.value || '').replace(/[^\d]/g, '').slice(0, 4);
+    el.addEventListener('input', () => {
+      let raw = String(el.value || '').replace(/[^\d]/g, '').slice(0, 4);
 
-    if (raw.length >= 3) {
-      raw = raw.slice(0, 2) + ':' + raw.slice(2);
-    }
+      if (raw.length >= 3) {
+        raw = raw.slice(0, 2) + ':' + raw.slice(2);
+      }
 
-    el.value = raw;
-  });
+      el.value = raw;
+    });
 
-  el.addEventListener('blur', () => {
-    const fixed = normalizeHHMM(el.value);
-    if (fixed) {
-      el.value = fixed;
-    }
-  });
-}
+    el.addEventListener('blur', () => {
+      const fixed = normalizeHHMM(el.value);
+      if (fixed) {
+        el.value = fixed;
+      }
+    });
+  }
 
   function addOneHour(hhmm){
     if (!/^\d{2}:\d{2}$/.test(String(hhmm || ''))) return '';
@@ -1063,7 +1101,14 @@ function withProjectMarker_(notes, project){
     const from = normalizeHHMM(invoireFrom && invoireFrom.value);
     const to = normalizeHHMM(invoireTo && invoireTo.value);
     if (!from || !to) return '';
+    if (from === to) return '';
     return '[[INVOIRE::' + from + '-' + to + ']]';
+  }
+
+  function getInvoireIntervalLabel(){
+    const marker = buildInvoireMarker();
+    const m = marker.match(/\[\[INVOIRE::(.+?)\]\]/i);
+    return m ? m[1] : '';
   }
 
   function validateInvoireSelection(){
@@ -1081,26 +1126,33 @@ function withProjectMarker_(notes, project){
     return withProjectMarker_(notes, (projectSel && projectSel.value) || '');
   }
 
-function syncInvoireUI(){
-  const show = isInvoireActivity();
+  function syncInvoireUI(){
+    const show = isInvoireActivity();
 
-  if (invoireBox) {
-    invoireBox.style.display = show ? 'block' : 'none';
+    if (invoireBox) {
+      invoireBox.style.display = show ? 'block' : 'none';
+    }
+
+    const mode = getInvoireMode();
+
+    if (invoireIntervalRow) {
+      invoireIntervalRow.style.display = (show && mode === 'interval') ? 'grid' : 'none';
+    }
+
+    if (invoireOneHourRow) {
+      invoireOneHourRow.style.display = (show && mode === 'onehour') ? 'block' : 'none';
+    }
+
+    if (!show) {
+      setInvoireStatus('', '');
+    }
   }
-
-  const mode = getInvoireMode();
-
-  if (invoireIntervalRow) {
-    invoireIntervalRow.style.display = (show && mode === 'interval') ? 'grid' : 'none';
-  }
-
-  if (invoireOneHourRow) {
-    invoireOneHourRow.style.display = (show && mode === 'onehour') ? 'block' : 'none';
-  }
-}
 
   document.querySelectorAll('input[name="invoireMode"]').forEach(r => {
-    r.addEventListener('change', syncInvoireUI);
+    r.addEventListener('change', () => {
+      setInvoireStatus('', '');
+      syncInvoireUI();
+    });
   });
 
   document.addEventListener('click', function(e){
@@ -1620,6 +1672,7 @@ function syncInvoireUI(){
     const paused  = !!STATE.normal.paused;
     const extraR  = !!STATE.extra.running;
     const hasSel  = !!empSel.value;
+    const blockedByActivity = isTimeButtonsBlockedByActivity();
 
     btnStart.style.display       = '';
     btnFinish.style.display      = 'none';
@@ -1643,13 +1696,18 @@ function syncInvoireUI(){
       btnExtraFinish.style.display = '';
     }
 
-    btnStart.disabled       = !hasSel || running || extraR;
-    btnFinish.disabled      = !hasSel || !running || paused;
-    btnPause.disabled       = !hasSel || !running || paused;
-    btnUnpause.disabled     = !hasSel || !running || !paused;
-    btnExtraStart.disabled  = !hasSel || running || extraR;
-    btnExtraFinish.disabled = !hasSel || !extraR;
+    btnStart.disabled       = blockedByActivity || !hasSel || running || extraR;
+    btnFinish.disabled      = blockedByActivity || !hasSel || !running || paused;
+    btnPause.disabled       = blockedByActivity || !hasSel || !running || paused;
+    btnUnpause.disabled     = blockedByActivity || !hasSel || !running || !paused;
+    btnExtraStart.disabled  = blockedByActivity || !hasSel || running || extraR;
+    btnExtraFinish.disabled = blockedByActivity || !hasSel || !extraR;
+
+    if (btnInvoire) {
+      btnInvoire.disabled = !hasSel || !isInvoireActivity();
+    }
   }
+
   function disableTimeButtons(disabled) {
     [btnStart,btnPause,btnUnpause,btnFinish,btnExtraStart,btnExtraFinish].forEach(el=>{
       if (el) el.disabled = !!disabled;
@@ -1659,6 +1717,7 @@ function syncInvoireUI(){
     disableTimeButtons(disabled);
     const lbtn = document.getElementById('btnLeave');
     if (lbtn) lbtn.disabled = !!disabled;
+    if (btnInvoire) btnInvoire.disabled = !!disabled;
   }
 
   function baseEndpoint(){
@@ -1769,6 +1828,8 @@ function syncInvoireUI(){
   }
 
   function setFormPayload(action, ts, gps){
+    gps = gps || {lat:'', lon:'', acc:''};
+
     document.getElementById('f_action').value    = _normAction(action);
     document.getElementById('f_timestamp').value = ts;
     document.getElementById('f_name').value      = empSel.value;
@@ -1779,7 +1840,7 @@ function syncInvoireUI(){
     document.getElementById('f_acc').value       = gps.acc;
     document.getElementById('f_device').value    = navigator.userAgent;
     document.getElementById('f_notes').value     = composeNotesPayload();
-    document.getElementById('f_maps').value      = `https://maps.google.com/?q=${gps.lat},${gps.lon}`;
+    document.getElementById('f_maps').value      = (gps.lat && gps.lon) ? `https://maps.google.com/?q=${gps.lat},${gps.lon}` : '';
     const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get) ? (DEPTMAP.byName.get(empSel.value) || '') : '';
     document.getElementById('f_department').value = (deptSel.value || deptFromMap || '');
     document.getElementById('f_nonce').value      = randomNonce();
@@ -1850,6 +1911,109 @@ function syncInvoireUI(){
     );
   }
 
+  async function submitInvoire(){
+    const now = Date.now();
+
+    if (busy) {
+      setInvoireStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
+      setStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
+      return;
+    }
+
+    if (now - lastActionAt < CLICK_COOLDOWN_MS) {
+      setInvoireStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
+      setStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
+      return;
+    }
+
+    if (!deptSel.value) {
+      setInvoireStatus('Alege departamentul.', 'err');
+      setStatus('Alege departamentul.', 'err');
+      return;
+    }
+
+    if (!empSel.value) {
+      setInvoireStatus('Selectează angajat.', 'err');
+      setStatus('Selectează angajat.', 'err');
+      return;
+    }
+
+    if (!isInvoireActivity()) {
+      setInvoireStatus('Alege tipul de activitate „invoire”.', 'err');
+      setStatus('Alege tipul de activitate „invoire”.', 'err');
+      return;
+    }
+
+    if (!validateInvoireSelection()) {
+      setInvoireStatus('Completează ora/intervalul în format 24h. Exemplu: 10:00 sau 10:00-12:00.', 'err');
+      setStatus('Pentru activitatea „invoire” trebuie selectată ora sau intervalul orar.', 'err');
+
+      if (getInvoireMode() === 'onehour' && invoireOneHourStart) {
+        invoireOneHourStart.focus();
+      } else if (invoireFrom) {
+        invoireFrom.focus();
+      }
+
+      return;
+    }
+
+    busy = true;
+    setUILock(true);
+    disableAllButtons(true);
+    const lockStart = Date.now();
+
+    try {
+      const intervalLabel = getInvoireIntervalLabel();
+
+      setInvoireStatus('Se obține locația GPS…', '');
+      setStatus('Se obține locația GPS…', '');
+
+      const gps = await geolocateOnce();
+
+      setInvoireStatus('Se trimite învoirea…', '');
+      setStatus('Se trimite învoirea…', '');
+
+      const ts = new Date().toISOString();
+
+      // Acțiune separată, nu pornește pontajul normal.
+      // Code.gs o primește ca rând normal în Form Responses, iar onFormSubmit îți completează coloanele Invoire.
+      setFormPayload('invoire', ts, gps);
+
+      if (form.action && form.action.trim().length && form.querySelector('[name]')) {
+        form.submit();
+      } else {
+        setInvoireStatus('Atenție: nu există config de formular — învoirea nu a fost trimisă în Excel.', 'warn');
+        setStatus('Atenție: nu există config de formular — învoirea nu a fost trimisă în Excel.', 'warn');
+        return;
+      }
+
+      setInvoireStatus(`Învoire trimisă ✓ (${intervalLabel}).`, 'ok');
+      setStatus(`Învoire trimisă ✓ (${intervalLabel}).`, 'ok');
+
+      showToast(
+        `<b>Învoire trimisă</b><div class="small">${empSel.value} • <b>${intervalLabel}</b></div>`,
+        'ok'
+      );
+
+      await sleep(900);
+
+    } catch (err) {
+      const msg = String(err && err.message ? err.message : err);
+      setInvoireStatus(msg, 'err');
+      setStatus(msg, 'err');
+    } finally {
+      const elapsed = Date.now() - lockStart;
+      if (elapsed < GUARD_MIN_LOCK_MS) await sleep(GUARD_MIN_LOCK_MS - elapsed);
+      lastActionAt = Date.now();
+      await sleep(CLICK_COOLDOWN_MS);
+      busy = false;
+      setUILock(false);
+      disableAllButtons(false);
+      reflectState();
+      updateEmpStatus();
+    }
+  }
+
   async function submitAction(action) {
     const now = Date.now();
     if (busy) {
@@ -1868,10 +2032,9 @@ function syncInvoireUI(){
     const actNorm = _normAction(action);
     const isCom = isComercialDept();
 
-    if (isInvoireActivity() && !validateInvoireSelection()) {
-      setStatus('Pentru activitatea "Invoire" trebuie selectată ora sau intervalul orar.', 'err');
-      if (getInvoireMode() === 'onehour' && invoireOneHourStart) invoireOneHourStart.focus();
-      else if (invoireFrom) invoireFrom.focus();
+    if (isInvoireActivity()) {
+      setStatus('Pentru învoire folosește butonul „Trimite învoirea”.', 'warn');
+      setInvoireStatus('Pentru învoire folosește butonul „Trimite învoirea”.', 'warn');
       return;
     }
 
@@ -1884,7 +2047,7 @@ function syncInvoireUI(){
       locInput.focus();
       return;
     }
-    if (['concediu de odihna','concediu medical','concediu pentru ore suplimentare'].includes((actSel.value||'').toLowerCase())){
+    if (LEAVE_TYPES_SET.has((actSel.value||'').toLowerCase())){
       setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn');
       return;
     }
@@ -1999,7 +2162,11 @@ function syncInvoireUI(){
     document.getElementById('btnExtraStart').addEventListener('click', ()=>submitAction('extra_start'));
     document.getElementById('btnExtraFinish').addEventListener('click', ()=>submitAction('extra_finish'));
 
-    ['btnStart','btnPause','btnUnpause','btnFinish','btnExtraStart','btnExtraFinish','btnLeave']
+    if (btnInvoire) {
+      btnInvoire.addEventListener('click', submitInvoire);
+    }
+
+    ['btnStart','btnPause','btnUnpause','btnFinish','btnExtraStart','btnExtraFinish','btnLeave','btnInvoire']
       .forEach(id=>{
         const b = document.getElementById(id);
         if (!b) return;
@@ -2032,10 +2199,15 @@ function syncInvoireUI(){
     const cached = loadLS();
     if (cached) STATE = Object.assign(blankState(), cached);
 
-    try { const lastProject = localStorage.getItem('pontaj:lastProject') || ''; if (projectSel && lastProject) projectSel.value = lastProject; } catch(e) {}
+    try {
+      const lastProject = localStorage.getItem('pontaj:lastProject') || '';
+      if (projectSel && lastProject) projectSel.value = lastProject;
+    } catch(e) {}
 
     if (projectSel){
-      projectSel.addEventListener('change', ()=>{ try { localStorage.setItem('pontaj:lastProject', projectSel.value || ''); } catch(e){} });
+      projectSel.addEventListener('change', ()=>{
+        try { localStorage.setItem('pontaj:lastProject', projectSel.value || ''); } catch(e){}
+      });
     }
 
     if (STATE.name && DEPTMAP.byName && DEPTMAP.byName.has(STATE.name)){
@@ -2055,22 +2227,34 @@ function syncInvoireUI(){
         empSel.value = '';
       }
       if (extraBar) extraBar.style.display = isComercialDept() ? 'none' : '';
-      STATE = blankState(); STATE.name = '';
-      reflectState(); setEmp('', '');
+      STATE = blankState();
+      STATE.name = '';
+      reflectState();
+      setEmp('', '');
     });
 
     if (extraBar) extraBar.style.display = '';
 
     empSel.addEventListener('change', handleEmployeeChange);
 
-    const LEAVE_TYPES = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
     actSel.addEventListener('change', () => {
-      const act = (actSel.value || '').toLowerCase();
-      const isLeave = LEAVE_TYPES.has(act);
+      const isLeave = isLeaveActivity();
+      const isInv = isInvoireActivity();
+
       leavePanel.style.display = isLeave ? '' : 'none';
-      disableTimeButtons(isLeave);
-      if (isLeave) { LEAVE_DAYS = []; setLeaveStatus('', ''); }
+
+      if (isLeave) {
+        LEAVE_DAYS = [];
+        setLeaveStatus('', '');
+      }
+
+      if (!isInv) {
+        setInvoireStatus('', '');
+      }
+
       syncInvoireUI();
+      disableTimeButtons(isLeave || isInv);
+      reflectState();
     });
 
     if (btnAddDay && leaveDaysList && leaveDay){
@@ -2093,18 +2277,30 @@ function syncInvoireUI(){
       setLeaveStatus('', '');
       if (!deptSel.value) { setLeaveStatus('Alege departamentul.', 'err'); return; }
       if (!empSel.value)  { setLeaveStatus('Selectează angajat.', 'err'); return; }
+
       const tip = (actSel.value || '').toLowerCase();
-      const LEAVES = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
-      if (!LEAVES.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+      if (!LEAVE_TYPES_SET.has(tip)) { setLeaveStatus('Alege un tip de concediu.', 'err'); return; }
+
       const sd = leaveStart.value;
       const ed = leaveEnd.value;
       const hasDays = Array.isArray(LEAVE_DAYS) && LEAVE_DAYS.length > 0;
+
       if (!hasDays) {
-        if (!sd || !ed) { setLeaveStatus('Adaugă cel puțin o zi de concediu sau completează intervalul (start–sfârșit).', 'err'); return; }
-        if (ed < sd) { setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err'); return; }
+        if (!sd || !ed) {
+          setLeaveStatus('Adaugă cel puțin o zi de concediu sau completează intervalul (start–sfârșit).', 'err');
+          return;
+        }
+        if (ed < sd) {
+          setLeaveStatus('Data de sfârșit nu poate fi înainte de start.', 'err');
+          return;
+        }
       }
+
       const email = (leaveEmail.value || '').trim();
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setLeaveStatus('Email personal invalid.', 'err'); return; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setLeaveStatus('Email personal invalid.', 'err');
+        return;
+      }
 
       setLeaveStatus('Se trimite cererea…', '');
 
@@ -2123,7 +2319,9 @@ function syncInvoireUI(){
           document.getElementById('lv_ts').value    = new Date().toISOString();
           document.getElementById('leaveForm').submit();
           formSubmitted = true;
-        } catch (e) { console.warn('Leave Form submit failed', e); }
+        } catch (e) {
+          console.warn('Leave Form submit failed', e);
+        }
       }
 
       let endpointOk = false, endpointMsg = '';
@@ -2144,7 +2342,9 @@ function syncInvoireUI(){
           const res = await sendLeave(payload);
           endpointOk = true;
           endpointMsg = ' (înregistrată ' + res.zile + ' zile)';
-        } catch (err) { console.warn('Leave endpoint error:', err); }
+        } catch (err) {
+          console.warn('Leave endpoint error:', err);
+        }
       }
 
       if (formSubmitted || endpointOk) {
@@ -2158,10 +2358,11 @@ function syncInvoireUI(){
 
     setupAdminChipMenu();
     syncInvoireUI();
+    reflectState();
 
   })();
 
-})(); // IIFE
+})();
   </script>
 </body>
 </html>
