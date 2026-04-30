@@ -63,7 +63,7 @@
     .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
     .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
     @media (max-width:900px){ .grid.cols-3,.grid.cols-2{grid-template-columns:1fr} }
-    select, input[type="text"], input[type="email"], input[type="date"]{
+    select, input[type="text"], input[type="email"], input[type="date"], input[type="time"]{
       width:100%;padding:12px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;
       font-size:15px;outline:none;transition: box-shadow .15s, border-color .15s;
     }
@@ -81,6 +81,7 @@
     .btn:disabled{opacity:.6;cursor:not-allowed;}
     .btn-slot{display:inline-flex;}
     .leave{ border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc; }
+    .invoire-box{ border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc;margin-top:16px;display:none; }
     .kicker{font-size:12px;color:var(--muted);margin-bottom:6px}
     .status{font-size:13px;color:var(--muted);margin-top:10px}
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;white-space:pre-wrap}
@@ -242,6 +243,31 @@
 
     body.action-lock .btnbar { pointer-events: none; }
     body.action-lock .btnbar .btn { opacity:.6; cursor:not-allowed; }
+
+    .invoire-mode-row{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .invoire-radio{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:13px;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .invoire-radio input{
+      width:auto;
+      margin:0;
+    }
+    .invoire-hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
 
     /* ===== SPLASH ===== */
     .splash{ position:fixed; inset:0; z-index:2000; display:grid; place-items:center;
@@ -405,6 +431,45 @@
           </div>
         </div>
 
+        <!-- Invoire panel -->
+        <div id="invoireBox" class="invoire-box">
+          <div class="kicker">
+            <b>Învoire</b> — selectează intervalul orar. Acesta va fi trimis automat în formular și salvat în Excel.
+          </div>
+
+          <div class="invoire-mode-row">
+            <label class="invoire-radio">
+              <input type="radio" name="invoireMode" value="interval" checked>
+              Interval
+            </label>
+            <label class="invoire-radio">
+              <input type="radio" name="invoireMode" value="onehour">
+              O oră
+            </label>
+          </div>
+
+          <div id="invoireIntervalRow" class="grid cols-2">
+            <div>
+              <label for="invoireFrom">De la</label>
+              <input type="time" id="invoireFrom" />
+            </div>
+            <div>
+              <label for="invoireTo">Până la</label>
+              <input type="time" id="invoireTo" />
+            </div>
+          </div>
+
+          <div id="invoireOneHourRow" style="display:none;">
+            <div class="grid cols-2">
+              <div>
+                <label for="invoireOneHourStart">Ora</label>
+                <input type="time" id="invoireOneHourStart" />
+              </div>
+            </div>
+            <div class="invoire-hint">Se salvează automat ca interval de 1 oră.</div>
+          </div>
+        </div>
+
         <!-- Leave panel -->
         <div id="leavePanel" class="leave" style="display:none;margin-top:16px">
           <div class="kicker"><b>Cerere concediu</b> — adaugă <b>zile individuale</b> de concediu, apoi completează emailul personal și (opțional) o notă. Se trimite automat la HR.</div>
@@ -553,7 +618,6 @@ const ServelectAudio = (() => {
     return c.state === 'running';
   }
 
-  // Așteaptă până când audio poate porni (gest utilizator) sau renunță după timeout
   async function waitUntilReady(timeout = 1200){
     const c = ensureCtx();
     if (!c) return false;
@@ -590,12 +654,11 @@ const ServelectAudio = (() => {
 
   function playSequence(events){
     const c = ensureCtx();
-    // Dacă audio nu e disponibil, întoarcem o așteptare „mută” pe durata totală
     const totalSec = events.reduce((s,[,d=0.16,g=0.08])=>s + d + g, 0);
     if (!c || c.state !== 'running'){
       return wait(Math.round(totalSec * 1000) + 20);
     }
-    const start = c.currentTime + 0.02; // mic offset pentru stabilitate
+    const start = c.currentTime + 0.02;
     let t = start;
     for (const e of events){
       const [f,d=0.16,gp=0.08,tp='sine',gn=0.9] = e;
@@ -605,7 +668,6 @@ const ServelectAudio = (() => {
     return wait(Math.round((t - start) * 1000) + 20);
   }
 
-  // Etapele de "încărcare"
   function chargingStage(stage){
     if (stage === 1) return playSequence([[420, .18, 0.00, 'sine', 0.9]]);
     if (stage === 2) return playSequence([[620, .16, .08, 'sine', 0.9],[760, .18, 0.00, 'sine', 0.9]]);
@@ -616,14 +678,12 @@ const ServelectAudio = (() => {
   return { ensureCtx, resumeIfSuspended, waitUntilReady, chargingStage, fullChime };
 })();
 
-/* ===== SPLASH timeline — UI sincronizat cu audio sau fallback silențios cu aceiași timpi ===== */
 (function splashInit(){
   const splash = document.getElementById('splash');
   const battery  = document.getElementById('battery');
   const bars = [document.getElementById('bar1'),document.getElementById('bar2'),document.getElementById('bar3')];
   const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
 
-  // Fallback durate (identice cu secvențele audio): s1=180ms, s2=420ms, s3=560ms, chime=860ms
   const DUR = { s1:180, s2:420, s3:560, ch:860 };
 
   function resetBars(){ bars.forEach(b => b.className = 'bar'); battery.classList.remove('active'); }
@@ -635,27 +695,16 @@ const ServelectAudio = (() => {
   }
   function hideSplash(){ splash.classList.add('hide'); }
 
-  // Failsafe mai generos, să nu taie chime-ul
   setTimeout(hideSplash, 4200);
 
-  // Începe timeline-ul doar după ce audio e gata, altfel rulează „mut”
   (async () => {
     resetBars();
-    // Inițializează contextul; dacă user-ul nu a interacționat, așteptăm puțin
     const audioReady = await ServelectAudio.waitUntilReady(1200);
-
-    // Mic pre-roll vizual
     await wait(60);
-
-    // Stage 1
     stageToClasses(1);
     if (audioReady) { await ServelectAudio.chargingStage(1); } else { await wait(DUR.s1); }
-
-    // Stage 2
     stageToClasses(2);
     if (audioReady) { await ServelectAudio.chargingStage(2); } else { await wait(DUR.s2); }
-
-    // Stage 3
     stageToClasses(3);
     if (audioReady) {
       await ServelectAudio.chargingStage(3);
@@ -663,11 +712,9 @@ const ServelectAudio = (() => {
     } else {
       await wait(DUR.s3 + DUR.ch);
     }
-
     hideSplash();
   })();
 
-  // Reiau audio imediat la primul gest (în caz că timeline-ul a pornit „mut”)
   window.addEventListener('pointerdown', () => ServelectAudio.resumeIfSuspended(), { once:true, passive:true });
   window.addEventListener('keydown', () => ServelectAudio.resumeIfSuspended(), { once:true });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') ServelectAudio.resumeIfSuspended(); });
@@ -676,7 +723,6 @@ const ServelectAudio = (() => {
 
   <!-- ================== APP LOGIC (ANTI-SPAM păstrat) ================== -->
   <script>
-/** ================== Helpers & Config ================== */
 function setText(el, msg, cls){ el.className = (el.className.split(' ')[0] || 'status') + (cls?(' '+cls):''); el.textContent = msg; }
 function _norm(s){ return String(s==null?'':s).trim(); }
 function _normAction(a){
@@ -696,7 +742,6 @@ function showToast(msg, type){
   showToast._h = setTimeout(()=>{ t.style.display='none'; }, 7000);
 }
 
-/* Normalizări utile */
 function normalizeName(s){
   return String(s||'')
     .normalize('NFD')
@@ -712,7 +757,6 @@ function dayKeyLocal(iso){
   return `${y}-${m}-${dd}`;
 }
 
-/** Leave endpoint */
 async function sendLeave(payload) {
   const cfg = window.CFG || {};
   if (!cfg.leaveEndpoint) {
@@ -729,7 +773,6 @@ async function sendLeave(payload) {
   return data;
 }
 
-/* >>> ANTI-SPAM/LOCK utils */
 const CLICK_COOLDOWN_MS = 1200;
 const GUARD_MIN_LOCK_MS = 600;
 let busy = false;
@@ -748,7 +791,6 @@ function geolocateOnce(){
 }
 function randomNonce(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
-/* ============ READ Google Sheet (CSV / GViz) + calc pauze ============ */
 function parseGvizDateStr(s){
   const m = /^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/.exec(String(s).trim());
   if (!m) return null;
@@ -879,7 +921,6 @@ function sumPausesFromEvents(events, fallbackPair){
   return { totalMs, curMs };
 }
 
-
 function parseProjectsCSV(text){
   if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
@@ -901,7 +942,6 @@ function withProjectMarker_(notes, project){
   return `[[PROJECT::${cleanProject}]]${cleanNotes ? ' ' + cleanNotes : ''}`;
 }
 
-/* ================== App logic ================== */
 (function(){
   const statusEl = document.getElementById('status');
   const cfgEl = document.getElementById('cfg');
@@ -924,6 +964,14 @@ function withProjectMarker_(notes, project){
   const leaveDaysList = document.getElementById('leaveDaysList');
   const btnAddDay = document.getElementById('btnAddDay');
   const extraBar = document.getElementById('extraBar');
+
+  const invoireBox = document.getElementById('invoireBox');
+  const invoireIntervalRow = document.getElementById('invoireIntervalRow');
+  const invoireOneHourRow = document.getElementById('invoireOneHourRow');
+  const invoireFrom = document.getElementById('invoireFrom');
+  const invoireTo = document.getElementById('invoireTo');
+  const invoireOneHourStart = document.getElementById('invoireOneHourStart');
+
   let LEAVE_DAYS = [];
 
   function setStatus(m, c){ setText(statusEl, m, c); }
@@ -936,7 +984,84 @@ function withProjectMarker_(notes, project){
   function setEmp(m, c){ setText(empStatus, m, c); }
   function setLeaveStatus(m, c){ setText(leaveStatus, m, c); }
 
-  // >>> HARD GUARD pe click pentru toate .btn (captură)
+  function isInvoireActivity(){
+    return _norm(actSel && actSel.value).toLowerCase() === 'invoire';
+  }
+
+  function getInvoireMode(){
+    const checked = document.querySelector('input[name="invoireMode"]:checked');
+    return checked ? checked.value : 'interval';
+  }
+
+  function normalizeHHMM(v){
+    const s = String(v || '').trim();
+    if (!/^\d{2}:\d{2}$/.test(s)) return '';
+    return s;
+  }
+
+  function addOneHour(hhmm){
+    if (!/^\d{2}:\d{2}$/.test(String(hhmm || ''))) return '';
+    const p = hhmm.split(':');
+    let h = parseInt(p[0], 10);
+    const m = parseInt(p[1], 10);
+    h = (h + 1) % 24;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  function stripInvoireMarker(text){
+    return String(text || '')
+      .replace(/\s*\[\[INVOIRE::[^\]]+\]\]\s*/gi, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  function buildInvoireMarker(){
+    if (!isInvoireActivity()) return '';
+
+    const mode = getInvoireMode();
+
+    if (mode === 'onehour'){
+      const from = normalizeHHMM(invoireOneHourStart && invoireOneHourStart.value);
+      if (!from) return '';
+      const to = addOneHour(from);
+      if (!to) return '';
+      return '[[INVOIRE::' + from + '-' + to + ']]';
+    }
+
+    const from = normalizeHHMM(invoireFrom && invoireFrom.value);
+    const to = normalizeHHMM(invoireTo && invoireTo.value);
+    if (!from || !to) return '';
+    return '[[INVOIRE::' + from + '-' + to + ']]';
+  }
+
+  function validateInvoireSelection(){
+    if (!isInvoireActivity()) return true;
+    const marker = buildInvoireMarker();
+    return !!marker;
+  }
+
+  function composeNotesPayload(){
+    let notes = stripInvoireMarker(notesEl ? notesEl.value : '');
+    const invMarker = buildInvoireMarker();
+    if (invMarker){
+      notes = notes ? (notes + ' ' + invMarker) : invMarker;
+    }
+    return withProjectMarker_(notes, (projectSel && projectSel.value) || '');
+  }
+
+  function syncInvoireUI(){
+    const show = isInvoireActivity();
+    if (invoireBox) invoireBox.style.display = show ? '' : 'none';
+
+    const mode = getInvoireMode();
+    if (invoireIntervalRow) invoireIntervalRow.style.display = (show && mode === 'interval') ? 'grid' : 'none';
+    if (invoireOneHourRow) invoireOneHourRow.style.display = (show && mode === 'onehour') ? '' : 'none';
+  }
+
+  document.querySelectorAll('input[name="invoireMode"]').forEach(r => {
+    r.addEventListener('change', syncInvoireUI);
+  });
+
   document.addEventListener('click', function(e){
     const btn = e.target.closest('.btn');
     if (!btn) return;
@@ -954,7 +1079,6 @@ function withProjectMarker_(notes, project){
     }
   }, true);
 
-  // ================= ADMIN HAMBURGER + LOGIN =================
   const cfgMenu = cfgEl;
   const cfgToggle = document.getElementById('cfgToggle');
   const cfgDropdown = document.getElementById('cfgDropdown');
@@ -1008,51 +1132,45 @@ function withProjectMarker_(notes, project){
   }
 
   function getAdminAuthUrl(){
-    // ideal: setezi asta în config.json: "adminAuthUrl": "https://raw.githubusercontent.com/USER/REPO/branch/admin-auth.json"
     if (window.CFG && window.CFG.adminAuthUrl) return window.CFG.adminAuthUrl;
-    // dacă lași gol, nu se va încerca încărcarea
     return '';
   }
 
   async function loadAdminConfig(){
-  if (ADMIN_AUTH) return ADMIN_AUTH;
-  const url = getAdminAuthUrl();
-  if (!url) return null;
+    if (ADMIN_AUTH) return ADMIN_AUTH;
+    const url = getAdminAuthUrl();
+    if (!url) return null;
 
-  try{
-    const r = await fetch(url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(), {cache:'no-store'});
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    try{
+      const r = await fetch(url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(), {cache:'no-store'});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
 
-    const data = await r.json();
+      const data = await r.json();
 
-    // Acceptă 3 formate:
-    // 1) { admins: [...] }
-    // 2) [ ... ]
-    // 3) { usernameHash, passwordHash } (legacy single admin)
-    let list = [];
-    if (Array.isArray(data)) list = data;
-    else if (data && Array.isArray(data.admins)) list = data.admins;
-    else if (data && (data.usernameHash || data.userHash)) list = [data];
+      let list = [];
+      if (Array.isArray(data)) list = data;
+      else if (data && Array.isArray(data.admins)) list = data.admins;
+      else if (data && (data.usernameHash || data.userHash)) list = [data];
 
-    list = (list || []).map(a => ({
-      usernameHash: (a.usernameHash || a.userHash || '').trim(),
-      passwordHash: (a.passwordHash || a.passHash || '').trim(),
-      label: (a.label || 'Admin').trim(),
-      role: (a.role || 'admin'),
-      dept: (a.dept || '')
-    })).filter(x => x.usernameHash && x.passwordHash);
+      list = (list || []).map(a => ({
+        usernameHash: (a.usernameHash || a.userHash || '').trim(),
+        passwordHash: (a.passwordHash || a.passHash || '').trim(),
+        label: (a.label || 'Admin').trim(),
+        role: (a.role || 'admin'),
+        dept: (a.dept || '')
+      })).filter(x => x.usernameHash && x.passwordHash);
 
-    if (!list.length) throw new Error('Structură admin-auth.json invalidă (lista e goală).');
+      if (!list.length) throw new Error('Structură admin-auth.json invalidă (lista e goală).');
 
-    ADMIN_AUTH = list; // <-- acum ADMIN_AUTH e LISTĂ
-    return ADMIN_AUTH;
+      ADMIN_AUTH = list;
+      return ADMIN_AUTH;
 
-  }catch(e){
-    console.warn('Eroare admin-auth:', e);
-    setAdminHint('Nu pot încărca admin-auth.json din GitHub.', 'err');
-    return null;
+    }catch(e){
+      console.warn('Eroare admin-auth:', e);
+      setAdminHint('Nu pot încărca admin-auth.json din GitHub.', 'err');
+      return null;
+    }
   }
-}
 
   async function sha256Hex(str){
     if (!window.crypto || !crypto.subtle) throw new Error('Browser prea vechi pentru crypto.');
@@ -1064,30 +1182,29 @@ function withProjectMarker_(notes, project){
   }
 
   async function verifyAdminCredentials(user, pass){
-  if (!ADMIN_AUTH){
-    await loadAdminConfig();
+    if (!ADMIN_AUTH){
+      await loadAdminConfig();
+    }
+    if (!Array.isArray(ADMIN_AUTH) || !ADMIN_AUTH.length){
+      throw new Error('Config admin lipsă sau incomplet.');
+    }
+
+    const u1 = user;
+    const u2 = String(user || '').toLowerCase();
+
+    const [uh1, uh2, ph] = await Promise.all([
+      sha256Hex(u1),
+      sha256Hex(u2),
+      sha256Hex(pass)
+    ]);
+
+    const match = ADMIN_AUTH.find(a =>
+      (a.usernameHash.toLowerCase() === uh1.toLowerCase() || a.usernameHash.toLowerCase() === uh2.toLowerCase()) &&
+      a.passwordHash.toLowerCase() === ph.toLowerCase()
+    );
+
+    return match || null;
   }
-  if (!Array.isArray(ADMIN_AUTH) || !ADMIN_AUTH.length){
-    throw new Error('Config admin lipsă sau incomplet.');
-  }
-
-  // Username: încercăm și normal, și lowercase (ca să nu te încurce literele mari/mici)
-  const u1 = user;
-  const u2 = String(user || '').toLowerCase();
-
-  const [uh1, uh2, ph] = await Promise.all([
-    sha256Hex(u1),
-    sha256Hex(u2),
-    sha256Hex(pass)
-  ]);
-
-  const match = ADMIN_AUTH.find(a =>
-    (a.usernameHash.toLowerCase() === uh1.toLowerCase() || a.usernameHash.toLowerCase() === uh2.toLowerCase()) &&
-    a.passwordHash.toLowerCase() === ph.toLowerCase()
-  );
-
-  return match || null; // <-- întoarcem obiectul adminului găsit
-}
 
   async function handleAdminLoginClick(){
     if (!adminUser || !adminPass) return;
@@ -1103,25 +1220,23 @@ function withProjectMarker_(notes, project){
     }
     setAdminHint('', '');
     try{
-const admin = await verifyAdminCredentials(u, p);
-if (!admin){
-  setAdminHint('Date de logare greșite.', 'err');
-  return;
-}
+      const admin = await verifyAdminCredentials(u, p);
+      if (!admin){
+        setAdminHint('Date de logare greșite.', 'err');
+        return;
+      }
 
-const label = admin.label || u;
-saveAdminSession({
-  user: label,
-  id: admin.usernameHash,        // ✅ IMPORTANT pentru presence
-  userHash: admin.usernameHash,  // ✅ IMPORTANT pentru presence
-  role: admin.role || 'admin',
-  dept: admin.dept || '',
-  at: new Date().toISOString()
-});
+      const label = admin.label || u;
+      saveAdminSession({
+        user: label,
+        id: admin.usernameHash,
+        userHash: admin.usernameHash,
+        role: admin.role || 'admin',
+        dept: admin.dept || '',
+        at: new Date().toISOString()
+      });
 
-
-updateAdminUiLoggedIn(label);
-
+      updateAdminUiLoggedIn(label);
     }catch(e){
       setAdminHint('Eroare la verificare: ' + (e.message || e), 'err');
     }finally{
@@ -1171,26 +1286,17 @@ updateAdminUiLoggedIn(label);
       });
     }
 
-  // click pe chip (label + icon), dar NU în interiorul dropdown-ului
-cfgMenu.addEventListener('click', (e)=>{
-  // dacă am apăsat fix pe butonul de hamburger, îl lăsăm pe handler-ul lui
-  if (cfgToggle && (e.target === cfgToggle || cfgToggle.contains(e.target))) return;
+    cfgMenu.addEventListener('click', (e)=>{
+      if (cfgToggle && (e.target === cfgToggle || cfgToggle.contains(e.target))) return;
+      if (cfgDropdown && cfgDropdown.contains(e.target)) return;
+      toggleCfgMenu();
+    });
 
-  // dacă am apăsat în interiorul meniului deschis (input user/parolă, buton etc),
-  // NU togglăm meniul ca să nu se închidă
-  if (cfgDropdown && cfgDropdown.contains(e.target)) return;
-
-  toggleCfgMenu();
-});
-
-
-    // click în afara meniului => închide
     document.addEventListener('click', (e)=>{
       if (!cfgMenu.classList.contains('open')) return;
       if (!cfgMenu.contains(e.target)) closeCfgMenu();
     });
 
-    // ESC => închide
     document.addEventListener('keydown', (e)=>{
       if (e.key === 'Escape' && cfgMenu.classList.contains('open')) closeCfgMenu();
     });
@@ -1216,7 +1322,6 @@ cfgMenu.addEventListener('click', (e)=>{
     }
   }
 
-
   let CFG = null;
   let STATE = blankState();
   const LS_KEY = 'pontaj/state/v1';
@@ -1240,19 +1345,16 @@ cfgMenu.addEventListener('click', (e)=>{
   function updateEmpStatus() {
     const selectedName = empSel.value;
 
-    // Niciun angajat selectat
     if (!selectedName) {
       setEmp('', '');
       return;
     }
 
-    // Încă nu avem state pentru acest angajat
     if (!STATE || !STATE.name || STATE.name !== selectedName) {
       setEmp('Se verifică starea angajatului…', '');
       return;
     }
 
-    // Avem stare sincronizată pentru angajatul selectat
     if (STATE.normal.running && STATE.normal.paused) {
       setEmp('Stare curentă: PAUZĂ (normă).', 'warn');
     } else if (STATE.normal.running) {
@@ -1308,8 +1410,6 @@ cfgMenu.addEventListener('click', (e)=>{
     document.getElementById('leaveForm').action = CFG.leaveFormAction;
     return true;
   }
-
-  /** ===== EMPLOYAȚI & DEPARTAMENTE ===== */
 
   function parseEmployeesCSV(text){
     if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
@@ -1447,7 +1547,6 @@ cfgMenu.addEventListener('click', (e)=>{
       }
     }catch(e){}
 
-    // Fallback
     let fallbackEmployees = [];
     try {
       if (window.CFG && window.CFG.employeesCsv){
@@ -1467,7 +1566,6 @@ cfgMenu.addEventListener('click', (e)=>{
     setStatus('Nu există departmentsCsv — folosesc „productie”.', 'warn');
   }
 
-  /** ===== STATE (UI + server) ===== */
   const btnStart = document.getElementById('btnStart');
   const btnPause = document.getElementById('btnPause');
   const btnUnpause = document.getElementById('btnUnpause');
@@ -1482,7 +1580,6 @@ cfgMenu.addEventListener('click', (e)=>{
     const extraR  = !!STATE.extra.running;
     const hasSel  = !!empSel.value;
 
-    // implicit: Start / Pause / Extra Start vizibile
     btnStart.style.display       = '';
     btnFinish.style.display      = 'none';
     btnPause.style.display       = '';
@@ -1490,25 +1587,21 @@ cfgMenu.addEventListener('click', (e)=>{
     btnExtraStart.style.display  = '';
     btnExtraFinish.style.display = 'none';
 
-    // Slot Start/Finish
     if (running){
       btnStart.style.display  = 'none';
       btnFinish.style.display = '';
     }
 
-    // Slot Pause/Unpause
     if (running && paused){
       btnPause.style.display   = 'none';
       btnUnpause.style.display = '';
     }
 
-    // Slot Extra Start/Finish
     if (extraR){
       btnExtraStart.style.display  = 'none';
       btnExtraFinish.style.display = '';
     }
 
-    // Disabled logic (ținând cont de stare)
     btnStart.disabled       = !hasSel || running || extraR;
     btnFinish.disabled      = !hasSel || !running || paused;
     btnPause.disabled       = !hasSel || !running || paused;
@@ -1527,7 +1620,6 @@ cfgMenu.addEventListener('click', (e)=>{
     if (lbtn) lbtn.disabled = !!disabled;
   }
 
-  // ==== STATE & STATS API HELPERS ====
   function baseEndpoint(){
     const fromCfg = (window.CFG && (CFG.guardEndpoint || CFG.stateEndpoint)) || '';
     const base = (fromCfg || location.href).replace(/\?.*$/,'');
@@ -1576,30 +1668,24 @@ cfgMenu.addEventListener('click', (e)=>{
   }
 
   const minutesFromMs = (ms)=> Math.round(ms / 60000);
-// ===== FORMAT helpers (ore zecimale -> h + m) =====
-function fmtHoursToHM(val){
-  const raw = String(val ?? '').trim();
-  if (!raw) return '';
+  function fmtHoursToHM(val){
+    const raw = String(val ?? '').trim();
+    if (!raw) return '';
+    if (/^\d{1,3}:\d{2}$/.test(raw) || /\bh\b/i.test(raw)) return raw;
+    const num = parseFloat(raw.replace(',', '.').replace(/[^0-9.]+/g, ''));
+    if (!isFinite(num)) return raw;
+    const totalMin = Math.max(0, Math.round(num * 60));
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return `${h}h ${String(m).padStart(2,'0')}m`;
+  }
 
-  // dacă deja e HH:MM sau conține "h", îl lăsăm așa
-  if (/^\d{1,3}:\d{2}$/.test(raw) || /\bh\b/i.test(raw)) return raw;
-
-  // acceptă și virgulă: "7,5"
-  const num = parseFloat(raw.replace(',', '.').replace(/[^0-9.]+/g, ''));
-  if (!isFinite(num)) return raw;
-
-  const totalMin = Math.max(0, Math.round(num * 60));
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return `${h}h ${String(m).padStart(2,'0')}m`;
-}
-
-function fmtMinToHM(min){
-  const mm = Math.max(0, Math.round(Number(min) || 0));
-  const h = Math.floor(mm / 60);
-  const m = mm % 60;
-  return `${h}h ${String(m).padStart(2,'0')}m`;
-}
+  function fmtMinToHM(min){
+    const mm = Math.max(0, Math.round(Number(min) || 0));
+    const h = Math.floor(mm / 60);
+    const m = mm % 60;
+    return `${h}h ${String(m).padStart(2,'0')}m`;
+  }
 
   function applyLocalTransition(action, ts){
     action = _normAction(action);
@@ -1651,7 +1737,7 @@ function fmtMinToHM(min){
     document.getElementById('f_lon').value       = gps.lon;
     document.getElementById('f_acc').value       = gps.acc;
     document.getElementById('f_device').value    = navigator.userAgent;
-    document.getElementById('f_notes').value     = withProjectMarker_((notesEl.value || ''), (projectSel && projectSel.value) || '');
+    document.getElementById('f_notes').value     = composeNotesPayload();
     document.getElementById('f_maps').value      = `https://maps.google.com/?q=${gps.lat},${gps.lon}`;
     const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get) ? (DEPTMAP.byName.get(empSel.value) || '') : '';
     document.getElementById('f_department').value = (deptSel.value || deptFromMap || '');
@@ -1712,19 +1798,17 @@ function fmtMinToHM(min){
       }catch{}
     }
 
- setStatus(
-  `Pauză încheiată — interval curent: ${fmtMinToHM(curMin)} • total azi: ${fmtMinToHM(totMin)}.`,
-  'ok'
-);
+    setStatus(
+      `Pauză încheiată — interval curent: ${fmtMinToHM(curMin)} • total azi: ${fmtMinToHM(totMin)}.`,
+      'ok'
+    );
 
-showToast(
-  `<b>Pauză încheiată</b><div class="small">Curent: <b>${fmtMinToHM(curMin)}</b> • Total azi: <b>${fmtMinToHM(totMin)}</b></div>`,
-  'ok'
-);
-
+    showToast(
+      `<b>Pauză încheiată</b><div class="small">Curent: <b>${fmtMinToHM(curMin)}</b> • Total azi: <b>${fmtMinToHM(totMin)}</b></div>`,
+      'ok'
+    );
   }
 
-  // ==================== ACTION SUBMIT cu LOCK ANTISPAM IMEDIAT ====================
   async function submitAction(action) {
     const now = Date.now();
     if (busy) {
@@ -1742,6 +1826,13 @@ showToast(
 
     const actNorm = _normAction(action);
     const isCom = isComercialDept();
+
+    if (isInvoireActivity() && !validateInvoireSelection()) {
+      setStatus('Pentru activitatea "Invoire" trebuie selectată ora sau intervalul orar.', 'err');
+      if (getInvoireMode() === 'onehour' && invoireOneHourStart) invoireOneHourStart.focus();
+      else if (invoireFrom) invoireFrom.focus();
+      return;
+    }
 
     if (isCom && (actNorm === 'extra_start' || actNorm === 'extra_finish')) {
       setStatus('Departamentul Comercial nu poate folosi ore EXTRA.', 'warn');
@@ -1823,26 +1914,25 @@ showToast(
       try {
         const stats = await fetchStats(empSel.value.trim());
         if (stats){
-       if (actNorm === 'finish'){
-  const ore = fmtHoursToHM(stats.totalHours);
-  const supl = fmtHoursToHM(stats.overtime);
+          if (actNorm === 'finish'){
+            const ore = fmtHoursToHM(stats.totalHours);
+            const supl = fmtHoursToHM(stats.overtime);
 
-  setStatus(`Finish ✓ — Azi: ${ore} • Suplimentar: ${supl}.`, 'ok');
-  showToast(
-    `<b>${empSel.value}</b><div class="small">Azi — Ore: <b>${ore}</b> • Suplimentar: <b>${supl}</b></div>`,
-    'ok'
-  );
+            setStatus(`Finish ✓ — Azi: ${ore} • Suplimentar: ${supl}.`, 'ok');
+            showToast(
+              `<b>${empSel.value}</b><div class="small">Azi — Ore: <b>${ore}</b> • Suplimentar: <b>${supl}</b></div>`,
+              'ok'
+            );
 
-} else if (actNorm === 'extra_finish'){
-  const extra = fmtHoursToHM(stats.extra);
+          } else if (actNorm === 'extra_finish'){
+            const extra = fmtHoursToHM(stats.extra);
 
-  setStatus(`Extra Finish ✓ — Azi: Extra: ${extra}.`, 'ok');
-  showToast(
-    `<b>${empSel.value}</b><div class="small">Azi — Extra: <b>${extra}</b></div>`,
-    'ok'
-  );
-}
-
+            setStatus(`Extra Finish ✓ — Azi: Extra: ${extra}.`, 'ok');
+            showToast(
+              `<b>${empSel.value}</b><div class="small">Azi — Extra: <b>${extra}</b></div>`,
+              'ok'
+            );
+          }
         }
       } catch {}
     } catch (err) {
@@ -1878,7 +1968,6 @@ showToast(
     reflectState();
   }
 
-  /** ===== INIT ===== */
   (async function init(){
     try {
       const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
@@ -1935,10 +2024,12 @@ showToast(
 
     const LEAVE_TYPES = new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare']);
     actSel.addEventListener('change', () => {
-      const isLeave = LEAVE_TYPES.has((actSel.value||'').toLowerCase());
+      const act = (actSel.value || '').toLowerCase();
+      const isLeave = LEAVE_TYPES.has(act);
       leavePanel.style.display = isLeave ? '' : 'none';
       disableTimeButtons(isLeave);
       if (isLeave) { LEAVE_DAYS = []; setLeaveStatus('', ''); }
+      syncInvoireUI();
     });
 
     if (btnAddDay && leaveDaysList && leaveDay){
@@ -2019,10 +2110,13 @@ showToast(
         setLeaveStatus('Eroare: nu s-a putut trimite cererea (Form/Endpoint).', 'err');
       }
     });
+
     setupAdminChipMenu();
+    syncInvoireUI();
 
   })();
 
 })(); // IIFE
   </script>
 </body>
+</html>
