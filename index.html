@@ -451,11 +451,11 @@
           <div id="invoireIntervalRow" class="grid cols-2">
             <div>
               <label for="invoireFrom">De la</label>
-              <input type="time" id="invoireFrom" />
+              <input type="text" id="invoireFrom" inputmode="numeric" maxlength="5" placeholder="08:00" autocomplete="off" />
             </div>
             <div>
               <label for="invoireTo">Până la</label>
-              <input type="time" id="invoireTo" />
+              <input type="text" id="invoireTo" inputmode="numeric" maxlength="5" placeholder="12:00" autocomplete="off" />
             </div>
           </div>
 
@@ -463,7 +463,7 @@
             <div class="grid cols-2">
               <div>
                 <label for="invoireOneHourStart">Ora</label>
-                <input type="time" id="invoireOneHourStart" />
+                <input type="text" id="invoireOneHourStart" inputmode="numeric" maxlength="5" placeholder="10:00" autocomplete="off" />
               </div>
             </div>
             <div class="invoire-hint">Se salvează automat ca interval de 1 oră.</div>
@@ -994,10 +994,42 @@ function withProjectMarker_(notes, project){
   }
 
   function normalizeHHMM(v){
-    const s = String(v || '').trim();
-    if (!/^\d{2}:\d{2}$/.test(s)) return '';
-    return s;
-  }
+  let s = String(v || '').trim();
+
+  // acceptă și 8:00, dar îl transformă în 08:00
+  const m = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return '';
+
+  const hh = parseInt(m[1], 10);
+  const mm = parseInt(m[2], 10);
+
+  if (isNaN(hh) || isNaN(mm)) return '';
+  if (hh < 0 || hh > 23) return '';
+  if (mm < 0 || mm > 59) return '';
+
+  return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+
+  function setupHHMM24Input(el){
+  if (!el) return;
+
+  el.addEventListener('input', () => {
+    let raw = String(el.value || '').replace(/[^\d]/g, '').slice(0, 4);
+
+    if (raw.length >= 3) {
+      raw = raw.slice(0, 2) + ':' + raw.slice(2);
+    }
+
+    el.value = raw;
+  });
+
+  el.addEventListener('blur', () => {
+    const fixed = normalizeHHMM(el.value);
+    if (fixed) {
+      el.value = fixed;
+    }
+  });
+}
 
   function addOneHour(hhmm){
     if (!/^\d{2}:\d{2}$/.test(String(hhmm || ''))) return '';
@@ -2050,6 +2082,10 @@ function syncInvoireUI(){
         leaveDaysList.textContent = LEAVE_DAYS.join(', ');
       });
     }
+
+    setupHHMM24Input(invoireFrom);
+    setupHHMM24Input(invoireTo);
+    setupHHMM24Input(invoireOneHourStart);
 
     wireButtons();
 
