@@ -1049,14 +1049,23 @@ function withProjectMarker_(notes, project){
     return withProjectMarker_(notes, (projectSel && projectSel.value) || '');
   }
 
-  function syncInvoireUI(){
-    const show = isInvoireActivity();
-    if (invoireBox) invoireBox.style.display = show ? '' : 'none';
+function syncInvoireUI(){
+  const show = isInvoireActivity();
 
-    const mode = getInvoireMode();
-    if (invoireIntervalRow) invoireIntervalRow.style.display = (show && mode === 'interval') ? 'grid' : 'none';
-    if (invoireOneHourRow) invoireOneHourRow.style.display = (show && mode === 'onehour') ? '' : 'none';
+  if (invoireBox) {
+    invoireBox.style.display = show ? 'block' : 'none';
   }
+
+  const mode = getInvoireMode();
+
+  if (invoireIntervalRow) {
+    invoireIntervalRow.style.display = (show && mode === 'interval') ? 'grid' : 'none';
+  }
+
+  if (invoireOneHourRow) {
+    invoireOneHourRow.style.display = (show && mode === 'onehour') ? 'block' : 'none';
+  }
+}
 
   document.querySelectorAll('input[name="invoireMode"]').forEach(r => {
     r.addEventListener('change', syncInvoireUI);
