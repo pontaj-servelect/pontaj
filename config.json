@@ -18,6 +18,7 @@
   "stateEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
   "guardEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
   "adminEventsEndpoint": "https://script.google.com/macros/s/AKfycbw2wWyk-RgPhOHO47aRvEsz1UkcIz3uJsJ7H4cW008LVVwuuY3IH7HSkF0nZPolvOGQGg/exec",
+  "employeeNormsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/employee_norms.csv"
   "departmentsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/departments.csv",
   "employees": [
     "Ion Popescu",
