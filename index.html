@@ -1504,243 +1504,80 @@ function withProjectMarker_(notes, project){
     return true;
   }
 
-function parseEmployeesCSV(text){
-  if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-
-  text = String(text || '')
-    .replace(/\u00A0/g, ' ')
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .trim();
-
-  if (!text) return [];
-
-  // Caz normal: câte un angajat pe rând.
-  if (text.includes('\n') && !/,|;/.test(text)) {
-    return Array.from(new Set(
-      text.split('\n')
-        .map(s => s.trim().replace(/\s+/g, ' '))
-        .filter(Boolean)
-    )).sort((a,b)=>a.localeCompare(b,'ro'));
-  }
-
-  const comma = (text.match(/,/g) || []).length;
-  const semiCount = (text.match(/;/g) || []).length;
-  const delim = semiCount > comma ? ';' : ',';
-
-  // Caz CSV normal cu header.
-  if (text.includes('\n')) {
-    const rows = text.split('\n')
-      .map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,'')))
-      .filter(r => r.length && r.join('').length);
-
-    if (!rows.length) return [];
-
-    const header = rows[0].map(h => String(h || '').toLowerCase());
-    let startIdx = 0;
-    let nameCol = 0;
-
+  function parseEmployeesCSV(text){
+    if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    if (!text) return [];
+    if (!/,|;/.test(text)) return text.split('\n').map(s => s.trim()).filter(Boolean);
+    const comma = (text.match(/,/g) || []).length;
+    const semiCount = (text.match(/;/g) || []).length;
+    const delim = semiCount > comma ? ';' : ',';
+    const rows = text.split('\n').map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g,''))).filter(r => r.length && r.join('').length);
+    const header = rows[0].map(h => (h||'').toLowerCase());
+    let startIdx = 0, nameCol = 0;
     if (header.some(h => /angajat|nume|employee|name/.test(h))) {
       nameCol = Math.max(0, header.findIndex(h => /angajat|nume|employee|name/.test(h)));
       startIdx = 1;
     }
-
     const list = [];
-
-    for (let i = startIdx; i < rows.length; i++) {
-      const v = String(rows[i][nameCol] || '').trim().replace(/\s+/g, ' ');
+    for (let i=startIdx;i<rows.length;i++){
+      const v = (rows[i][nameCol] || '').trim();
       if (v) list.push(v);
     }
-
-    return Array.from(new Set(list)).sort((a,b)=>a.localeCompare(b,'ro'));
+    return list;
   }
-
-  /*
-    Dacă employees.csv este o singură linie cu nume lipite prin spații,
-    NU încercăm să-l spargem artificial, pentru că numele compuse se strică.
-    Exemplu: "Ana Maria Csete" ar putea fi spart greșit.
-    Lista corectă o luăm din departments.csv.
-  */
-  return [];
-}
   function getInlineEmployees(){
     const el = document.getElementById('employees-inline');
     if (!el) return [];
     return el.textContent.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
   }
 
-function parseDepartmentsCSV(text){
-  if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  function parseDepartmentsCSV(text){
+    if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    if (!text) return { byDept:new Map(), byName:new Map(), deptList:[] };
 
-  text = String(text || '')
-    .replace(/\u00A0/g, ' ')
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .trim();
+    const lines = text.split('\n').filter(Boolean);
+    const sep = (text.indexOf(';') > -1 && (text.indexOf(';') < text.indexOf(','))) ? ';' : ',';
 
-  const empty = { byDept:new Map(), byName:new Map(), deptList:[] };
-  if (!text) return empty;
-
-  const knownDepartments = [
-    'Productie',
-    'Producție',
-    'Comercial',
-    'Marketing',
-    'HR',
-    'IT',
-    'Financiar',
-    'Administrativ',
-    'Proiecte',
-    'Engineering',
-    'Sales',
-    'Support',
-    'Operations'
-  ];
-
-  function cleanCell(s){
-    return String(s || '')
-      .replace(/\u00A0/g, ' ')
-      .replace(/^"|"$/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function escapeRx(s){
-    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function extractTrailingDepartment(cell){
-    const clean = cleanCell(cell);
-
-    for (const dep of knownDepartments.slice().sort((a,b)=>b.length-a.length)){
-      const rx = new RegExp('^(.*?)(?:\\s+)(' + escapeRx(dep) + ')$', 'i');
-      const m = clean.match(rx);
-
-      if (m) {
-        return {
-          namePart: cleanCell(m[1]),
-          dept: cleanCell(m[2])
-        };
-      }
-    }
-
-    return {
-      namePart: clean,
-      dept: ''
-    };
-  }
-
-  function addRow(byDept, byName, dep, nm){
-    dep = cleanCell(dep);
-    nm = cleanCell(nm);
-
-    if (!dep || !nm) return;
-    if (/^(departament|department|dept|angajat|nume|employee|name)$/i.test(nm)) return;
-
-    if (!byDept.has(dep)) byDept.set(dep, []);
-
-    const existing = byDept.get(dep);
-    if (!existing.some(x => normalizeName(x) === normalizeName(nm))) {
-      existing.push(nm);
-    }
-
-    byName.set(nm, dep);
-  }
-
-  const comma = (text.match(/,/g) || []).length;
-  const semiCount = (text.match(/;/g) || []).length;
-  const sep = semiCount > comma ? ';' : ',';
-
-  const lines = text.split('\n').map(cleanCell).filter(Boolean);
-
-  const byDept = new Map();
-  const byName = new Map();
-
-  /*
-    CAZ NORMAL:
-    departments.csv are rânduri reale:
-    Departament,Angajat
-    Productie,Alin Ceclan
-    Productie,Alin Deac
-  */
-  if (lines.length > 1) {
-    let start = 0;
-    let depCol = 0;
-    let nameCol = 1;
-
-    const hdr = lines[0].split(sep).map(s => cleanCell(s).toLowerCase());
-
+    let start = 0, depCol = 0, nameCol = 1;
+    const hdr = lines[0].split(sep).map(s=>s.trim().replace(/^"|"$/g,'').toLowerCase());
     if (hdr.some(h => /depart|dept/.test(h)) || hdr.some(h => /angajat|nume|employee|name/.test(h))) {
       const d = hdr.findIndex(h => /depart|dept/.test(h));
       const n = hdr.findIndex(h => /angajat|nume|employee|name/.test(h));
-
       if (d >= 0) depCol = d;
       if (n >= 0) nameCol = n;
-
       start = 1;
     }
 
-    for (let i = start; i < lines.length; i++) {
-      const cells = lines[i].split(sep).map(cleanCell);
-      const dep = cells[depCol] || '';
-      const nm  = cells[nameCol] || '';
+    const byDept = new Map();
+    const byName = new Map();
 
-      addRow(byDept, byName, dep, nm);
+    for (let i=start;i<lines.length;i++){
+      const cells = lines[i].split(sep).map(s=>s.trim().replace(/^"|"$/g,''));
+      const dep = (cells[depCol]||'').trim();
+      const nm  = (cells[nameCol]||'').trim();
+      if (!dep || !nm) continue;
+      if (!byDept.has(dep)) byDept.set(dep, []);
+      byDept.get(dep).push(nm);
+      byName.set(nm, dep);
     }
+
+    const deptList = Array.from(byDept.keys()).sort((a,b)=>a.localeCompare(b,'ro'));
+    for (const d of byDept.keys()) byDept.get(d).sort((a,b)=>a.localeCompare(b,'ro'));
+    return { byDept, byName, deptList };
   }
 
-  /*
-    CAZUL TĂU ACTUAL:
-    GitHub raw are tot CSV-ul într-o singură linie:
-    Departament,Angajat Productie,Alin Ceclan Productie,Alin Deac ...
-    
-    Logica:
-    - "Angajat Productie" setează departamentul curent: Productie
-    - "Alin Ceclan Productie" => Alin Ceclan aparține departamentului curent Productie,
-      iar Productie devine departamentul pentru următorul rând
-    - la trecerea "Adrian Diosan Comercial", Adrian rămâne Productie,
-      iar următorii devin Comercial
-  */
-  if (byDept.size === 0 && lines.length === 1) {
-    const cells = lines[0].split(sep).map(cleanCell).filter(Boolean);
+  let DEPTMAP = { byDept:new Map(), byName:new Map(), deptList:[] };
 
-    let currentDept = '';
-
-    for (let i = 0; i < cells.length; i++) {
-      const cell = cells[i];
-
-      if (/^(departament|department|dept)$/i.test(cell)) {
-        continue;
-      }
-
-      const parsed = extractTrailingDepartment(cell);
-      const namePart = parsed.namePart;
-      const trailingDept = parsed.dept;
-
-      // Exemplu: "Angajat Productie" — nu este angajat, doar setează dept curent.
-      if (/^(angajat|nume|employee|name)$/i.test(namePart) && trailingDept) {
-        currentDept = trailingDept;
-        continue;
-      }
-
-      if (namePart) {
-        addRow(byDept, byName, currentDept || trailingDept || 'productie', namePart);
-      }
-
-      if (trailingDept) {
-        currentDept = trailingDept;
-      }
-    }
+  function fillDepartments(deptList){
+    deptSel.innerHTML = '';
+    const ph = document.createElement('option');
+    ph.value=''; ph.textContent='Alege departamentul...'; ph.disabled = true; ph.selected = true;
+    deptSel.appendChild(ph);
+    deptList.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; deptSel.appendChild(o); });
   }
 
-  const deptList = Array.from(byDept.keys()).sort((a,b)=>a.localeCompare(b,'ro'));
-
-  for (const d of byDept.keys()) {
-    byDept.get(d).sort((a,b)=>a.localeCompare(b,'ro'));
-  }
-
-  return { byDept, byName, deptList };
-}
   function fillProjects(projects){
     if (!projectSel) return;
     projectSel.innerHTML = '';
