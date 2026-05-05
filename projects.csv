@@ -1,9 +1,22 @@
 Tip activitate;Proiect;Activ
-ofertare;OFERTARE-CRAIOVA;da
+ofertare;OFERTARE-BACAU;da
+ofertare;OFERTARE-UBB;da
 birou-lucrare;REPOWER A;da
+birou-lucrare;OFERTARE-BACAU;da
+birou-lucrare;OFERTARE-UBB;da
+birou-lucrare;RAJA S.A. Constanța;da
+birou-lucrare;HIDROELETRICA;da
+birou-lucrare;Versuni Romania;da
+birou-lucrare;Primaria Floresti;da
+birou-lucrare;Apaserv Satu Mare -TURȚ;da
+birou-lucrare;Apaserv Satu Mare PUT;da
+birou-lucrare;Primaria Sfantu Gheorghe;da
+birou-lucrare;Scandia Food;da
+birou-lucrare;Pajo Agriculture SRL;da
+
 deplasare;REPOWER A;da
 birou + deplasare;REPOWER A;da
-atelier;REPOWER A;da
+atelier;RAJA S.A. Constanța;da
 pe drum;REPOWER A;da
 birou-lucrare;RAJA S.A. Constanța;da
 deplasare;RAJA S.A. Constanța;da
