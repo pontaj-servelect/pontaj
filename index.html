@@ -426,8 +426,8 @@
 
           <div>
             <label for="projectSelect">Proiect (opțional)</label>
-            <select id="projectSelect">
-              <option value="" selected>Fără proiect</option>
+            <select id="projectSelect" disabled>
+              <option value="" selected>Alege tipul de activitate mai întâi...</option>
             </select>
           </div>
         </div>
@@ -944,19 +944,143 @@ function sumPausesFromEvents(events, fallbackPair){
   return { totalMs, curMs };
 }
 
+function _projectActivityKey_(s){
+  return String(s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[–—]/g, '-')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s*\+\s*/g, ' + ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function _splitProjectActivities_(value){
+  const raw = String(value || '').trim();
+  if (!raw) return ['*'];
+
+  return raw
+    .split('|')
+    .map(v => _projectActivityKey_(v))
+    .filter(Boolean)
+    .map(v => {
+      if (v === '*' || v === 'all' || v === 'toate' || v === 'oricare') return '*';
+      return v;
+    });
+}
+
+function _pushUnique_(arr, value){
+  value = String(value || '').trim();
+  if (!value) return;
+  if (!arr.includes(value)) arr.push(value);
+}
+
+function _csvSplitLine_(line, sep){
+  const out = [];
+  let cur = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++){
+    const ch = line[i];
+
+    if (ch === '"'){
+      if (inQuotes && line[i + 1] === '"'){
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === sep && !inQuotes){
+      out.push(cur.trim());
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+
+  out.push(cur.trim());
+  return out.map(v => v.replace(/^"|"$/g, '').trim());
+}
+
 function parseProjectsCSV(text){
   if (text && text.charCodeAt && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   text = (text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-  if (!text) return [];
-  const lines = text.split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!lines.length) return [];
-  const sep = lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
-  const rows = lines.map(line => line.split(sep).map(s=>s.trim().replace(/^"|"$/g, '')));
-  if (!rows.length) return [];
-  const first = rows[0][0] || '';
-  const hasHeader = /^(proiect|project)$/i.test(first);
-  const dataRows = hasHeader ? rows.slice(1) : rows;
-  return Array.from(new Set(dataRows.map(r => String((r[0] || '')).trim()).filter(Boolean)));
+
+  const empty = { byActivity:new Map(), global:[], all:[] };
+  if (!text) return empty;
+
+  const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!lines.length) return empty;
+
+  const commaCount = (text.match(/,/g) || []).length;
+  const semiCount = (text.match(/;/g) || []).length;
+  const sep = semiCount > commaCount ? ';' : ',';
+
+  const rows = lines.map(line => _csvSplitLine_(line, sep));
+  if (!rows.length) return empty;
+
+  const header = rows[0].map(h => String(h || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+  );
+
+  const hasHeader = header.some(h => /proiect|project/.test(h)) ||
+                    header.some(h => /tip.*activ|activitate|activity/.test(h));
+
+  let start = hasHeader ? 1 : 0;
+  let activityCol = -1;
+  let projectCol = 0;
+  let activeCol = -1;
+
+  if (hasHeader){
+    activityCol = header.findIndex(h => /tip.*activ|activitate|activity/.test(h));
+    projectCol = header.findIndex(h => /proiect|project/.test(h));
+    activeCol = header.findIndex(h => /(^|\b)(activ|active|enabled|vizibil)(\b|$)/.test(h));
+
+    if (projectCol < 0) projectCol = 0;
+  } else if (rows[0].length >= 2){
+    activityCol = 0;
+    projectCol = 1;
+  }
+
+  const byActivity = new Map();
+  const global = [];
+  const all = [];
+
+  for (let i = start; i < rows.length; i++){
+    const row = rows[i] || [];
+
+    if (activeCol >= 0){
+      const active = String(row[activeCol] || '').trim().toLowerCase();
+      if (['nu','no','false','0','inactiv','inactive'].includes(active)) continue;
+    }
+
+    const project = String(row[projectCol] || '').trim();
+    if (!project) continue;
+
+    _pushUnique_(all, project);
+
+    const activities = activityCol >= 0 ? _splitProjectActivities_(row[activityCol]) : ['*'];
+
+    activities.forEach(activityKey => {
+      if (activityKey === '*'){
+        _pushUnique_(global, project);
+        return;
+      }
+
+      if (!byActivity.has(activityKey)) byActivity.set(activityKey, []);
+      _pushUnique_(byActivity.get(activityKey), project);
+    });
+  }
+
+  all.sort((a,b)=>a.localeCompare(b,'ro'));
+  global.sort((a,b)=>a.localeCompare(b,'ro'));
+  for (const list of byActivity.values()) list.sort((a,b)=>a.localeCompare(b,'ro'));
+
+  return { byActivity, global, all };
 }
 function withProjectMarker_(notes, project){
   const cleanNotes = String(notes || '').replace(/\[\[PROJECT::.*?\]\]\s*/g, '').trim();
@@ -1123,7 +1247,8 @@ function withProjectMarker_(notes, project){
     if (invMarker){
       notes = notes ? (notes + ' ' + invMarker) : invMarker;
     }
-    return withProjectMarker_(notes, (projectSel && projectSel.value) || '');
+    const selectedProject = (projectSel && !projectSel.disabled) ? (projectSel.value || '') : '';
+    return withProjectMarker_(notes, selectedProject);
   }
 
   function syncInvoireUI(){
@@ -1578,36 +1703,115 @@ function withProjectMarker_(notes, project){
     deptList.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; deptSel.appendChild(o); });
   }
 
-  function fillProjects(projects){
+  let PROJECTS_BY_ACTIVITY = new Map();
+  let PROJECTS_GLOBAL = [];
+  let PROJECTS_ALL = [];
+
+  function getSelectedActivityProjectKey_(){
+    return _projectActivityKey_(actSel && actSel.value ? actSel.value : '');
+  }
+
+  function fillProjects(projects, opts){
     if (!projectSel) return;
+
+    opts = opts || {};
+    const hasActivity = !!opts.hasActivity;
+
     projectSel.innerHTML = '';
+
     const ph = document.createElement('option');
     ph.value = '';
+
+    if (!hasActivity){
+      ph.textContent = 'Alege tipul de activitate mai întâi...';
+      ph.disabled = true;
+      ph.selected = true;
+      projectSel.appendChild(ph);
+      projectSel.disabled = true;
+      return;
+    }
+
+    const list = Array.from(new Set((projects || []).map(v => String(v || '').trim()).filter(Boolean)))
+      .sort((a,b)=>a.localeCompare(b,'ro'));
+
+    if (!list.length){
+      ph.textContent = 'Nu există proiecte pentru activitatea aleasă';
+      ph.disabled = true;
+      ph.selected = true;
+      projectSel.appendChild(ph);
+      projectSel.disabled = true;
+      return;
+    }
+
     ph.textContent = 'Fără proiect';
     ph.selected = true;
     projectSel.appendChild(ph);
-    (projects || []).forEach(v => {
+
+    list.forEach(v => {
       const o = document.createElement('option');
       o.value = v;
       o.textContent = v;
       projectSel.appendChild(o);
     });
+
+    projectSel.disabled = false;
+  }
+
+  function updateProjectsForSelectedActivity(){
+    if (!projectSel) return;
+
+    const activityValue = _norm(actSel && actSel.value);
+    if (!activityValue){
+      fillProjects([], { hasActivity:false });
+      return;
+    }
+
+    const activityKey = getSelectedActivityProjectKey_();
+    let list = [];
+
+    if (PROJECTS_BY_ACTIVITY && PROJECTS_BY_ACTIVITY.has(activityKey)){
+      list = PROJECTS_BY_ACTIVITY.get(activityKey).slice();
+    }
+
+    if (PROJECTS_GLOBAL && PROJECTS_GLOBAL.length){
+      PROJECTS_GLOBAL.forEach(p => _pushUnique_(list, p));
+    }
+
+    fillProjects(list, { hasActivity:true, activity:activityValue });
+
+    try {
+      const lastProject = localStorage.getItem('pontaj:lastProject:' + activityKey) || '';
+      if (lastProject && !projectSel.disabled){
+        const exists = Array.from(projectSel.options).some(o => o.value === lastProject);
+        if (exists) projectSel.value = lastProject;
+      }
+    } catch(e) {}
   }
 
   async function loadProjects(){
+    PROJECTS_BY_ACTIVITY = new Map();
+    PROJECTS_GLOBAL = [];
+    PROJECTS_ALL = [];
+
     try {
       if (window.CFG && window.CFG.projectsCsv){
         const url = window.CFG.projectsCsv + (window.CFG.projectsCsv.includes('?') ? '&' : '?') + 'v=' + Date.now();
         const r = await fetch(url, {cache:'no-store'});
         if (r.ok){
           const txt = await r.text();
-          const list = parseProjectsCSV(txt);
-          fillProjects(list);
+          const parsed = parseProjectsCSV(txt);
+          PROJECTS_BY_ACTIVITY = parsed.byActivity || new Map();
+          PROJECTS_GLOBAL = parsed.global || [];
+          PROJECTS_ALL = parsed.all || [];
+          updateProjectsForSelectedActivity();
           return;
         }
       }
-    } catch(e) {}
-    fillProjects([]);
+    } catch(e) {
+      console.warn('Nu pot încărca projects.csv:', e);
+    }
+
+    updateProjectsForSelectedActivity();
   }
 
   function fillEmployeesFromDept(dept){
@@ -2199,14 +2403,14 @@ function withProjectMarker_(notes, project){
     const cached = loadLS();
     if (cached) STATE = Object.assign(blankState(), cached);
 
-    try {
-      const lastProject = localStorage.getItem('pontaj:lastProject') || '';
-      if (projectSel && lastProject) projectSel.value = lastProject;
-    } catch(e) {}
+    updateProjectsForSelectedActivity();
 
     if (projectSel){
       projectSel.addEventListener('change', ()=>{
-        try { localStorage.setItem('pontaj:lastProject', projectSel.value || ''); } catch(e){}
+        if (projectSel.disabled) return;
+        const activityKey = getSelectedActivityProjectKey_();
+        if (!activityKey) return;
+        try { localStorage.setItem('pontaj:lastProject:' + activityKey, projectSel.value || ''); } catch(e){}
       });
     }
 
@@ -2252,6 +2456,7 @@ function withProjectMarker_(notes, project){
         setInvoireStatus('', '');
       }
 
+      updateProjectsForSelectedActivity();
       syncInvoireUI();
       disableTimeButtons(isLeave || isInv);
       reflectState();
