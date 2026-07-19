@@ -245,13 +245,7 @@
     body.action-lock .btnbar { pointer-events: none; }
     body.action-lock .btnbar .btn { opacity:.6; cursor:not-allowed; }
 
-    
-    body.action-lock select,
-    body.action-lock input,
-    body.action-lock textarea{
-      cursor:not-allowed;
-    }
-.invoire-mode-row{
+    .invoire-mode-row{
       display:flex;
       gap:16px;
       flex-wrap:wrap;
@@ -819,8 +813,10 @@ function withRequestMarker_(notes, requestId){
     .replace(/\s*\[\[REQUEST_ID::[^\]]+\]\]/gi, '')
     .trim();
   const marker = `[[REQUEST_ID::${String(requestId || '').trim()}]]`;
-  return clean ? `${clean}\n${marker}` : marker;
+  return clean ? `${clean}
+${marker}` : marker;
 }
+
 function parseGvizDateStr(s){
   const m = /^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/.exec(String(s).trim());
   if (!m) return null;
@@ -990,15 +986,6 @@ function withProjectMarker_(notes, project){
   const empStatus = document.getElementById('empStatus');
   const form = document.getElementById('gform');
 
-  // Aceste funcții trebuie să fie în același scope cu elementele UI de mai sus.
-  // În versiunea v2 erau definite în afara IIFE și produceau ReferenceError
-  // (deptSel / empSel / actSel / locInput / projectSel / notesEl nu existau global),
-  // motiv pentru care butoanele nu mai executau acțiunile.
-  function setActionContextDisabled(disabled){
-    [deptSel, empSel, actSel, locInput, projectSel, notesEl].forEach(el=>{
-      if (el) el.disabled = !!disabled;
-    });
-  }
 
   function captureActionContext_(action){
     const name = (empSel.value || '').trim();
@@ -1012,7 +999,7 @@ function withProjectMarker_(notes, project){
       department: (deptSel.value || deptFromMap || '').trim(),
       activity: actSel.value || '',
       location: (locInput.value || '').trim(),
-      project: (projectSel && projectSel.value) || '',
+      project: (projectSel && !projectSel.disabled ? projectSel.value : '') || '',
       notesPayload: composeNotesPayload(),
       requestId: randomNonce()
     });
@@ -1794,6 +1781,7 @@ function withProjectMarker_(notes, project){
       submittedAt: submittedAt || '',
       _: String(Date.now())
     });
+
     try{
       const r = await fetch(baseEndpoint() + '?' + qs.toString(), { cache:'no-store' });
       const txt = await r.text();
@@ -1806,21 +1794,57 @@ function withProjectMarker_(notes, project){
 
   async function waitForActionResult_(ctx, submittedAt){
     const started = Date.now();
-    const timeoutMs = 26000;
+    const timeoutMs = 22000;
     let attempt = 0;
 
     while ((Date.now() - started) < timeoutMs){
       const result = await fetchActionResult_(ctx, submittedAt);
-      if (result && result.ready && result.stats){
-        return result;
-      }
+      if (result && result.ready && result.stats) return result;
       attempt++;
-      await sleep(Math.min(2200, 550 + attempt * 180));
+      await sleep(Math.min(2000, 500 + attempt * 180));
     }
-
     return null;
   }
 
+  async function showActionResultWhenReady_(ctx, submittedAt){
+    try{
+      const result = await waitForActionResult_(ctx, submittedAt);
+      const sameEmployee = String(empSel.value || '').trim() === ctx.name;
+
+      if (!result || !result.stats){
+        if (sameEmployee && !busy){
+          const label = ctx.action === 'finish' ? 'Finish' : 'Extra Finish';
+          setStatus(`${label} trimis ✓ — statisticile se actualizează în fundal.`, 'warn');
+        }
+        return;
+      }
+
+      const stats = result.stats;
+
+      if (ctx.action === 'finish'){
+        const ore = fmtHoursToHM(stats.totalHours);
+        const supl = fmtHoursToHM(stats.overtime);
+        if (sameEmployee && !busy){
+          setStatus(`Finish ✓ — Azi: ${ore} • Suplimentar: ${supl}.`, 'ok');
+        }
+        showToast(
+          `<b>${ctx.name}</b><div class="small">Azi — Ore: <b>${ore}</b> • Suplimentar: <b>${supl}</b></div>`,
+          'ok'
+        );
+      } else {
+        const extra = fmtHoursToHM(stats.extra);
+        if (sameEmployee && !busy){
+          setStatus(`Extra Finish ✓ — Azi: Extra: ${extra}.`, 'ok');
+        }
+        showToast(
+          `<b>${ctx.name}</b><div class="small">Azi — Extra: <b>${extra}</b></div>`,
+          'ok'
+        );
+      }
+    } catch(e){
+      console.warn('Action result sync failed', e);
+    }
+  }
   async function fetchPauseTotals(name, untilIso){
     const url = baseEndpoint() + '?fn=pausetotals&name=' + encodeURIComponent(name) + (untilIso ? ('&until=' + encodeURIComponent(untilIso)) : '');
     try{
@@ -1929,21 +1953,18 @@ function withProjectMarker_(notes, project){
     const targetName = String(nameOverride || STATE.name || empSel.value || '').trim();
     if (!targetName) return null;
 
-    const requestSeq = (refreshServerState._seq = (refreshServerState._seq || 0) + 1);
+    const seq = (refreshServerState._seq = (refreshServerState._seq || 0) + 1);
 
     try {
-      const keepPauseFields = {
-        lastPauseStart: STATE.lastPauseStart,
-        pauseMsByDay: Object.assign({}, STATE.pauseMsByDay)
-      };
-
       const remote = await fetchState(targetName);
       if (!remote) return null;
 
-      const currentName = String(empSel.value || '').trim();
-      const stillCurrent = currentName === targetName;
-
-      if (stillCurrent && requestSeq === refreshServerState._seq) {
+      const sameEmployee = String(empSel.value || '').trim() === targetName;
+      if (sameEmployee && seq === refreshServerState._seq){
+        const keepPauseFields = {
+          lastPauseStart: STATE.lastPauseStart,
+          pauseMsByDay: Object.assign({}, STATE.pauseMsByDay)
+        };
         STATE = Object.assign(blankState(), keepPauseFields, remote);
         STATE.name = targetName;
         saveLS();
@@ -2052,7 +2073,6 @@ function withProjectMarker_(notes, project){
 
     busy = true;
     setUILock(true);
-    setActionContextDisabled(true);
     disableAllButtons(true);
     const lockStart = Date.now();
 
@@ -2102,7 +2122,6 @@ function withProjectMarker_(notes, project){
       await sleep(CLICK_COOLDOWN_MS);
       busy = false;
       setUILock(false);
-      setActionContextDisabled(false);
       disableAllButtons(false);
       reflectState();
       updateEmpStatus();
@@ -2111,12 +2130,10 @@ function withProjectMarker_(notes, project){
 
   async function submitAction(action) {
     const now = Date.now();
-
     if (busy) {
       setStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
       return;
     }
-
     if (now - lastActionAt < CLICK_COOLDOWN_MS) {
       setStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
       return;
@@ -2140,13 +2157,11 @@ function withProjectMarker_(notes, project){
       setStatus('Departamentul Comercial nu poate folosi ore EXTRA.', 'warn');
       return;
     }
-
     if (!isCom && !ctx.location) {
       setStatus('Scrie clientul/locația.', 'err');
       locInput.focus();
       return;
     }
-
     if (LEAVE_TYPES_SET.has(String(ctx.activity || '').toLowerCase())){
       setStatus('Pentru concediu folosește „Trimite cererea de concediu”.', 'warn');
       return;
@@ -2154,66 +2169,38 @@ function withProjectMarker_(notes, project){
 
     busy = true;
     setUILock(true);
-    setActionContextDisabled(true);
     disableAllButtons(true);
     const lockStart = Date.now();
 
     try {
       setStatus(`Sincronizez starea pentru ${ctx.name}…`, '');
 
-      const stateBefore = await fetchState(ctx.name);
-      const stateForGuard = stateBefore || (
-        STATE && STATE.name === ctx.name
-          ? STATE
-          : blankState()
+      const remoteBefore = await fetchState(ctx.name);
+      const stateForGuard = remoteBefore || (
+        STATE && STATE.name === ctx.name ? STATE : blankState()
       );
 
       {
         const running = !!(stateForGuard.normal && stateForGuard.normal.running);
         const paused  = !!(stateForGuard.normal && stateForGuard.normal.paused);
         const extraR  = !!(stateForGuard.extra && stateForGuard.extra.running);
-
         const e = (()=>{
           switch(actNorm){
-            case 'start':
-              if (running) return 'Ai deja START activ.';
-              if (extraR) return 'Finalizează „EXTRA” înainte de START.';
-              break;
-            case 'pause':
-              if (!running) return 'Nu poți PAUSE fără START.';
-              if (paused) return 'Ești deja în PAUSE.';
-              break;
-            case 'unpause':
-              if (!running) return 'Nu poți UNPAUSE fără START.';
-              if (!paused) return 'Nu ești în PAUSE.';
-              break;
-            case 'finish':
-              if (!running) return 'Nu poți FINISH fără START.';
-              if (paused) return 'Nu poți FINISH în PAUSE — apasă UNPAUSE mai întâi.';
-              break;
-            case 'extra_start':
-              if (running) return 'Închide norma (FINISH) înainte de EXTRA START.';
-              if (extraR) return 'EXTRA este deja pornit.';
-              break;
-            case 'extra_finish':
-              if (!extraR) return 'Nu poți EXTRA FINISH fără EXTRA START.';
-              break;
+            case 'start':        if (running) return 'Ai deja START activ.'; if (extraR) return 'Finalizează „EXTRA” înainte de START.'; break;
+            case 'pause':        if (!running) return 'Nu poți PAUSE fără START.'; if (paused) return 'Ești deja în PAUSE.'; break;
+            case 'unpause':      if (!running) return 'Nu poți UNPAUSE fără START.'; if (!paused) return 'Nu ești în PAUSE.'; break;
+            case 'finish':       if (!running) return 'Nu poți FINISH fără START.'; if (paused) return 'Nu poți FINISH în PAUSE — apasă UNPAUSE mai întâi.'; break;
+            case 'extra_start':  if (running) return 'Închide norma (FINISH) înainte de EXTRA START.'; if (extraR) return 'EXTRA este deja pornit.'; break;
+            case 'extra_finish': if (!extraR) return 'Nu poți EXTRA FINISH fără EXTRA START.'; break;
           }
           return null;
         })();
-
-        if (e) {
-          setStatus(e, 'warn');
-          return;
-        }
+        if (e) { setStatus(e, 'warn'); return; }
       }
 
       setStatus('Verific reguli…', '');
       const g = await guardRemote(ctx.name, actNorm);
-      if (!g.ok) {
-        setStatus(g.msg || 'Acțiune blocată de regulile de pontaj.', 'warn');
-        return;
-      }
+      if (!g.ok) { setStatus(g.msg || 'Acțiune blocată de regulile de pontaj.', 'warn'); return; }
 
       setStatus('Se obține locația GPS…', '');
       const gps = await geolocateOnce();
@@ -2228,7 +2215,7 @@ function withProjectMarker_(notes, project){
         return;
       }
 
-      if (String(empSel.value || '').trim() === ctx.name) {
+      if (String(empSel.value || '').trim() === ctx.name){
         applyLocalTransition(actNorm, ts);
         saveLS();
         reflectState();
@@ -2242,43 +2229,16 @@ function withProjectMarker_(notes, project){
           setStatus('UNPAUSE trimis ✓ — pauza se actualizează în fundal.', 'warn');
         }
       } else {
-        setStatus(`Trimis ✓ (${actNorm.toUpperCase()}). Aștept confirmarea din Excel…`, 'ok');
+        setStatus(`Trimis ✓ (${actNorm.toUpperCase()}).`, 'ok');
       }
 
+      // Nu ținem butoanele blocate până apar statisticile în Sheet.
+      // Polling-ul rulează separat și folosește snapshot-ul angajatului trimis.
       if (actNorm === 'finish' || actNorm === 'extra_finish'){
-        const result = await waitForActionResult_(ctx, ts);
-
-        if (result && result.stats){
-          const stats = result.stats;
-
-          if (actNorm === 'finish'){
-            const ore = fmtHoursToHM(stats.totalHours);
-            const supl = fmtHoursToHM(stats.overtime);
-
-            setStatus(`Finish ✓ — Azi: ${ore} • Suplimentar: ${supl}.`, 'ok');
-            showToast(
-              `<b>${ctx.name}</b><div class="small">Azi — Ore: <b>${ore}</b> • Suplimentar: <b>${supl}</b></div>`,
-              'ok'
-            );
-          } else {
-            const extra = fmtHoursToHM(stats.extra);
-
-            setStatus(`Extra Finish ✓ — Azi: Extra: ${extra}.`, 'ok');
-            showToast(
-              `<b>${ctx.name}</b><div class="small">Azi — Extra: <b>${extra}</b></div>`,
-              'ok'
-            );
-          }
-        } else {
-          const label = actNorm === 'finish' ? 'Finish' : 'Extra Finish';
-          setStatus(`${label} trimis ✓ — statisticile sunt încă în curs de sincronizare.`, 'warn');
-          showToast(
-            `<b>${ctx.name}</b><div class="small">${label} a fost trimis. Statisticile nu sunt încă disponibile; nu afișez valori 0 incorecte.</div>`,
-            'warn'
-          );
-        }
+        showActionResultWhenReady_(ctx, ts);
       }
 
+      await sleep(900);
       await refreshServerState(ctx.name);
       reflectState();
 
@@ -2287,14 +2247,11 @@ function withProjectMarker_(notes, project){
     } finally {
       const elapsed = Date.now() - lockStart;
       if (elapsed < GUARD_MIN_LOCK_MS) await sleep(GUARD_MIN_LOCK_MS - elapsed);
-
       lastActionAt = Date.now();
+      await sleep(CLICK_COOLDOWN_MS);
       busy = false;
       setUILock(false);
-      setActionContextDisabled(false);
       disableAllButtons(false);
-
-      await refreshServerState();
       reflectState();
       updateEmpStatus();
     }
