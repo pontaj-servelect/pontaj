@@ -801,11 +801,6 @@ const GUARD_MIN_LOCK_MS = 600;
 let busy = false;
 let lastActionAt = 0;
 function setUILock(on){ document.body.classList.toggle('action-lock', !!on); }
-function setActionContextDisabled(disabled){
-  [deptSel, empSel, actSel, locInput, projectSel, notesEl].forEach(el=>{
-    if (el) el.disabled = !!disabled;
-  });
-}
 function sleep(ms){ return new Promise(res => setTimeout(res, ms)); }
 function geolocateOnce(){
   return new Promise((resolve, reject) => {
@@ -825,22 +820,6 @@ function withRequestMarker_(notes, requestId){
     .trim();
   const marker = `[[REQUEST_ID::${String(requestId || '').trim()}]]`;
   return clean ? `${clean}\n${marker}` : marker;
-}
-function captureActionContext_(action){
-  const name = (empSel.value || '').trim();
-  const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get)
-    ? (DEPTMAP.byName.get(name) || '')
-    : '';
-  return Object.freeze({
-    action: _normAction(action),
-    name,
-    department: deptSel.value || deptFromMap || '',
-    activity: actSel.value || '',
-    location: (locInput.value || '').trim(),
-    project: (projectSel && projectSel.value) || '',
-    notesPayload: composeNotesPayload(),
-    requestId: randomNonce()
-  });
 }
 function parseGvizDateStr(s){
   const m = /^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/.exec(String(s).trim());
@@ -1010,6 +989,34 @@ function withProjectMarker_(notes, project){
   const actSel = document.getElementById('activitySelect');
   const empStatus = document.getElementById('empStatus');
   const form = document.getElementById('gform');
+
+  // Aceste funcții trebuie să fie în același scope cu elementele UI de mai sus.
+  // În versiunea v2 erau definite în afara IIFE și produceau ReferenceError
+  // (deptSel / empSel / actSel / locInput / projectSel / notesEl nu existau global),
+  // motiv pentru care butoanele nu mai executau acțiunile.
+  function setActionContextDisabled(disabled){
+    [deptSel, empSel, actSel, locInput, projectSel, notesEl].forEach(el=>{
+      if (el) el.disabled = !!disabled;
+    });
+  }
+
+  function captureActionContext_(action){
+    const name = (empSel.value || '').trim();
+    const deptFromMap = (DEPTMAP.byName && DEPTMAP.byName.get)
+      ? (DEPTMAP.byName.get(name) || '')
+      : '';
+
+    return Object.freeze({
+      action: _normAction(action),
+      name,
+      department: (deptSel.value || deptFromMap || '').trim(),
+      activity: actSel.value || '',
+      location: (locInput.value || '').trim(),
+      project: (projectSel && projectSel.value) || '',
+      notesPayload: composeNotesPayload(),
+      requestId: randomNonce()
+    });
+  }
 
   const leavePanel = document.getElementById('leavePanel');
   const leaveStart = document.getElementById('leaveStart');
