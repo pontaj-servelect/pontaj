@@ -1,9 +1,9 @@
 {
   "name": "SERVELECT Pontaj",
   "short_name": "Pontaj",
-  "start_url": "./index.html",
+  "start_url": "./index.html?v=offline-first-v4.3-20260720-1",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f7f9",
+  "background_color": "#516A75",
   "theme_color": "#516A75"
 }
