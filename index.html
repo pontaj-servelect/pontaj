@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="pontaj-build" content="offline-first-v4.1-20260720" />
+  <meta name="pontaj-build" content="offline-first-v4.2-20260720" />
   <title>SERVELECT • Pontaj & Concedii</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -355,7 +355,7 @@
 
       <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt păstrate local până la confirmarea în Google Sheet">
         <span class="sync-dot" aria-hidden="true"></span>
-        <span id="offlineQueueStatusText">V4.1 • se verifică sincronizarea…</span>
+        <span id="offlineQueueStatusText">V4.2 • se verifică sincronizarea…</span>
       </div>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
@@ -1472,7 +1472,7 @@ function withProjectMarker_(notes, project){
   let CFG = null;
   let STATE = blankState();
   const LS_KEY = 'pontaj/state/v1';
-  const LS_STATE_MAP_KEY = 'pontaj/stateByEmployee/v4';
+  const LS_STATE_MAP_KEY = 'pontaj/stateByEmployee/v4.2';
 
   function blankState(){
     return {
@@ -1914,19 +1914,24 @@ function withProjectMarker_(notes, project){
       return (data && data.ok) ? data : null;
     }catch{ return null; }
   }
-  async function guardRemote(name, action){
+  async function guardRemote(name, action, requestId, timestamp){
     const url = baseEndpoint() + '?fn=guard';
     try{
       const r = await fetchWithTimeout_(url, {
         method: 'POST',
         headers: {'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify({ name, action: _normAction(action) })
-      }, 4200);
+        body: JSON.stringify({
+          name,
+          action: _normAction(action),
+          requestId: String(requestId || ''),
+          timestamp: String(timestamp || '')
+        })
+      }, 2600);
       const txt = await r.text();
-      let data; try { data = JSON.parse(txt); } catch { return {ok:true}; }
-      return data;
+      const data = JSON.parse(txt);
+      return data && typeof data.ok === 'boolean' ? data : null;
     }catch{
-      return {ok:true};
+      return null;
     }
   }
 
@@ -2011,10 +2016,10 @@ function withProjectMarker_(notes, project){
 
 
   /*********************** OFFLINE-FIRST QUEUE V4 ************************/
-  const PONTAJ_BUILD = 'offline-first-v4.1-20260720';
+  const PONTAJ_BUILD = 'offline-first-v4.2-20260720';
   window.PONTAJ_BUILD = PONTAJ_BUILD;
-  const OFFLINE_QUEUE_KEY = 'pontaj/offlineQueue/v4.1';
-  const OFFLINE_QUEUE_LEGACY_KEY = 'pontaj/offlineQueue/v4';
+  const OFFLINE_QUEUE_KEY = 'pontaj/offlineQueue/v4.2';
+  const OFFLINE_QUEUE_LEGACY_KEY = 'pontaj/offlineQueue/v4.1';
   const LAST_GPS_KEY = 'pontaj/lastGps/v4';
   const OFFLINE_QUEUE_LIMIT = 300;
   let offlineFlushRunning_ = false;
@@ -2032,11 +2037,16 @@ function withProjectMarker_(notes, project){
   function loadOfflineQueue_(){
     try{
       let q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-      if ((!Array.isArray(q) || !q.length) && OFFLINE_QUEUE_LEGACY_KEY){
-        const legacy = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_LEGACY_KEY) || '[]');
-        if (Array.isArray(legacy) && legacy.length){
-          q = legacy;
-          localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(legacy.slice(-OFFLINE_QUEUE_LIMIT)));
+      if (!Array.isArray(q) || !q.length){
+        const legacyKeys = [OFFLINE_QUEUE_LEGACY_KEY, 'pontaj/offlineQueue/v4'];
+        for (const legacyKey of legacyKeys){
+          if (!legacyKey) continue;
+          const legacy = JSON.parse(localStorage.getItem(legacyKey) || '[]');
+          if (Array.isArray(legacy) && legacy.length){
+            q = legacy;
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(legacy.slice(-OFFLINE_QUEUE_LIMIT)));
+            break;
+          }
         }
       }
       return Array.isArray(q) ? q : [];
@@ -2078,9 +2088,9 @@ function withProjectMarker_(notes, project){
       txt.textContent = online ? `Se sincronizează ${pending} acțiuni…` : `Offline • ${pending} acțiuni salvate`;
     } else if (!online){
       el.classList.add('offline');
-      txt.textContent = 'V4.1 • Offline • fără acțiuni restante';
+      txt.textContent = 'V4.2 • Offline • fără acțiuni restante';
     } else {
-      txt.textContent = 'V4.1 • Online • sincronizat';
+      txt.textContent = 'V4.2 • Online • sincronizat';
     }
   }
   function enqueueOfflineAction_(ctx, ts){
@@ -2300,7 +2310,7 @@ function withProjectMarker_(notes, project){
     if (!localStorageAvailable_()){
       if (badge) badge.classList.add('error');
       const txt = document.getElementById('offlineQueueStatusText');
-      if (txt) txt.textContent = 'V4.1 • memoria locală este blocată';
+      if (txt) txt.textContent = 'V4.2 • memoria locală este blocată';
       console.error('Pontaj offline: localStorage indisponibil');
     } else {
       updateOfflineQueueBadge_();
@@ -2323,7 +2333,7 @@ function withProjectMarker_(notes, project){
     }
 
     if ('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./service-worker.js?v=offline-v4.1-20260720', {scope:'./'})
+      navigator.serviceWorker.register('./service-worker.js?v=offline-v4.2-20260720', {scope:'./'})
         .then(reg => reg.update())
         .catch(err=>console.warn('Service worker registration failed', err));
     }
@@ -2538,6 +2548,389 @@ function withProjectMarker_(notes, project){
 
     reflectState();
   }
+
+
+
+  /*********************** OFFLINE STATE MACHINE V4.2 ************************/
+  const SERVER_STATE_MAP_KEY_V42 = 'pontaj/serverStateByEmployee/v4.2';
+  const SYNC_RETRY_FAST_MS_V42 = 1200;
+
+  function stateKeyV42_(name){
+    return String(name || '').trim().toLowerCase();
+  }
+  function cloneStateV42_(state, name){
+    const src = state || {};
+    const out = Object.assign(blankState(), JSON.parse(JSON.stringify(src || {})));
+    out.name = String(name || out.name || '').trim();
+    out.normal = Object.assign({running:false,paused:false}, out.normal || {});
+    out.extra = Object.assign({running:false}, out.extra || {});
+    out.pauseMsByDay = Object.assign({}, out.pauseMsByDay || {});
+    return out;
+  }
+  function loadServerStateMapV42_(){
+    try { return JSON.parse(localStorage.getItem(SERVER_STATE_MAP_KEY_V42) || '{}') || {}; }
+    catch { return {}; }
+  }
+  function loadCanonicalServerStateV42_(name){
+    const key = stateKeyV42_(name);
+    if (!key) return null;
+    const rec = loadServerStateMapV42_()[key];
+    return rec && rec.state ? cloneStateV42_(rec.state, name) : null;
+  }
+  function saveCanonicalServerStateV42_(name, state){
+    const key = stateKeyV42_(name);
+    if (!key || !state) return;
+    try{
+      const map = loadServerStateMapV42_();
+      map[key] = {state:cloneStateV42_(state, name), syncedAt:Date.now()};
+      localStorage.setItem(SERVER_STATE_MAP_KEY_V42, JSON.stringify(map));
+    }catch(e){ console.warn('Nu pot salva starea canonică', e); }
+  }
+  function queueItemsForEmployeeV42_(name){
+    const key = stateKeyV42_(name);
+    return loadOfflineQueue_()
+      .filter(x => x && x.status !== 'blocked' && stateKeyV42_(x.ctx && x.ctx.name) === key)
+      .sort((a,b)=>{
+        const ta = new Date(a.timestamp || 0).getTime() || Number(a.createdAt || 0);
+        const tb = new Date(b.timestamp || 0).getTime() || Number(b.createdAt || 0);
+        return ta - tb || Number(a.createdAt || 0) - Number(b.createdAt || 0);
+      });
+  }
+  function applyActionToStateV42_(state, action, ts){
+    const st = state;
+    switch(_normAction(action)){
+      case 'start':
+        st.normal.running = true; st.normal.paused = false; st.lastNormalStart = ts; break;
+      case 'pause':
+        if (st.normal.running){ st.normal.paused = true; st.lastPauseStart = ts; } break;
+      case 'unpause':
+        if (st.normal.running){ st.normal.paused = false; st.lastPauseStart = null; } break;
+      case 'finish':
+        st.normal.running = false; st.normal.paused = false; st.lastPauseStart = null; st.lastNormalFinish = ts; break;
+      case 'extra_start':
+        st.extra.running = true; st.lastExtraStart = ts; break;
+      case 'extra_finish':
+        st.extra.running = false; st.lastExtraFinish = ts; break;
+    }
+    return st;
+  }
+  function lastLegacyStateV42_(name){
+    try{
+      const key = stateKeyV42_(name);
+      const map = JSON.parse(localStorage.getItem('pontaj/stateByEmployee/v4') || '{}') || {};
+      if (map[key]) return cloneStateV42_(map[key], name);
+      const single = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (single && stateKeyV42_(single.name) === key) return cloneStateV42_(single, name);
+    }catch{}
+    return null;
+  }
+  function projectStateForEmployeeV42_(name){
+    const canonical = loadCanonicalServerStateV42_(name);
+    const legacy = canonical ? null : lastLegacyStateV42_(name);
+    const st = cloneStateV42_(canonical || legacy || blankState(), name);
+    queueItemsForEmployeeV42_(name).forEach(item=>applyActionToStateV42_(st, item.action, item.timestamp));
+    st._serverSnapshotKnown = !!canonical;
+    st._localFallbackUsed = !canonical && !!legacy;
+    return st;
+  }
+  function setProjectedUiStateV42_(name){
+    STATE = projectStateForEmployeeV42_(name);
+    STATE.name = String(name || '').trim();
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(STATE));
+      const map = loadStateMap_();
+      if (STATE.name){ map[stateKeyV42_(STATE.name)] = STATE; localStorage.setItem(LS_STATE_MAP_KEY, JSON.stringify(map)); }
+    }catch{}
+    reflectState();
+    updateEmpStatus();
+    return STATE;
+  }
+
+  // Always return canonical + pending actions, never a blank reset while offline.
+  function loadStateForName_(name){
+    if (!String(name || '').trim()) return null;
+    return projectStateForEmployeeV42_(name);
+  }
+  function saveLS(){
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(STATE));
+      const name = String(STATE && STATE.name || '').trim();
+      if (name){
+        const map = loadStateMap_();
+        map[stateKeyV42_(name)] = STATE;
+        localStorage.setItem(LS_STATE_MAP_KEY, JSON.stringify(map));
+      }
+    }catch{}
+  }
+
+  function enqueueOfflineAction_(ctx, ts){
+    const q = loadOfflineQueue_();
+    if (q.some(x => x && x.requestId === ctx.requestId)) return ctx.requestId;
+    q.push({
+      id:ctx.requestId,
+      requestId:ctx.requestId,
+      action:_normAction(ctx.action),
+      timestamp:ts,
+      createdAt:Date.now(),
+      ctx:Object.assign({},ctx),
+      gps:getCachedGps_() || null,
+      gpsResolved:!!getCachedGps_(),
+      attempts:0,
+      status:'pending',
+      nextAttemptAt:0,
+      lastError:''
+    });
+    q.sort((a,b)=>{
+      const ta = new Date(a.timestamp || 0).getTime() || Number(a.createdAt || 0);
+      const tb = new Date(b.timestamp || 0).getTime() || Number(b.createdAt || 0);
+      return ta - tb || Number(a.createdAt || 0) - Number(b.createdAt || 0);
+    });
+    saveOfflineQueue_(q);
+    if (!loadOfflineQueue_().some(x => x && x.requestId === ctx.requestId)){
+      throw new Error('Acțiunea nu a putut fi păstrată în memoria dispozitivului.');
+    }
+    geolocateForQueue_().then(g=>{
+      if (g) patchQueueItem_(ctx.requestId,{gps:g,gpsResolved:true});
+    }).catch(()=>{});
+    setProjectedUiStateV42_(ctx.name);
+    scheduleOfflineFlush_(0);
+    return ctx.requestId;
+  }
+
+  function actionAlreadyReflectedV42_(state, item){
+    if (!state || !item) return false;
+    const action = _normAction(item.action);
+    const ts = new Date(item.timestamp || 0).getTime();
+    const recentEnough = iso => {
+      const t = new Date(iso || 0).getTime();
+      return isFinite(t) && t > 0 && (!ts || t >= ts - 300000);
+    };
+    if (action === 'start') return !!(state.normal && state.normal.running);
+    if (action === 'pause') return !!(state.normal && state.normal.running && state.normal.paused);
+    if (action === 'unpause') return !!(state.normal && state.normal.running && !state.normal.paused);
+    if (action === 'finish') return !!(state.normal && !state.normal.running && recentEnough(state.lastNormalFinish));
+    if (action === 'extra_start') return !!(state.extra && state.extra.running);
+    if (action === 'extra_finish') return !!(state.extra && !state.extra.running && recentEnough(state.lastExtraFinish));
+    return false;
+  }
+
+  async function refreshServerState(nameOverride){
+    const targetName = String(nameOverride || STATE.name || empSel.value || '').trim();
+    if (!targetName || navigator.onLine === false) return null;
+    try{
+      const remote = await fetchState(targetName);
+      if (!remote) return null;
+      saveCanonicalServerStateV42_(targetName, remote);
+      if (String(empSel.value || '').trim() === targetName) setProjectedUiStateV42_(targetName);
+      return remote;
+    }catch{ return null; }
+  }
+
+  async function handleEmployeeChange(){
+    const name = String(empSel.value || '').trim();
+    setProjectedUiStateV42_(name);
+    const canonical = loadCanonicalServerStateV42_(name);
+    if (navigator.onLine === false){
+      setEmp(canonical
+        ? 'Stare offline din ultima sincronizare + acțiunile locale.'
+        : 'Stare offline locală. Conectează dispozitivul o dată pentru confirmarea stării serverului.', canonical ? 'warn' : 'err');
+      return;
+    }
+    setEmp('Verific starea serverului…', '');
+    const remote = await refreshServerState(name);
+    if (!remote){
+      setEmp('Server indisponibil — folosesc ultima stare salvată local.', 'warn');
+    }
+  }
+
+  async function guardRemote(name, action, requestId, timestamp){
+    const url = baseEndpoint() + '?fn=guard';
+    try{
+      const r = await fetchWithTimeout_(url, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({name,action:_normAction(action),requestId:String(requestId||''),timestamp:String(timestamp||'')})
+      }, 2600);
+      const data = JSON.parse(await r.text());
+      return data && typeof data.ok === 'boolean' ? data : null;
+    }catch{ return null; }
+  }
+
+  async function waitForQueueAckV42_(item, timeoutMs){
+    const started = Date.now();
+    let pause = 220;
+    while (Date.now() - started < Number(timeoutMs || 8500)){
+      const ack = await fetchQueueAck_(item);
+      if (ack && ack.ready) return ack;
+      if (navigator.onLine === false) return null;
+      await sleep(pause);
+      pause = Math.min(1000, Math.round(pause * 1.45));
+    }
+    return null;
+  }
+
+  async function flushOfflineQueue_(){
+    if (offlineFlushRunning_ || navigator.onLine === false){ updateOfflineQueueBadge_(); return; }
+    offlineFlushRunning_ = true;
+    updateOfflineQueueBadge_();
+    try{
+      while (navigator.onLine !== false){
+        const q = loadOfflineQueue_()
+          .filter(x=>x && x.status !== 'blocked' && Number(x.nextAttemptAt || 0) <= Date.now())
+          .sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0) || Number(a.createdAt||0)-Number(b.createdAt||0));
+        let item = q[0];
+        if (!item) break;
+
+        const existingAck = await fetchQueueAck_(item);
+        if (existingAck && existingAck.ready){
+          removeQueueItem_(item.requestId);
+          if (existingAck.state) saveCanonicalServerStateV42_(item.ctx.name, existingAck.state);
+          showQueueAck_(item, existingAck);
+          if (String(empSel.value || '').trim() === item.ctx.name) setProjectedUiStateV42_(item.ctx.name);
+          continue;
+        }
+
+        const remoteState = await fetchState(item.ctx.name);
+        if (!remoteState){
+          patchQueueItem_(item.requestId,{nextAttemptAt:Date.now()+SYNC_RETRY_FAST_MS_V42,lastError:'Server indisponibil; reîncerc automat.'});
+          break;
+        }
+        saveCanonicalServerStateV42_(item.ctx.name, remoteState);
+
+        if (actionAlreadyReflectedV42_(remoteState,item)){
+          removeQueueItem_(item.requestId);
+          if (String(empSel.value || '').trim() === item.ctx.name) setProjectedUiStateV42_(item.ctx.name);
+          setStatus(`${String(item.action).replace('_',' ').toUpperCase()} exista deja pe server — duplicatul local a fost eliminat.`, 'ok');
+          continue;
+        }
+
+        const g = await guardRemote(item.ctx.name,item.action,item.requestId,item.timestamp);
+        if (!g){
+          patchQueueItem_(item.requestId,{nextAttemptAt:Date.now()+SYNC_RETRY_FAST_MS_V42,lastError:'Guard server indisponibil; nu trimit până nu confirm regulile.'});
+          break;
+        }
+        if (g.state) saveCanonicalServerStateV42_(item.ctx.name,g.state);
+        if (g.ok === false){
+          const checkState = g.state || remoteState;
+          if (actionAlreadyReflectedV42_(checkState,item)){
+            removeQueueItem_(item.requestId);
+            if (String(empSel.value || '').trim() === item.ctx.name) setProjectedUiStateV42_(item.ctx.name);
+            continue;
+          }
+          // Guard-ul poate vedea retry-ul la câteva secunde după prima trimitere,
+          // înainte ca Google Form să apară în Sheet. Nu blocăm coada: așteptăm ACK-ul.
+          if (/aceeași acțiune|deja trimisă|asteaptă câteva secunde/i.test(String(g.msg || ''))){
+            patchQueueItem_(item.requestId,{status:'pending',nextAttemptAt:Date.now()+SYNC_RETRY_FAST_MS_V42,lastError:'Aștept confirmarea primei trimiteri.'});
+            break;
+          }
+          patchQueueItem_(item.requestId,{status:'blocked',lastError:g.msg || 'Ordinea acțiunii este invalidă pe server.'});
+          setStatus(`${item.ctx.name}: ${g.msg || 'Acțiunea necesită verificare.'}`, 'err');
+          break;
+        }
+
+        // GPS must not delay synchronization. Use the captured/cached value, or blank.
+        if (!item.gpsResolved){
+          const cachedGps = getCachedGps_();
+          item = patchQueueItem_(item.requestId,{gps:cachedGps || {lat:'',lon:'',acc:'',source:'none'},gpsResolved:true}) || item;
+        }
+
+        try{
+          submitQueueItemToGoogleForm_(item);
+          patchQueueItem_(item.requestId,{attempts:Number(item.attempts||0)+1,lastAttemptAt:Date.now(),lastError:'',nextAttemptAt:Date.now()+1200});
+        }catch(err){
+          patchQueueItem_(item.requestId,{attempts:Number(item.attempts||0)+1,lastError:String(err&&err.message?err.message:err),nextAttemptAt:Date.now()+SYNC_RETRY_FAST_MS_V42});
+          break;
+        }
+
+        const ack = await waitForQueueAckV42_(item,8500);
+        if (ack && ack.ready){
+          removeQueueItem_(item.requestId);
+          if (ack.state) saveCanonicalServerStateV42_(item.ctx.name,ack.state);
+          showQueueAck_(item,ack);
+          if (String(empSel.value || '').trim() === item.ctx.name) setProjectedUiStateV42_(item.ctx.name);
+          continue;
+        }
+
+        patchQueueItem_(item.requestId,{nextAttemptAt:Date.now()+SYNC_RETRY_FAST_MS_V42,lastError:'Aștept confirmarea din Sheet; reîncerc automat.'});
+        break;
+      }
+    }catch(e){
+      console.warn('V4.2 queue flush error',e);
+      updateOfflineQueueBadge_(true);
+    }finally{
+      offlineFlushRunning_ = false;
+      updateOfflineQueueBadge_();
+    }
+  }
+
+  function initOfflineSync_(){
+    const badge = document.getElementById('offlineQueueStatus');
+    if (badge) badge.title = 'Build ' + PONTAJ_BUILD + ' • coadă locală ordonată și protecție anti-duplicat';
+    if (!localStorageAvailable_()){
+      if (badge) badge.classList.add('error');
+      const txt=document.getElementById('offlineQueueStatusText');
+      if (txt) txt.textContent='V4.2 • memoria locală este blocată';
+    }else updateOfflineQueueBadge_();
+
+    const fastFlush=()=>{ updateOfflineQueueBadge_(); scheduleOfflineFlush_(0); };
+    window.addEventListener('online',fastFlush);
+    window.addEventListener('offline',()=>{ updateOfflineQueueBadge_(); if(empSel.value) setProjectedUiStateV42_(empSel.value); });
+    window.addEventListener('focus',fastFlush);
+    window.addEventListener('pageshow',fastFlush);
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fastFlush(); });
+    try{ if(navigator.connection) navigator.connection.addEventListener('change',fastFlush); }catch{}
+    setInterval(()=>{ if(loadOfflineQueue_().some(x=>x&&x.status!=='blocked')) scheduleOfflineFlush_(0); },2000);
+    scheduleOfflineFlush_(200);
+
+    if (badge){
+      badge.style.cursor='pointer';
+      badge.onclick=()=>{
+        const q=loadOfflineQueue_().map(x=>x&&x.status==='blocked'?Object.assign({},x,{status:'pending',nextAttemptAt:0,lastError:''}):x);
+        saveOfflineQueue_(q); fastFlush();
+      };
+    }
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('./service-worker.js?v=offline-v4.2-20260720',{scope:'./'}).then(reg=>reg.update()).catch(()=>{});
+    }
+  }
+
+  async function submitAction(action){
+    const now=Date.now();
+    if(busy || now-lastActionAt<180) return;
+    if(!deptSel.value){setStatus('Alege departamentul.','err');return;}
+    if(!empSel.value){setStatus('Selectează angajat.','err');return;}
+    if(!actSel.value){setStatus('Alege tip de activitate.','err');return;}
+
+    const ctx=captureActionContext_(action);
+    const actNorm=ctx.action;
+    const isCom=['comercial','coemercial'].includes(String(ctx.department||'').toLowerCase());
+    if(isInvoireActivity()){setStatus('Pentru învoire folosește butonul „Trimite învoirea”.','warn');return;}
+    if(isCom&&(actNorm==='extra_start'||actNorm==='extra_finish')){setStatus('Departamentul Comercial nu poate folosi ore EXTRA.','warn');return;}
+    if(!isCom&&!ctx.location){setStatus('Scrie clientul/locația.','err');locInput.focus();return;}
+    if(LEAVE_TYPES_SET.has(String(ctx.activity||'').toLowerCase())){setStatus('Pentru concediu folosește „Trimite cererea de concediu”.','warn');return;}
+
+    // State = last server snapshot + every queued action in timestamp order.
+    const projected=projectStateForEmployeeV42_(ctx.name);
+    const localError=validateLocalAction_(projected,actNorm);
+    if(localError){setStatus(localError,'warn');setProjectedUiStateV42_(ctx.name);return;}
+
+    busy=true; setUILock(true); disableAllButtons(true);
+    const ts=new Date().toISOString();
+    try{
+      enqueueOfflineAction_(ctx,ts);
+      setProjectedUiStateV42_(ctx.name);
+      const offline=navigator.onLine===false;
+      const label=actNorm.replace('_',' ').toUpperCase();
+      setStatus(offline?`${label} salvat instant pe telefon ✓ • ordinea este păstrată.`:`${label} salvat instant ✓ • sincronizare automată în fundal.`,offline?'warn':'ok');
+      if(actNorm==='finish'||actNorm==='extra_finish') showToast(`<b>${ctx.name}</b><div class="small">${label} salvat local la <b>${new Date(ts).toLocaleTimeString('ro-RO')}</b></div>`,'ok');
+      lastActionAt=Date.now(); scheduleOfflineFlush_(0);
+    }catch(err){
+      setStatus('Nu am putut salva acțiunea pe dispozitiv: '+String(err&&err.message?err.message:err),'err');
+    }finally{
+      await sleep(70); busy=false; setUILock(false); disableAllButtons(false); setProjectedUiStateV42_(ctx.name);
+    }
+  }
+
 
   console.log('Servelect Pontaj build', PONTAJ_BUILD);
 
