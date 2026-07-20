@@ -2096,13 +2096,17 @@ function withProjectMarker_(notes, project){
     finally{ remoteBuildCheckRunningV45_ = false; }
   }
   const OFFLINE_QUEUE_KEY_V43 = 'pontaj/offlineQueue/v4.6';
-  const OFFLINE_QUEUE_LEGACY_KEYS_V43 = ['pontaj/offlineQueue/v4.5','pontaj/offlineQueue/v4.4','pontaj/offlineQueue/v4.3','pontaj/offlineQueue/v4.2','pontaj/offlineQueue/v4.1','pontaj/offlineQueue/v4'];
-  const LOCAL_STATE_MAP_KEY_V43 = 'pontaj/stateByEmployee/v4.6';
-  const SERVER_STATE_MAP_KEY_V43 = 'pontaj/serverStateByEmployee/v4.6';
-  const LAST_GPS_KEY_V43 = 'pontaj/lastGps/v4.6';
+  const OFFLINE_QUEUE_LEGACY_KEYS_V43 = ['pontaj/offlineQueue/v4.4','pontaj/offlineQueue/v4.3','pontaj/offlineQueue/v4.2','pontaj/offlineQueue/v4.1','pontaj/offlineQueue/v4'];
+  const OFFLINE_QUEUE_TOMBSTONES_KEY_V46 = 'pontaj/offlineQueueTombstones/v4.6';
+  const LOCAL_STATE_MAP_KEY_V43 = 'pontaj/stateByEmployee/v4.4';
+  const SERVER_STATE_MAP_KEY_V43 = 'pontaj/serverStateByEmployee/v4.4';
+  const LAST_GPS_KEY_V43 = 'pontaj/lastGps/v4.4';
   const IDB_NAME_V43 = 'servelect-pontaj-v46';
   const IDB_STORE_V43 = 'sync';
   const QUEUE_LIMIT_V43 = 400;
+  const QUEUE_TOMBSTONE_LIMIT_V46 = 800;
+  const FORM_RETRY_AFTER_MS_V46 = 45000;
+  const ACK_WAIT_MS_V46 = 12000;
   let offlineFlushRunningV43_ = false;
   let offlineFlushTimerV43_ = null;
 
@@ -2165,6 +2169,24 @@ function withProjectMarker_(notes, project){
     }catch{}
     return null;
   }
+  function loadQueueTombstonesV46_(){
+    try{
+      const raw=JSON.parse(localStorage.getItem(OFFLINE_QUEUE_TOMBSTONES_KEY_V46)||'{}')||{};
+      const cutoff=Date.now()-45*24*3600000;
+      const entries=Object.entries(raw).filter(([id,ts])=>id&&Number(ts||0)>=cutoff).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,QUEUE_TOMBSTONE_LIMIT_V46);
+      return Object.fromEntries(entries);
+    }catch{return {};}
+  }
+  function saveQueueTombstonesV46_(map){
+    try{localStorage.setItem(OFFLINE_QUEUE_TOMBSTONES_KEY_V46,JSON.stringify(map||{}));}catch{}
+  }
+  function rememberQueueTombstoneV46_(id){
+    id=String(id||'').trim();if(!id)return;
+    const map=loadQueueTombstonesV46_();map[id]=Date.now();saveQueueTombstonesV46_(map);
+  }
+  function isQueueTombstonedV46_(id){
+    id=String(id||'').trim();return !!(id&&loadQueueTombstonesV46_()[id]);
+  }
   function loadOfflineQueueV43_(){
     try{
       // Prezența cheii curente, chiar cu [], înseamnă că migrarea s-a făcut.
@@ -2190,7 +2212,7 @@ function withProjectMarker_(notes, project){
     const byId=new Map();
     (q||[]).forEach(x=>{
       if(!x)return;
-      const id=String(x.requestId||x.id||'').trim(); if(!id)return;
+      const id=String(x.requestId||x.id||'').trim(); if(!id||isQueueTombstonedV46_(id))return;
       const prev=byId.get(id);
       const cur=Object.assign({id,requestId:id,status:'pending',attempts:0,lastAttemptAt:0,nextAttemptAt:0,lastError:''},x,{id,requestId:id});
       if(!prev||Number(cur.updatedAt||cur.lastAttemptAt||cur.createdAt||0)>=Number(prev.updatedAt||prev.lastAttemptAt||prev.createdAt||0))byId.set(id,cur);
@@ -2210,7 +2232,11 @@ function withProjectMarker_(notes, project){
     const q=loadOfflineQueueV43_(); const i=q.findIndex(x=>x&&x.requestId===id); if(i<0)return null;
     q[i]=Object.assign({},q[i],patch||{},{updatedAt:Date.now()}); saveOfflineQueueV43_(q); return q[i];
   }
-  function removeQueueItemV43_(id){ saveOfflineQueueV43_(loadOfflineQueueV43_().filter(x=>x&&x.requestId!==id)); }
+  function removeQueueItemV43_(id){
+    id=String(id||'').trim();if(!id)return;
+    rememberQueueTombstoneV46_(id);
+    saveOfflineQueueV43_(loadOfflineQueueV43_().filter(x=>x&&String(x.requestId||x.id||'')!==id));
+  }
   function queueForEmployeeV43_(name){
     const key=stateKeyV43_(name);
     return loadOfflineQueueV43_().filter(x=>x&&x.status!=='rejected'&&stateKeyV43_(x.ctx&&x.ctx.name)===key)
@@ -2322,14 +2348,14 @@ function withProjectMarker_(notes, project){
         // O acțiune nouă se trimite imediat. ACK-ul preventiv este necesar
         // doar pentru retry-uri; REQUEST_ID-ul serverului rămâne protecția finală.
         if(item.lastAttemptAt){const ack0=await fetchAckV43_(item);if(handleAckV43_(item,ack0))continue;}
-        if(!item.lastAttemptAt||since>=8000){
+        if(!item.lastAttemptAt||since>=FORM_RETRY_AFTER_MS_V46){
           try{submitFormEntriesV43_(item);item=patchQueueItemV43_(item.requestId,{status:'sent',attempts:Number(item.attempts||0)+1,lastAttemptAt:Date.now(),nextAttemptAt:Date.now()+350,lastError:''})||item;}
           catch(e){patchQueueItemV43_(item.requestId,{lastError:String(e&&e.message?e.message:e),nextAttemptAt:Date.now()+650});break;}
         }
         const started=Date.now();let done=false;
-        while(Date.now()-started<8000&&navigator.onLine!==false){await sleep(220);const ack=await fetchAckV43_(item);if(handleAckV43_(item,ack)){done=true;break;}}
+        while(Date.now()-started<ACK_WAIT_MS_V46&&navigator.onLine!==false){await sleep(350);const ack=await fetchAckV43_(item);if(handleAckV43_(item,ack)){done=true;break;}}
         if(done)continue;
-        patchQueueItemV43_(item.requestId,{status:'pending',nextAttemptAt:Date.now()+500,lastError:'Aștept confirmarea serverului.'});break;
+        patchQueueItemV43_(item.requestId,{status:'sent',nextAttemptAt:Date.now()+1500,lastError:'Aștept confirmarea serverului; nu retrimit înainte de fereastra sigură.'});break;
       }
     }catch(e){console.warn('Pontaj V4.6 flush',e);updateOfflineBadgeV43_(true);}
     finally{offlineFlushRunningV43_=false;updateOfflineBadgeV43_();}
@@ -2341,7 +2367,13 @@ function withProjectMarker_(notes, project){
   async function idbPutV43_(key,val){const db=await openIdbV43_();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE_V43,'readwrite');tx.objectStore(IDB_STORE_V43).put(val,key);tx.oncomplete=()=>{db.close();res();};tx.onerror=()=>{db.close();rej(tx.error);};});}
   async function idbGetV43_(key){const db=await openIdbV43_();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE_V43,'readonly');const r=tx.objectStore(IDB_STORE_V43).get(key);r.onsuccess=()=>{db.close();res(r.result);};r.onerror=()=>{db.close();rej(r.error);};});}
   async function mirrorQueueToIdbV43_(q){try{await idbPutV43_('queue',q);await idbPutV43_('build',PONTAJ_BUILD);}catch{}}
-  async function hydrateQueueFromIdbV43_(){try{const idbQ=await idbGetV43_('queue');if(Array.isArray(idbQ)&&idbQ.length)saveOfflineQueueV43_(normalizeQueueV43_(loadOfflineQueueV43_().concat(idbQ)));}catch{}}
+  async function hydrateQueueFromIdbV43_(allowRestore){
+    if(!allowRestore)return;
+    try{
+      const idbQ=await idbGetV43_('queue');
+      if(Array.isArray(idbQ)&&idbQ.length)saveOfflineQueueV43_(normalizeQueueV43_(idbQ));
+    }catch{}
+  }
   async function registerBackgroundSyncV43_(){
     if(!('serviceWorker'in navigator))return;
     try{const reg=await navigator.serviceWorker.ready;if(reg.sync)await reg.sync.register('pontaj-sync-v46');}catch{}
@@ -2376,13 +2408,18 @@ function withProjectMarker_(notes, project){
         if(data.type==='PONTAJ_CACHE_ACTIVATED'&&data.build===PONTAJ_BUILD){
           await purgeOldUiCachesV45_(false);
         }
+        if(data.type==='PONTAJ_SYNC_WAKE'){
+          scheduleFlushV43_(0);
+        }
       });
     }catch(e){console.warn('Service worker indisponibil',e);}
   }
   function initOfflineV43_(){
     const badge=document.getElementById('offlineQueueStatus');if(badge)badge.title='Build '+PONTAJ_BUILD+' • localStorage + IndexedDB • coadă ordonată';
     if(!localStorageAvailableV43_()){if(badge)badge.classList.add('error');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.6 • memoria browserului este blocată';return;}
-    saveOfflineQueueV43_(loadOfflineQueueV43_());hydrateQueueFromIdbV43_().then(()=>{if(empSel.value)setProjectedStateV43_(empSel.value);scheduleFlushV43_(0);});
+    const hadLocalQueueV46 = localStorage.getItem(OFFLINE_QUEUE_KEY_V43)!==null || OFFLINE_QUEUE_LEGACY_KEYS_V43.some(key=>localStorage.getItem(key)!==null);
+    saveOfflineQueueV43_(loadOfflineQueueV43_());
+    hydrateQueueFromIdbV43_(!hadLocalQueueV46).then(()=>{if(empSel.value)setProjectedStateV43_(empSel.value);scheduleFlushV43_(0);});
     const kick=()=>{updateOfflineBadgeV43_();scheduleFlushV43_(0);registerBackgroundSyncV43_();refreshActiveSnapshotV44_(false).catch(()=>{});checkRemoteBuildV45_(false);};
     window.addEventListener('online',kick);window.addEventListener('offline',()=>{updateOfflineBadgeV43_();if(empSel.value)setProjectedStateV43_(empSel.value);});window.addEventListener('focus',kick);window.addEventListener('pageshow',kick);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick();});try{navigator.connection&&navigator.connection.addEventListener('change',kick);}catch{}
@@ -2461,13 +2498,14 @@ function withProjectMarker_(notes, project){
     );
   }
 
-  async function submitInvoire(){
+  async function submitInvoire(pressedAtIso){
+    const pressedTs=String(pressedAtIso||new Date().toISOString());
     const now=Date.now(); if(busy||now-lastActionAt<180)return;
     if(!deptSel.value){setInvoireStatus('Alege departamentul.','err');return;}
     if(!empSel.value){setInvoireStatus('Selectează angajat.','err');return;}
     if(!isInvoireActivity()){setInvoireStatus('Alege tipul de activitate „invoire”.','err');return;}
     if(!validateInvoireSelection()){setInvoireStatus('Completează ora/intervalul în format 24h.','err');return;}
-    const ctx=captureActionContext_('invoire'),ts=new Date().toISOString(),label=getInvoireIntervalLabel();
+    const ctx=captureActionContext_('invoire'),ts=pressedTs,label=getInvoireIntervalLabel();
     try{enqueueActionV43_(ctx,ts);lastActionAt=Date.now();setInvoireStatus(`Învoire salvată instant ✓ (${label}).`,'ok');setStatus(navigator.onLine===false?'Salvat pe dispozitiv • se sincronizează automat când revine internetul.':'Salvat local • sincronizarea a pornit în fundal.',navigator.onLine===false?'warn':'ok');showToast(`<b>Învoire salvată</b><div class="small">${ctx.name} • <b>${label}</b></div>`,'ok');}
     catch(e){setInvoireStatus('Nu pot salva local: '+String(e&&e.message?e.message:e),'err');}
   }
@@ -2475,32 +2513,32 @@ function withProjectMarker_(notes, project){
   const actionFenceV44_ = new Map();
   function actionFenceKeyV44_(name,action){return stateKeyV43_(name)+'|'+_normAction(action);}
 
-  async function submitAction(action){
+  async function submitAction(action, pressedAtIso){
+    const pressedTs=String(pressedAtIso||new Date().toISOString());
     const now=Date.now();if(busy||now-lastActionAt<350)return;
     if(!deptSel.value){setStatus('Alege departamentul.','err');return;}if(!empSel.value){setStatus('Selectează angajat.','err');return;}if(!actSel.value){setStatus('Alege tip de activitate.','err');return;}
     const ctx=captureActionContext_(action),a=ctx.action,isCom=['comercial','coemercial'].includes(String(ctx.department||'').toLowerCase());
-    if(hasPendingEquivalentV46_(ctx.name,a)){setStatus('Această acțiune este deja salvată și așteaptă confirmarea.','warn');setProjectedStateV43_(ctx.name);return;}
     const fenceKey=actionFenceKeyV44_(ctx.name,a),lastFence=Number(actionFenceV44_.get(fenceKey)||0);
     if(now-lastFence<1800){setStatus('Această acțiune a fost deja apăsată și este memorată.','warn');return;}
     if(isInvoireActivity()){setStatus('Pentru învoire folosește butonul dedicat.','warn');return;}if(isCom&&(a==='extra_start'||a==='extra_finish')){setStatus('Departamentul Comercial nu poate folosi ore EXTRA.','warn');return;}if(!isCom&&!ctx.location){setStatus('Scrie clientul/locația.','err');locInput.focus();return;}if(LEAVE_TYPES_SET.has(String(ctx.activity||'').toLowerCase())){setStatus('Pentru concediu folosește cererea de concediu.','warn');return;}
     if(!hasKnownStateV44_(ctx.name)){setStatus(navigator.onLine===false?'Starea nu a fost memorată înainte de pierderea conexiunii. Conectează o dată dispozitivul pentru sincronizare.':'Aștept confirmarea stării serverului; reîncerc automat.','warn');refreshServerState(ctx.name);setProjectedStateV43_(ctx.name);return;}
     const projected=projectedStateV43_(ctx.name),err=validateLocalActionV43_(projected,a);if(err){setStatus(err,'warn');setProjectedStateV43_(ctx.name);return;}
-    busy=true;actionFenceV44_.set(fenceKey,Date.now());setUILock(true);disableAllButtons(true);const ts=new Date().toISOString();
+    busy=true;actionFenceV44_.set(fenceKey,Date.now());setUILock(true);disableAllButtons(true);const ts=pressedTs;
     try{enqueueActionV43_(ctx,ts);setProjectedStateV43_(ctx.name);const label=a.replace('_',' ').toUpperCase(),off=navigator.onLine===false;setStatus(off?`${label} salvat instant pe dispozitiv ✓ • ordinea este păstrată.`:`${label} salvat instant ✓ • se sincronizează în fundal.`,off?'warn':'ok');if(a==='finish'||a==='extra_finish')showToast(`<b>${ctx.name}</b><div class="small">${label} salvat la <b>${new Date(ts).toLocaleTimeString('ro-RO')}</b></div>`,'ok');lastActionAt=Date.now();}
     catch(e){actionFenceV44_.delete(fenceKey);setStatus('Nu am putut salva pe dispozitiv: '+String(e&&e.message?e.message:e),'err');}
     finally{await sleep(220);busy=false;setUILock(false);disableAllButtons(false);setProjectedStateV43_(ctx.name);}
   }
 
   function wireButtons(){
-    document.getElementById('btnStart').addEventListener('click', ()=>submitAction('start'));
-    document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause'));
-    document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause'));
-    document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('finish'));
-    document.getElementById('btnExtraStart').addEventListener('click', ()=>submitAction('extra_start'));
-    document.getElementById('btnExtraFinish').addEventListener('click', ()=>submitAction('extra_finish'));
+    document.getElementById('btnStart').addEventListener('click', ()=>submitAction('start', new Date().toISOString()));
+    document.getElementById('btnPause').addEventListener('click', ()=>submitAction('pause', new Date().toISOString()));
+    document.getElementById('btnUnpause').addEventListener('click', ()=>submitAction('unpause', new Date().toISOString()));
+    document.getElementById('btnFinish').addEventListener('click', ()=>submitAction('finish', new Date().toISOString()));
+    document.getElementById('btnExtraStart').addEventListener('click', ()=>submitAction('extra_start', new Date().toISOString()));
+    document.getElementById('btnExtraFinish').addEventListener('click', ()=>submitAction('extra_finish', new Date().toISOString()));
 
     if (btnInvoire) {
-      btnInvoire.addEventListener('click', submitInvoire);
+      btnInvoire.addEventListener('click', ()=>submitInvoire(new Date().toISOString()));
     }
 
     ['btnStart','btnPause','btnUnpause','btnFinish','btnExtraStart','btnExtraFinish','btnLeave','btnInvoire']
@@ -2511,174 +2549,6 @@ function withProjectMarker_(notes, project){
       });
 
     reflectState();
-  }
-
-
-
-  /*********************** V4.6 RELIABILITY OVERRIDES ************************/
-  // Regula de siguranță: pagina este singurul expeditor. Service worker-ul nu
-  // mai trimite Google Form în fundal, deoarece un răspuns no-cors nu poate fi
-  // confirmat și producea retrimiteri infinite ale aceluiași REQUEST_ID.
-  let offlineQueueReadyV46_ = false;
-  let queueReconcileRunningV46_ = false;
-
-  function semanticQueueKeyV46_(item){
-    const c=item&&item.ctx||{};
-    return [stateKeyV43_(c.name),_normAction(item&&item.action),String(item&&item.timestamp||'')].join('|');
-  }
-  function hasPendingEquivalentV46_(name,action){
-    const nk=stateKeyV43_(name),a=_normAction(action);
-    return loadOfflineQueueV43_().some(x=>x&&x.status!=='rejected'&&stateKeyV43_(x.ctx&&x.ctx.name)===nk&&_normAction(x.action)===a);
-  }
-  function actionReflectedByStateV46_(state,item){
-    if(!state||!item)return false;
-    const a=_normAction(item.action),n=state.normal||{},e=state.extra||{};
-    if(a==='start')return !!n.running;
-    if(a==='pause')return !!(n.running&&n.paused);
-    if(a==='unpause')return !!(n.running&&!n.paused);
-    if(a==='finish')return !n.running&&!!state.lastNormalFinish;
-    if(a==='extra_start')return !!e.running;
-    if(a==='extra_finish')return !e.running&&!!state.lastExtraFinish;
-    return false;
-  }
-  function applyStrictProjectedV46_(state,item){
-    const err=validateLocalActionV43_(state,item.action);
-    if(err)return {ok:false,error:err,state};
-    applyActionToStateV43_(state,item.action,item.timestamp);
-    return {ok:true,state};
-  }
-
-  // IDB este doar backup. Nu îl mai concatenăm peste o coadă locală existentă.
-  // Restaurarea se face numai când cheia localStorage lipsește complet.
-  async function hydrateQueueFromIdbV43_(){
-    try{
-      const raw=localStorage.getItem(OFFLINE_QUEUE_KEY_V43);
-      if(raw!==null){
-        await mirrorQueueToIdbV43_(loadOfflineQueueV43_());
-        return;
-      }
-      const idbQ=await idbGetV43_('queue');
-      if(Array.isArray(idbQ)&&idbQ.length)saveOfflineQueueV43_(normalizeQueueV43_(idbQ));
-      else saveOfflineQueueV43_([]);
-    }catch{ try{saveOfflineQueueV43_(loadOfflineQueueV43_());}catch{} }
-  }
-
-  async function reconcileQueueV46_(){
-    if(queueReconcileRunningV46_)return;
-    queueReconcileRunningV46_=true;
-    try{
-      let q=normalizeQueueV43_(loadOfflineQueueV43_());
-      // Colapsăm și dublurile semantice provenite din versiunile defecte.
-      const sem=new Map();
-      q.forEach(item=>{
-        const k=semanticQueueKeyV46_(item),prev=sem.get(k);
-        if(!prev||Number(item.createdAt||0)<Number(prev.createdAt||0))sem.set(k,item);
-      });
-      q=[...sem.values()].sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
-      saveOfflineQueueV43_(q);
-
-      if(navigator.onLine===false){offlineQueueReadyV46_=true;return;}
-
-      // Mai întâi cerem ACK pentru fiecare REQUEST_ID. Orice rând deja ajuns în
-      // Sheet este eliminat local fără nicio retrimitere.
-      const unresolved=[];
-      for(const item of q){
-        const ack=await fetchAckV43_(item);
-        if(ack&&ack.ready){
-          if(ack.state)saveCanonicalStateV43_(item.ctx.name,ack.state);
-          continue;
-        }
-        unresolved.push(item);
-      }
-
-      // Curățăm acțiunile vechi invalide față de starea autoritară curentă și
-      // păstrăm numai o succesiune strict validă pentru fiecare angajat.
-      const byEmployee=new Map();
-      unresolved.forEach(item=>{
-        const k=stateKeyV43_(item.ctx&&item.ctx.name);
-        if(!byEmployee.has(k))byEmployee.set(k,[]);
-        byEmployee.get(k).push(item);
-      });
-      const keep=[];
-      for(const items of byEmployee.values()){
-        const name=String(items[0]&&items[0].ctx&&items[0].ctx.name||'').trim();
-        let base=await fetchState(name);
-        if(base)saveCanonicalStateV43_(name,base);
-        base=cloneStateV43_(base||loadCanonicalStateV43_(name)||localStateRecordV44_(name)||blankState(),name);
-        items.sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
-        for(const item of items){
-          if(actionReflectedByStateV46_(base,item))continue;
-          const r=applyStrictProjectedV46_(base,item);
-          if(!r.ok)continue;
-          keep.push(Object.assign({},item,{status:item.status==='sent'?'sent':'pending',nextAttemptAt:0,lastError:''}));
-        }
-      }
-      saveOfflineQueueV43_(keep);
-      if(empSel&&empSel.value)setProjectedStateV43_(empSel.value);
-    }catch(e){console.warn('V4.6 queue reconcile',e);}
-    finally{offlineQueueReadyV46_=true;queueReconcileRunningV46_=false;updateOfflineBadgeV43_();}
-  }
-
-  // Trimitere exact o singură dată. După status=sent se face numai polling ACK;
-  // nu există retrimitere automată la 10 secunde.
-  async function flushQueueV43_(){
-    if(!offlineQueueReadyV46_||offlineFlushRunningV43_||navigator.onLine===false){updateOfflineBadgeV43_();return;}
-    offlineFlushRunningV43_=true;updateOfflineBadgeV43_();
-    try{
-      const q=loadOfflineQueueV43_().filter(x=>x&&x.status!=='rejected')
-        .sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
-      const item=q[0];
-      if(!item)return;
-
-      const ack0=await fetchAckV43_(item);
-      if(handleAckV43_(item,ack0)){scheduleFlushV43_(0);return;}
-
-      if(item.status!=='sent'){
-        try{
-          submitFormEntriesV43_(item);
-          patchQueueItemV43_(item.requestId,{status:'sent',attempts:Number(item.attempts||0)+1,lastAttemptAt:Date.now(),nextAttemptAt:0,lastError:'Trimis o singură dată; aștept confirmarea.'});
-        }catch(e){
-          patchQueueItemV43_(item.requestId,{status:'pending',lastError:String(e&&e.message?e.message:e)});
-          return;
-        }
-      }
-
-      // Polling scurt, fără retransmitere.
-      const started=Date.now();
-      while(Date.now()-started<9000&&navigator.onLine!==false){
-        await sleep(450);
-        const ack=await fetchAckV43_(item);
-        if(handleAckV43_(item,ack)){scheduleFlushV43_(0);return;}
-      }
-      patchQueueItemV43_(item.requestId,{status:'sent',lastError:'Trimis; confirmarea din Sheet este încă în așteptare.'});
-    }catch(e){console.warn('Pontaj V4.6 flush',e);updateOfflineBadgeV43_(true);}
-    finally{offlineFlushRunningV43_=false;updateOfflineBadgeV43_();}
-  }
-
-  function initOfflineV43_(){
-    const badge=document.getElementById('offlineQueueStatus');
-    if(badge)badge.title='Build '+PONTAJ_BUILD+' • expediere unică • ACK obligatoriu • fără retrimitere service worker';
-    if(!localStorageAvailableV43_()){
-      if(badge)badge.classList.add('error');
-      const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.6 • memoria browserului este blocată';
-      return;
-    }
-    offlineQueueReadyV46_=false;
-    hydrateQueueFromIdbV43_().then(reconcileQueueV46_).then(()=>scheduleFlushV43_(0));
-    const kick=()=>{updateOfflineBadgeV43_();reconcileQueueV46_().then(()=>scheduleFlushV43_(0));refreshActiveSnapshotV44_(false).catch(()=>{});checkRemoteBuildV45_(false);};
-    window.addEventListener('online',kick);
-    window.addEventListener('offline',()=>{updateOfflineBadgeV43_();if(empSel.value)setProjectedStateV43_(empSel.value);});
-    window.addEventListener('focus',kick);window.addEventListener('pageshow',kick);
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick();});
-    try{navigator.connection&&navigator.connection.addEventListener('change',kick);}catch{}
-    // Pentru item-urile sent facem doar ACK polling; nu retrimitem.
-    setInterval(()=>{if(loadOfflineQueueV43_().length)scheduleFlushV43_(0);},2500);
-    setInterval(()=>checkRemoteBuildV45_(false),60000);
-    autoMigrateUiCacheV45_().then(()=>activateLatestServiceWorkerV43_());
-    if(badge){badge.style.cursor='pointer';badge.onclick=()=>{reconcileQueueV46_().then(()=>scheduleFlushV43_(0));};}
-    if('serviceWorker'in navigator){
-      navigator.serviceWorker.addEventListener('message',ev=>{if(ev&&ev.data&&ev.data.type==='PONTAJ_SYNC_REQUEST')kick();});
-    }
   }
 
   console.log('Servelect Pontaj build', PONTAJ_BUILD);
