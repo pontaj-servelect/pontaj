@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.7-20260720-1" />
-  <meta name="pontaj-build" content="offline-first-v4.7-20260720-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9-live-profile-history-notice-20260720-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9-live-profile-history-notice-20260720-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -307,6 +307,168 @@
     .sync-chip.offline .sync-dot{background:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.18)}
     .sync-chip.error .sync-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
     @media(max-width:760px){.sync-chip{order:3;width:100%;justify-content:center}}
+
+
+    /* ================= PROFESSIONAL ACTIVE DASHBOARD V4.8 ================= */
+    .active-dashboard-v48{display:none;margin-top:18px;color:#0b2347}
+    body.pontaj-active-v48 .active-dashboard-v48{display:block}
+    body.pontaj-active-v48 .hero{display:none}
+    .active-dashboard-v48 *{box-sizing:border-box}
+    .active-dashboard-v48 button{font:inherit}
+    .active-dashboard-v48 [hidden]{display:none!important}
+    .active-head-v48{
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+      padding:22px 26px;border-radius:24px;background:rgba(255,255,255,.97);
+      border:1px solid rgba(15,61,118,.08);box-shadow:0 16px 42px rgba(15,42,80,.12)
+    }
+    .active-identity-v48{min-width:0}
+    .active-name-v48{font-size:clamp(24px,3vw,38px);line-height:1.05;font-weight:800;letter-spacing:-.035em;color:#08234b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .active-norm-line-v48{display:flex;align-items:center;gap:9px;margin-top:10px;color:#5d6f8c;font-weight:600;font-size:clamp(14px,1.5vw,18px)}
+    .active-norm-icon-v48{width:22px;height:22px;color:#0f6bf2;flex:none}
+    .active-state-pill-v48{display:flex;align-items:center;gap:9px;padding:12px 17px;border-radius:999px;background:#effbf3;border:1px solid #c9efd5;color:#08a13a;font-weight:800;white-space:nowrap}
+    .active-state-pill-v48::before{content:'';width:10px;height:10px;border-radius:50%;background:currentColor;box-shadow:0 0 0 5px color-mix(in srgb,currentColor 13%,transparent)}
+    .active-state-pill-v48.paused{background:#fff8e8;border-color:#ffe1a2;color:#dc8a00}
+    .active-state-pill-v48.extra{background:#f6efff;border-color:#e0c9ff;color:#7a35d8}
+    .active-sync-line-v48{margin-top:10px;font-size:12px;color:#71809a;text-align:right;font-weight:700}
+
+    .active-progress-card-v48{margin-top:18px;padding:22px;border-radius:26px;background:rgba(255,255,255,.98);border:1px solid rgba(15,61,118,.08);box-shadow:0 18px 52px rgba(15,42,80,.14)}
+    .active-progress-layout-v48{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,300px);gap:22px;align-items:center}
+    .main-ring-area-v48{position:relative;display:grid;place-items:center;min-width:0;padding:8px}
+    .main-ring-v48{position:relative;width:min(100%,610px);aspect-ratio:1;border-radius:50%;filter:drop-shadow(0 12px 20px rgba(0,103,255,.12))}
+    .main-ring-v48 > svg,.extra-ring-v48 > svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+    .ring-track-v48{fill:none;stroke:#e9eef5;stroke-width:13}
+    .ring-progress-v48{fill:none;stroke:url(#normGradientV48);stroke-width:13;stroke-linecap:round;stroke-dasharray:615.752;stroke-dashoffset:615.752;transition:stroke-dashoffset .8s cubic-bezier(.22,.8,.25,1),filter .4s ease;filter:drop-shadow(0 3px 5px rgba(0,98,255,.22))}
+    .ring-ticks-v48{fill:none;stroke:#dce4ee;stroke-width:1.1;stroke-dasharray:1.2 7.4;opacity:.9}
+    .ring-center-v48{position:absolute;inset:12%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:50%}
+    .ring-clock-v48{width:38px;height:38px;color:#0871f8;margin-bottom:8px}
+    .worked-time-v48{font-variant-numeric:tabular-nums;font-size:clamp(42px,7vw,86px);line-height:1;font-weight:800;letter-spacing:-.055em;color:#061d43}
+    .worked-label-v48{margin-top:7px;color:#60708c;font-size:clamp(14px,2vw,22px);font-weight:600}
+    .inner-pause-v48{margin-top:18px;width:clamp(118px,25%,170px);aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,#fff,#f4f9ff);border:3px solid #b8d9ff;box-shadow:inset 0 0 24px rgba(38,123,255,.08),0 8px 20px rgba(19,89,173,.08)}
+    .pause-icon-v48{font-size:20px;line-height:1;color:#0871f8;font-weight:900}
+    .pause-label-v48{margin-top:4px;font-weight:700;color:#213755;font-size:13px}
+    .pause-time-v48{font-variant-numeric:tabular-nums;font-size:clamp(19px,3vw,31px);line-height:1.05;font-weight:800;color:#0871f8;margin-top:2px}
+    .norm-now-v48{margin-top:14px;padding-top:13px;min-width:180px;border-top:1px solid #aab5c4;color:#1a2d48;font-weight:700;font-size:14px}
+    .norm-now-time-v48{display:block;color:#0871f8;font-size:clamp(21px,3vw,34px);font-variant-numeric:tabular-nums;margin-top:3px}
+
+    .active-side-v48{display:flex;flex-direction:column;gap:16px;min-width:0}
+    .overtime-card-v48{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 12px;border-radius:20px;background:#fff;border:1px solid #e5eaf0;box-shadow:0 10px 24px rgba(12,43,83,.09)}
+    .overtime-arrow-v48{font-size:33px;line-height:1;color:#09af43;font-weight:800}
+    .overtime-label-v48{font-size:15px;font-weight:700;color:#142b4c}
+    .overtime-time-v48{font-size:clamp(23px,3vw,34px);line-height:1.1;color:#08af43;font-weight:800;font-variant-numeric:tabular-nums}
+    .extra-card-v48{padding:16px 13px;border-radius:22px;background:linear-gradient(180deg,#fff,#f8faff);border:1px solid #e4e9f0;text-align:center;box-shadow:0 12px 28px rgba(12,43,83,.08)}
+    .extra-ring-v48{position:relative;width:min(100%,190px);aspect-ratio:1;margin:0 auto}
+    .extra-ring-track-v48{fill:none;stroke:#e8ebf0;stroke-width:13}
+    .extra-ring-progress-v48{fill:none;stroke:url(#extraGradientV48);stroke-width:13;stroke-linecap:round;stroke-dasharray:515.221;stroke-dashoffset:515.221;transition:stroke-dashoffset .8s cubic-bezier(.22,.8,.25,1),filter .4s ease}
+    .extra-card-v48.active .extra-ring-progress-v48{filter:drop-shadow(0 0 8px rgba(128,61,238,.5))}
+    .extra-ring-center-v48{position:absolute;inset:20%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .extra-star-v48{font-size:27px;color:#086cf0;line-height:1}
+    .extra-card-v48.active .extra-star-v48{color:#823ce8}
+    .extra-label-v48{font-weight:700;color:#1a2e4c;margin-top:6px}
+    .extra-time-v48{font-size:clamp(24px,3vw,37px);font-weight:800;font-variant-numeric:tabular-nums;color:#0b2244;margin-top:2px}
+    .extra-caption-v48{font-size:12px;color:#6b7b96;margin-top:10px;line-height:1.35}
+
+    .active-controls-v48{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    .active-control-v48{min-height:92px;border-radius:22px;border:0;display:flex;align-items:center;justify-content:center;gap:16px;padding:16px 22px;cursor:pointer;font-weight:800;box-shadow:0 13px 28px rgba(7,55,130,.15);transition:transform .12s ease,box-shadow .2s ease,opacity .2s ease}
+    .active-control-v48:hover{transform:translateY(-1px);box-shadow:0 16px 34px rgba(7,55,130,.2)}
+    .active-control-v48:active{transform:translateY(1px)}
+    .active-control-v48:disabled{opacity:.47;cursor:not-allowed;transform:none}
+    .active-control-icon-v48{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;border:2px solid currentColor;font-size:25px;flex:none}
+    .active-control-copy-v48{text-align:left}
+    .active-control-title-v48{display:block;font-size:clamp(20px,2.5vw,29px);line-height:1.05}
+    .active-control-sub-v48{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.76}
+    .active-finish-v48{background:linear-gradient(135deg,#0758d8,#0877ff);color:#fff}
+    .active-pause-v48{background:#fff;color:#0866e6;border:2px solid #0871f8}
+    .active-unpause-v48{background:linear-gradient(135deg,#fff8e7,#fff);color:#d98200;border:2px solid #f3a719}
+    .active-extra-finish-v48{grid-column:1/-1;background:linear-gradient(135deg,#6420c9,#8b43ed);color:#fff}
+    .active-controls-v48.extra-only{grid-template-columns:1fr}
+    .active-controls-v48.extra-only .active-extra-finish-v48{min-height:104px}
+
+    .day-summary-v48{margin-top:18px;padding:22px 24px;border-radius:24px;background:rgba(255,255,255,.98);border:1px solid rgba(15,61,118,.08);box-shadow:0 14px 36px rgba(15,42,80,.1)}
+    .day-summary-head-v48{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+    .day-summary-title-v48{font-size:18px;font-weight:800;color:#112a4d}
+    .day-summary-updated-v48{font-size:12px;color:#6f809c;font-weight:700}
+    .day-summary-updated-v48::after{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#11b947;margin-left:8px}
+    .day-summary-grid-v48{display:grid;grid-template-columns:repeat(4,1fr)}
+    .day-summary-item-v48{padding:4px 18px;text-align:center;border-right:1px solid #dfe6ef;min-width:0}
+    .day-summary-item-v48:last-child{border-right:0}
+    .day-summary-icon-v48{font-size:25px;line-height:1;margin-bottom:8px}
+    .day-summary-label-v48{font-size:13px;color:#687995;font-weight:700;white-space:nowrap}
+    .day-summary-value-v48{font-size:clamp(22px,3vw,34px);font-weight:800;font-variant-numeric:tabular-nums;margin-top:5px;color:#0b6cf2}
+    .day-summary-sub-v48{font-size:11px;color:#6d7d96;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .summary-overtime-v48 .day-summary-icon-v48,.summary-overtime-v48 .day-summary-value-v48{color:#08ad43}
+    .summary-pause-v48 .day-summary-icon-v48,.summary-pause-v48 .day-summary-value-v48{color:#ff7b00}
+    .summary-start-v48 .day-summary-icon-v48,.summary-start-v48 .day-summary-value-v48{color:#7645df}
+    .active-dashboard-note-v48{margin:13px 4px 0;color:#e8f3ef;font-size:12px;text-align:center;font-weight:650;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+
+    @media(max-width:820px){
+      body.pontaj-active-v48{background:#f6f9fc}
+      body.pontaj-active-v48 .shell{max-width:none;padding:10px 10px 22px}
+      body.pontaj-active-v48 .nav{display:none}
+      .active-dashboard-v48{margin-top:0}
+      .active-head-v48{padding:18px 17px;border-radius:21px;gap:10px}
+      .active-name-v48{font-size:25px}
+      .active-norm-line-v48{font-size:14px;margin-top:7px}
+      .active-state-pill-v48{padding:9px 11px;font-size:13px}
+      .active-sync-line-v48{display:none}
+      .active-progress-card-v48{padding:14px 11px;border-radius:22px;margin-top:12px}
+      .active-progress-layout-v48{grid-template-columns:1fr;gap:12px}
+      .main-ring-area-v48{padding:0}
+      .main-ring-v48{width:100%}
+      .ring-track-v48,.ring-progress-v48{stroke-width:12}
+      .worked-time-v48{font-size:clamp(38px,12vw,57px)}
+      .worked-label-v48{font-size:14px;margin-top:4px}
+      .ring-clock-v48{width:27px;height:27px;margin-bottom:5px}
+      .inner-pause-v48{margin-top:9px;width:102px;border-width:2px}
+      .pause-label-v48{font-size:11px}.pause-time-v48{font-size:20px}
+      .norm-now-v48{margin-top:9px;padding-top:8px;min-width:128px;font-size:11px}
+      .norm-now-time-v48{font-size:21px}
+      .active-side-v48{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .overtime-card-v48{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-radius:16px}.overtime-arrow-v48{font-size:21px}.overtime-label-v48{font-size:11px}.overtime-time-v48{font-size:20px}
+      .extra-card-v48{padding:9px 5px;border-radius:17px}.extra-ring-v48{width:118px}.extra-label-v48{font-size:12px}.extra-time-v48{font-size:20px}.extra-star-v48{font-size:20px}.extra-caption-v48{font-size:9px;margin-top:5px}
+      .active-controls-v48{gap:10px;margin-top:12px}
+      .active-control-v48{min-height:76px;padding:12px 10px;border-radius:19px;gap:10px}
+      .active-control-icon-v48{width:43px;height:43px;font-size:20px}.active-control-title-v48{font-size:19px}.active-control-sub-v48{font-size:10px;margin-top:3px}
+      .day-summary-v48{margin-top:12px;padding:17px 8px 14px;border-radius:21px}
+      .day-summary-head-v48{margin:0 8px 14px}.day-summary-title-v48{font-size:15px}.day-summary-updated-v48{font-size:10px}
+      .day-summary-grid-v48{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .day-summary-item-v48{padding:2px 6px}.day-summary-icon-v48{font-size:19px;margin-bottom:5px}.day-summary-label-v48{font-size:9px}.day-summary-value-v48{font-size:17px;margin-top:3px}.day-summary-sub-v48{font-size:8px;margin-top:3px}
+      .active-dashboard-note-v48{color:#61708a;text-shadow:none}
+    }
+    @media(max-width:420px){
+      .active-head-v48{align-items:flex-start}.active-state-pill-v48{font-size:11px;padding:8px 9px}.active-name-v48{font-size:22px}
+      .active-progress-layout-v48{grid-template-columns:1fr}
+      .worked-time-v48{font-size:37px}.inner-pause-v48{width:88px}.pause-time-v48{font-size:17px}.norm-now-v48{min-width:112px}.norm-now-time-v48{font-size:18px}
+      .active-control-icon-v48{display:none}.active-control-copy-v48{text-align:center}.active-control-title-v48{font-size:18px}
+    }
+    @media(prefers-reduced-motion:reduce){.ring-progress-v48,.extra-ring-progress-v48,.active-control-v48{transition:none}}
+
+
+    /* ================= LIVE PROFILE / HISTORY / NOTIFICATION V4.9 ================= */
+    .nav-history-v49{border:1px solid rgba(8,105,235,.2);background:#fff;color:#0968df;border-radius:999px;min-height:38px;padding:8px 15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(15,23,42,.06);transition:transform .15s ease,box-shadow .2s ease}
+    .nav-history-v49:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(7,78,169,.13)}
+    .persistent-notice-v49{margin:12px 0 0;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:18px;border:1px solid #bfe8cc;background:linear-gradient(135deg,#effcf3,#f8fffa);color:#146b35;box-shadow:0 10px 25px rgba(18,119,57,.09)}
+    .persistent-notice-v49.warn{border-color:#f6d898;background:linear-gradient(135deg,#fff8e8,#fffdf7);color:#8a5a00}
+    .persistent-notice-v49.err{border-color:#f1b5b5;background:linear-gradient(135deg,#fff0f0,#fffafa);color:#9e2424}
+    .notice-icon-v49{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:currentColor;color:#fff;font-weight:900;flex:none}
+    .notice-copy-v49{min-width:0;flex:1}.notice-title-v49{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.055em;opacity:.78}.notice-message-v49{margin-top:2px;font-size:13px;font-weight:700;line-height:1.35;white-space:normal}.notice-time-v49{font-size:11px;opacity:.68;font-weight:700;white-space:nowrap}
+
+    .profile-live-v49{display:none;margin-top:14px;padding:16px;border-radius:19px;background:linear-gradient(135deg,#f7fbff,#fff);border:1px solid #dbe9f8;box-shadow:0 10px 24px rgba(12,62,119,.07)}
+    .profile-live-v49.visible{display:block}.profile-live-head-v49{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.profile-live-name-v49{font-size:18px;font-weight:850;color:#0b2850}.profile-live-norm-v49{font-size:12px;color:#61738d;font-weight:700;margin-top:4px}.profile-state-v49{padding:7px 11px;border-radius:999px;background:#effbf3;color:#0c9d3a;border:1px solid #caeed5;font-size:11px;font-weight:850;white-space:nowrap}.profile-state-v49.paused{background:#fff8e8;color:#c47a00;border-color:#f7d99a}.profile-state-v49.extra{background:#f5efff;color:#7d36d7;border-color:#ddc8ff}.profile-state-v49.idle{background:#f1f5f9;color:#5b6b80;border-color:#dbe3ec}
+    .profile-live-grid-v49{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px}.profile-stat-v49{padding:10px 8px;border-radius:13px;background:#fff;border:1px solid #e5edf6;text-align:center}.profile-stat-label-v49{font-size:10px;color:#718198;font-weight:750}.profile-stat-value-v49{margin-top:4px;font-size:16px;font-weight:850;color:#0a65df;font-variant-numeric:tabular-nums}.profile-live-foot-v49{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}.profile-source-v49{font-size:11px;color:#72829a;font-weight:700}.profile-history-v49,.active-history-v49{border:0;border-radius:12px;background:#086bf0;color:#fff;padding:9px 14px;font-weight:850;cursor:pointer;box-shadow:0 8px 17px rgba(8,107,240,.2)}
+    .active-head-right-v49{display:flex;align-items:center;gap:12px}.active-head-status-v49{text-align:right}.active-history-v49{background:#fff;color:#0866e6;border:1px solid #cfe1fa;box-shadow:none}
+
+    .history-modal-v49{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(5,18,39,.55);backdrop-filter:blur(8px)}
+    .history-modal-v49[hidden]{display:none!important}.history-dialog-v49{width:min(880px,100%);max-height:min(88vh,900px);display:flex;flex-direction:column;overflow:hidden;border-radius:25px;background:#f7f9fc;border:1px solid rgba(255,255,255,.62);box-shadow:0 30px 80px rgba(1,15,38,.34)}
+    .history-head-v49{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;background:#fff;border-bottom:1px solid #e3eaf3}.history-title-v49{font-size:21px;font-weight:900;color:#09264f}.history-sub-v49{font-size:12px;color:#6c7b91;font-weight:700;margin-top:3px}.history-close-v49{width:38px;height:38px;border:0;border-radius:50%;background:#edf3fa;color:#34506f;font-size:22px;cursor:pointer}.history-tools-v49{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px;background:#fff;border-bottom:1px solid #e7edf5}.history-range-v49{display:flex;gap:7px;flex-wrap:wrap}.history-range-v49 button{border:1px solid #d9e4f2;background:#fff;color:#4b617c;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:850;cursor:pointer}.history-range-v49 button.active{background:#086bf0;color:#fff;border-color:#086bf0}.history-source-v49{font-size:11px;color:#718198;font-weight:750}.history-list-v49{overflow:auto;padding:14px 18px 20px;display:grid;gap:11px}.history-day-v49{display:grid;grid-template-columns:minmax(140px,1.1fr) repeat(5,minmax(92px,.75fr));gap:8px;align-items:center;padding:13px;border-radius:17px;background:#fff;border:1px solid #e1e9f3;box-shadow:0 7px 18px rgba(13,43,82,.055)}
+    .history-date-v49{min-width:0}.history-date-main-v49{font-size:14px;font-weight:900;color:#122e52}.history-date-sub-v49{font-size:10px;color:#78869a;font-weight:700;margin-top:3px}.history-metric-v49{text-align:center;min-width:0}.history-metric-label-v49{font-size:9px;color:#7b899c;font-weight:800;text-transform:uppercase}.history-metric-value-v49{margin-top:4px;font-size:14px;font-weight:900;color:#0a63d7;font-variant-numeric:tabular-nums}.history-metric-v49.pause .history-metric-value-v49{color:#f17700}.history-metric-v49.extra .history-metric-value-v49{color:#7b3fda}.history-metric-v49.diff.positive .history-metric-value-v49{color:#08a43d}.history-metric-v49.diff.negative .history-metric-value-v49{color:#d44747}.history-empty-v49{padding:32px 16px;text-align:center;color:#697b94;font-weight:750}.history-loading-v49{padding:36px 16px;text-align:center;color:#4c6687;font-weight:800}
+    @media(max-width:820px){
+      .nav-history-v49{order:2}.persistent-notice-v49{margin-top:8px;padding:11px 12px;border-radius:15px}.notice-time-v49{display:none}
+      .active-head-v48{flex-wrap:wrap}.active-head-right-v49{margin-left:auto}.active-head-status-v49{text-align:right}.active-history-v49{padding:8px 10px;font-size:11px}
+      .profile-live-grid-v49{grid-template-columns:repeat(2,1fr)}
+      .history-modal-v49{padding:0;place-items:end center}.history-dialog-v49{width:100%;max-height:92vh;border-radius:24px 24px 0 0}.history-day-v49{grid-template-columns:1fr 1fr 1fr;gap:10px}.history-date-v49{grid-column:1/-1;padding-bottom:7px;border-bottom:1px solid #edf1f6}.history-tools-v49{align-items:flex-start;flex-direction:column}.history-source-v49{width:100%}
+    }
+    @media(max-width:430px){.active-head-right-v49{width:100%;justify-content:space-between}.active-head-status-v49{text-align:left}.profile-live-head-v49{align-items:center}.profile-live-grid-v49{grid-template-columns:repeat(2,1fr)}.history-list-v49{padding:10px}.history-day-v49{padding:11px}.history-metric-value-v49{font-size:13px}}
+
   </style>
 </head>
 <body>
@@ -343,8 +505,10 @@
 
       <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt salvate imediat pe dispozitiv și confirmate ulterior în Google Sheet">
         <span class="sync-dot" aria-hidden="true"></span>
-        <span id="offlineQueueStatusText">V4.7 • Se verifică memoria locală…</span>
+        <span id="offlineQueueStatusText">V4.9 • Se verifică memoria locală…</span>
       </div>
+
+      <button id="historyBtnV49" class="nav-history-v49" type="button" title="Vezi statisticile zilelor trecute">Istoric</button>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
       <div class="chip chip-menu" id="cfg">
@@ -388,6 +552,105 @@
         </div>
       </div>
     </nav>
+
+    <div id="persistentNoticeV49" class="persistent-notice-v49" role="status" aria-live="polite">
+      <div id="noticeIconV49" class="notice-icon-v49">✓</div>
+      <div class="notice-copy-v49"><div id="noticeTitleV49" class="notice-title-v49">Sistem pregătit</div><div id="noticeMessageV49" class="notice-message-v49">Sincronizarea offline este activă. Selectează profilul pentru starea live.</div></div>
+      <div id="noticeTimeV49" class="notice-time-v49">acum</div>
+    </div>
+
+    <!-- Professional live time dashboard V4.9. Hidden while no session is active. -->
+    <section id="activeDashboardV48" class="active-dashboard-v48" aria-live="polite" aria-label="Pontaj activ">
+      <header class="active-head-v48">
+        <div class="active-identity-v48">
+          <div id="activeEmployeeNameV48" class="active-name-v48">Angajat</div>
+          <div class="active-norm-line-v48">
+            <svg class="active-norm-icon-v48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3v3M17 3v3M4.5 9.5h15M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>Normă zilnică: <strong id="activeNormV48">—</strong></span>
+          </div>
+        </div>
+        <div class="active-head-right-v49">
+          <div class="active-head-status-v49">
+            <div id="activeStatePillV48" class="active-state-pill-v48">Activ · În lucru</div>
+            <div id="activeSyncV48" class="active-sync-line-v48">V4.9 · sincronizat</div>
+          </div>
+          <button id="activeHistoryV49" class="active-history-v49" type="button">Istoric</button>
+        </div>
+      </header>
+
+      <div class="active-progress-card-v48">
+        <div class="active-progress-layout-v48">
+          <div class="main-ring-area-v48">
+            <div class="main-ring-v48">
+              <svg viewBox="0 0 240 240" aria-hidden="true">
+                <defs><linearGradient id="normGradientV48" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0758e7"/><stop offset=".54" stop-color="#0a74ff"/><stop offset="1" stop-color="#39a8ff"/></linearGradient></defs>
+                <circle class="ring-track-v48" cx="120" cy="120" r="98"/>
+                <circle class="ring-ticks-v48" cx="120" cy="120" r="84"/>
+                <circle id="normRingProgressV48" class="ring-progress-v48" cx="120" cy="120" r="98"/>
+              </svg>
+              <div class="ring-center-v48">
+                <svg class="ring-clock-v48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <div id="workedTimeV48" class="worked-time-v48">00:00:00</div>
+                <div class="worked-label-v48">Timp lucrat</div>
+                <div class="inner-pause-v48">
+                  <div class="pause-icon-v48">Ⅱ</div>
+                  <div class="pause-label-v48">Pauză</div>
+                  <div id="pauseTimeV48" class="pause-time-v48">00:00</div>
+                </div>
+                <div class="norm-now-v48">La normă acum:<span id="countedTimeV48" class="norm-now-time-v48">00:00</span></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="active-side-v48">
+            <div class="overtime-card-v48">
+              <div class="overtime-arrow-v48">↗</div>
+              <div><div class="overtime-label-v48">Suplimentar</div><div id="overtimeTimeV48" class="overtime-time-v48">+00:00</div></div>
+            </div>
+            <div id="extraCardV48" class="extra-card-v48">
+              <div class="extra-ring-v48">
+                <svg viewBox="0 0 220 220" aria-hidden="true">
+                  <defs><linearGradient id="extraGradientV48" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7432dd"/><stop offset="1" stop-color="#b64cff"/></linearGradient></defs>
+                  <circle class="extra-ring-track-v48" cx="110" cy="110" r="82"/>
+                  <circle id="extraRingProgressV48" class="extra-ring-progress-v48" cx="110" cy="110" r="82"/>
+                </svg>
+                <div class="extra-ring-center-v48"><div class="extra-star-v48">☆</div><div class="extra-label-v48">Extra</div><div id="extraTimeV48" class="extra-time-v48">00:00</div></div>
+              </div>
+              <div id="extraCaptionV48" class="extra-caption-v48">Disponibil după încheierea normei</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div id="normalControlsV48" class="active-controls-v48">
+        <button id="activeFinishV48" class="active-control-v48 active-finish-v48" type="button">
+          <span class="active-control-icon-v48">■</span><span class="active-control-copy-v48"><span class="active-control-title-v48">Finish</span><span class="active-control-sub-v48">Finalizează programul</span></span>
+        </button>
+        <button id="activePauseV48" class="active-control-v48 active-pause-v48" type="button">
+          <span class="active-control-icon-v48">Ⅱ</span><span class="active-control-copy-v48"><span class="active-control-title-v48">Pauză</span><span class="active-control-sub-v48">Întrerupe timpul lucrat</span></span>
+        </button>
+        <button id="activeUnpauseV48" class="active-control-v48 active-unpause-v48" type="button" hidden>
+          <span class="active-control-icon-v48">▶</span><span class="active-control-copy-v48"><span class="active-control-title-v48">Unpause</span><span class="active-control-sub-v48">Reia activitatea</span></span>
+        </button>
+      </div>
+      <div id="extraControlsV48" class="active-controls-v48 extra-only" hidden>
+        <button id="activeExtraFinishV48" class="active-control-v48 active-extra-finish-v48" type="button">
+          <span class="active-control-icon-v48">⌛</span><span class="active-control-copy-v48"><span class="active-control-title-v48">Extra Finish</span><span class="active-control-sub-v48">Finalizează timpul extra</span></span>
+        </button>
+      </div>
+
+      <section class="day-summary-v48" aria-label="Rezumat zi">
+        <div class="day-summary-head-v48"><div class="day-summary-title-v48">▥ &nbsp;Rezumat zi</div><div id="dashboardUpdatedV48" class="day-summary-updated-v48">Actualizat acum</div></div>
+        <div class="day-summary-grid-v48">
+          <div class="day-summary-item-v48"><div class="day-summary-icon-v48">◷</div><div class="day-summary-label-v48">Timp lucrat</div><div id="summaryWorkV48" class="day-summary-value-v48">00:00</div><div id="summaryNormV48" class="day-summary-sub-v48">din —</div></div>
+          <div class="day-summary-item-v48 summary-overtime-v48"><div class="day-summary-icon-v48">↗</div><div class="day-summary-label-v48">Suplimentar</div><div id="summaryOvertimeV48" class="day-summary-value-v48">+00:00</div><div class="day-summary-sub-v48">peste normă</div></div>
+          <div class="day-summary-item-v48 summary-pause-v48"><div class="day-summary-icon-v48">☕</div><div class="day-summary-label-v48">Pauză totală</div><div id="summaryPauseV48" class="day-summary-value-v48">00:00</div><div id="summaryPauseCountV48" class="day-summary-sub-v48">0 pauze</div></div>
+          <div class="day-summary-item-v48 summary-start-v48"><div class="day-summary-icon-v48">▣</div><div class="day-summary-label-v48">Început</div><div id="summaryStartV48" class="day-summary-value-v48">—</div><div class="day-summary-sub-v48">Astăzi</div></div>
+        </div>
+      </section>
+      <div class="active-dashboard-note-v48">Valorile se actualizează în timp real și continuă offline din memoria dispozitivului.</div>
+    </section>
+
 
     <section class="hero">
       <div class="card panel">
@@ -445,6 +708,20 @@
             </select>
           </div>
         </div>
+
+        <section id="profileLiveV49" class="profile-live-v49" aria-live="polite" aria-label="Profil live angajat">
+          <div class="profile-live-head-v49">
+            <div><div id="profileNameV49" class="profile-live-name-v49">Angajat</div><div id="profileNormV49" class="profile-live-norm-v49">Normă zilnică: —</div></div>
+            <div id="profileStateV49" class="profile-state-v49 idle">Inactiv</div>
+          </div>
+          <div class="profile-live-grid-v49">
+            <div class="profile-stat-v49"><div class="profile-stat-label-v49">Lucrat azi</div><div id="profileWorkV49" class="profile-stat-value-v49">00:00</div></div>
+            <div class="profile-stat-v49"><div class="profile-stat-label-v49">La normă</div><div id="profileCountedV49" class="profile-stat-value-v49">00:00</div></div>
+            <div class="profile-stat-v49"><div class="profile-stat-label-v49">Pauză</div><div id="profilePauseV49" class="profile-stat-value-v49">00:00</div></div>
+            <div class="profile-stat-v49"><div class="profile-stat-label-v49">Extra</div><div id="profileExtraV49" class="profile-stat-value-v49">00:00</div></div>
+          </div>
+          <div class="profile-live-foot-v49"><span id="profileSourceV49" class="profile-source-v49">Se verifică starea live…</span><button id="profileHistoryV49" class="profile-history-v49" type="button">Istoric</button></div>
+        </section>
 
         <div class="grid" style="margin-top:12px">
           <div>
@@ -577,6 +854,14 @@
         </div>
         <div class="footer">© <span id="year"></span> SERVELECT. Toate drepturile rezervate.</div>
       </aside>
+    </section>
+  </div>
+
+  <div id="historyModalV49" class="history-modal-v49" hidden aria-hidden="true">
+    <section class="history-dialog-v49" role="dialog" aria-modal="true" aria-labelledby="historyTitleV49">
+      <header class="history-head-v49"><div><div id="historyTitleV49" class="history-title-v49">Istoric pontaj</div><div id="historySubV49" class="history-sub-v49">Statisticile zilelor trecute</div></div><button id="historyCloseV49" class="history-close-v49" type="button" aria-label="Închide">×</button></header>
+      <div class="history-tools-v49"><div class="history-range-v49"><button type="button" data-history-days="7">7 zile</button><button type="button" data-history-days="30" class="active">30 zile</button><button type="button" data-history-days="90">90 zile</button></div><div id="historySourceV49" class="history-source-v49">Se încarcă…</div></div>
+      <div id="historyListV49" class="history-list-v49"><div class="history-loading-v49">Se încarcă istoricul…</div></div>
     </section>
   </div>
 
@@ -764,11 +1049,31 @@ function _normAction(a){
   if (s === 'extra finish') s='extra_finish';
   return s;
 }
+const PONTAJ_NOTICE_KEY_V49 = 'pontaj/latestNotice/v4.9';
+function _noticePlainTextV49_(value){
+  const tmp=document.createElement('div');tmp.innerHTML=String(value||'');return (tmp.textContent||tmp.innerText||'').replace(/\s+/g,' ').trim();
+}
+function setPersistentNoticeV49_(message,type,save=true){
+  const box=document.getElementById('persistentNoticeV49');if(!box)return;
+  const clean=_noticePlainTextV49_(message);if(!clean)return;
+  const kind=type==='err'?'err':type==='warn'?'warn':'ok';
+  box.className='persistent-notice-v49'+(kind==='ok'?'':' '+kind);
+  const title=document.getElementById('noticeTitleV49'),msg=document.getElementById('noticeMessageV49'),time=document.getElementById('noticeTimeV49'),icon=document.getElementById('noticeIconV49');
+  if(title)title.textContent=kind==='err'?'Necesită atenție':kind==='warn'?'Informație sincronizare':'Ultima confirmare';
+  if(msg)msg.textContent=clean;if(icon)icon.textContent=kind==='err'?'!':kind==='warn'?'i':'✓';
+  const now=new Date();if(time)time.textContent=now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+  if(save){try{localStorage.setItem(PONTAJ_NOTICE_KEY_V49,JSON.stringify({message:clean,type:kind,at:now.toISOString()}));}catch{}}
+}
+function restorePersistentNoticeV49_(){
+  try{const v=JSON.parse(localStorage.getItem(PONTAJ_NOTICE_KEY_V49)||'null');if(v&&v.message){setPersistentNoticeV49_(v.message,v.type,false);const t=document.getElementById('noticeTimeV49'),d=new Date(v.at||'');if(t&&!isNaN(d))t.textContent=d.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});return;}}catch{}
+  setPersistentNoticeV49_('Sincronizarea offline este activă. Selectează profilul pentru starea live.','ok',false);
+}
 function showToast(msg, type){
   const t = document.getElementById('toast');
   t.className = 'toast' + (type ? ' ' + type : '');
   t.innerHTML = msg;
   t.style.display = 'block';
+  setPersistentNoticeV49_(msg,type||'ok');
   clearTimeout(showToast._h);
   showToast._h = setTimeout(()=>{ t.style.display='none'; }, 7000);
 }
@@ -1047,7 +1352,7 @@ function withProjectMarker_(notes, project){
     'concediu pentru ore suplimentare'
   ]);
 
-  function setStatus(m, c){ setText(statusEl, m, c); }
+  function setStatus(m, c){ setText(statusEl, m, c); if(m)setPersistentNoticeV49_(m,c||'ok'); }
   function setCfg(m, c){
     if (!cfgEl) return;
     cfgEl.className = 'chip chip-menu' + (c ? (' ' + c) : '');
@@ -1765,6 +2070,7 @@ function withProjectMarker_(notes, project){
     if (btnInvoire) {
       btnInvoire.disabled = !hasSel || !isInvoireActivity();
     }
+    renderActiveDashboardV48_();
   }
 
   function disableTimeButtons(disabled) {
@@ -2030,8 +2336,8 @@ function withProjectMarker_(notes, project){
 
 
 
-  /*********************** OFFLINE-FIRST V4.7 ************************/
-  const PONTAJ_BUILD = 'offline-first-v4.7-20260720-1';
+  /*********************** OFFLINE-FIRST V4.8 ************************/
+  const PONTAJ_BUILD = 'offline-first-v4.9-live-profile-history-notice-20260720-1';
   const APP_CACHE_PREFIX_V45 = 'servelect-pontaj-';
   const APP_CACHE_NAME_V45 = APP_CACHE_PREFIX_V45 + PONTAJ_BUILD;
   const UI_BUILD_MARKER_KEY_V45 = 'pontaj/uiBuild/current';
@@ -2109,6 +2415,8 @@ function withProjectMarker_(notes, project){
   const ACK_WAIT_MS_V46 = 9000;
   let offlineFlushRunningV43_ = false;
   let offlineFlushTimerV43_ = null;
+  let lastSyncPendingV49_ = null;
+  let lastSyncOnlineV49_ = navigator.onLine!==false;
 
   function fetchWithTimeoutV43_(url, options, timeoutMs){
     const ctrl = new AbortController();
@@ -2288,10 +2596,23 @@ function withProjectMarker_(notes, project){
     const q=loadOfflineQueueV43_(), pending=q.filter(x=>x&&x.status!=='rejected').length, rejected=q.filter(x=>x&&x.status==='rejected').length;
     const blocked=q.filter(x=>x&&x.status!=='rejected'&&x.lastError&&Number(x.attempts||0)>=2).length;
     const online=navigator.onLine!==false; el.classList.remove('pending','offline','error');
-    if(forcedError||rejected||blocked){el.classList.add('error');txt.textContent=rejected?`V4.7 • ${rejected} acțiuni respinse`:blocked?`V4.7 • ${blocked} acțiuni blocate — verifică Code.gs`:'V4.7 • Eroare sincronizare';}
-    else if(pending){el.classList.add(online?'pending':'offline');txt.textContent=online?`V4.7 • Se sincronizează ${pending} acțiuni…`:`V4.7 • Offline • ${pending} acțiuni salvate`;}
-    else if(!online){el.classList.add('offline');txt.textContent='V4.7 • Offline • sincronizat local';}
-    else txt.textContent='V4.7 • Online • sincronizat';
+    if(forcedError||rejected||blocked){el.classList.add('error');txt.textContent=rejected?`V4.9 • ${rejected} acțiuni respinse`:blocked?`V4.9 • ${blocked} acțiuni blocate — verifică Code.gs`:'V4.9 • Eroare sincronizare';}
+    else if(pending){el.classList.add(online?'pending':'offline');txt.textContent=online?`V4.9 • Se sincronizează ${pending} acțiuni…`:`V4.9 • Offline • ${pending} acțiuni salvate`;}
+    else if(!online){el.classList.add('offline');txt.textContent='V4.9 • Offline • sincronizat local';}
+    else txt.textContent='V4.9 • Online • sincronizat';
+    if(rejected||blocked||forcedError){
+      setPersistentNoticeV49_(txt.textContent,'err');
+    }else if(pending>0 && (lastSyncPendingV49_!==pending || lastSyncOnlineV49_!==online)){
+      setPersistentNoticeV49_(txt.textContent,online?'warn':'warn');
+    }else if(online && pending===0 && lastSyncPendingV49_!==null && lastSyncPendingV49_>0){
+      setPersistentNoticeV49_('Toate acțiunile au fost confirmate în Google Sheet.','ok');
+    }else if(!online && lastSyncOnlineV49_!==online){
+      setPersistentNoticeV49_('Mod offline activ. Acțiunile noi sunt salvate pe dispozitiv și vor fi trimise în ordine.','warn');
+    }else if(online && lastSyncOnlineV49_!==online && pending===0){
+      setPersistentNoticeV49_('Conexiunea a revenit. Pontajul este sincronizat.','ok');
+    }
+    lastSyncPendingV49_=pending;lastSyncOnlineV49_=online;
+    syncActiveStatusV48_();
   }
   function cachedGpsV43_(){try{const g=JSON.parse(localStorage.getItem(LAST_GPS_KEY_V43)||'null');return g&&Date.now()-Number(g.capturedAt||0)<900000?g:null;}catch{return null;}}
   function captureGpsBackgroundV43_(requestId){
@@ -2321,7 +2642,7 @@ function withProjectMarker_(notes, project){
   function directActionPayloadV47_(item){
     const c=item.ctx||{},g=item.gps||cachedGpsV43_()||{};
     return {
-      fn:'offlineActionV47',
+      fn:'offlineActionV49',
       version:PONTAJ_BUILD,
       requestId:String(item.requestId||''),
       action:_normAction(item.action),
@@ -2342,7 +2663,7 @@ function withProjectMarker_(notes, project){
   async function submitDirectActionV47_(item){
     const endpoint=baseEndpoint();
     if(!endpoint||!/script\.google\.com/i.test(endpoint))throw new Error('Endpointul Apps Script nu este configurat.');
-    const response=await fetchWithTimeoutV43_(endpoint+'?fn=offlineActionV47&_='+Date.now(),{
+    const response=await fetchWithTimeoutV43_(endpoint+'?fn=offlineActionV49&_='+Date.now(),{
       method:'POST',
       cache:'no-store',
       redirect:'follow',
@@ -2352,7 +2673,7 @@ function withProjectMarker_(notes, project){
     const text=await response.text();
     let data=null;try{data=JSON.parse(text);}catch{}
     if(!response.ok)throw new Error('HTTP '+response.status);
-    if(!data||data.ok===false)throw new Error((data&&data.error)||'Code.gs nu are endpointul offlineActionV47.');
+    if(!data||data.ok===false)throw new Error((data&&data.error)||'Code.gs nu are endpointul offlineActionV49.');
     return data;
   }
   async function fetchAckV43_(item){ return fetchActionResult_(item.ctx,item.timestamp); }
@@ -2370,6 +2691,7 @@ function withProjectMarker_(notes, project){
     saveLocalStateV44_(item.ctx.name,confirmed);
     removeQueueItemV43_(item.requestId);
     if(String(empSel.value||'').trim()===item.ctx.name)setProjectedStateV43_(item.ctx.name);
+    refreshDashboardDataV48_(item.ctx.name,true).catch(()=>{});
     const label=String(item.action||'').replace('_',' ').toUpperCase();
     if(ack.accepted===false||ack.rejected){setStatus(`${label} respins de server: ${ack.message||ack.error||'ordine invalidă'}.`,'err');return true;}
     if((item.action==='finish'||item.action==='extra_finish')&&ack.stats){
@@ -2415,7 +2737,7 @@ function withProjectMarker_(notes, project){
         patchQueueItemV43_(item.requestId,{status:'pending',nextAttemptAt:Date.now()+5000,lastError:'Serverul nu a confirmat încă. Reîncerc fără a duplica REQUEST_ID-ul.'});
         break;
       }
-    }catch(e){console.warn('Pontaj V4.7 flush',e);updateOfflineBadgeV43_(true);}
+    }catch(e){console.warn('Pontaj V4.9 flush',e);updateOfflineBadgeV43_(true);}
     finally{offlineFlushRunningV43_=false;updateOfflineBadgeV43_();}
   }
   function scheduleFlushV43_(delay){clearTimeout(offlineFlushTimerV43_);offlineFlushTimerV43_=setTimeout(flushQueueV43_,Math.max(0,Number(delay||0)));}
@@ -2434,7 +2756,7 @@ function withProjectMarker_(notes, project){
   }
   async function registerBackgroundSyncV43_(){
     if(!('serviceWorker'in navigator))return;
-    try{const reg=await navigator.serviceWorker.ready;if(reg.sync)await reg.sync.register('pontaj-sync-v47');}catch{}
+    try{const reg=await navigator.serviceWorker.ready;if(reg.sync)await reg.sync.register('pontaj-sync-v49');}catch{}
   }
   async function activateLatestServiceWorkerV43_(){
     if(!('serviceWorker' in navigator))return;
@@ -2474,7 +2796,7 @@ function withProjectMarker_(notes, project){
   }
   function initOfflineV43_(){
     const badge=document.getElementById('offlineQueueStatus');if(badge)badge.title='Build '+PONTAJ_BUILD+' • localStorage + IndexedDB • coadă ordonată';
-    if(!localStorageAvailableV43_()){if(badge)badge.classList.add('error');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.7 • memoria browserului este blocată';return;}
+    if(!localStorageAvailableV43_()){if(badge)badge.classList.add('error');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.9 • memoria browserului este blocată';return;}
     const hadLocalQueueV46 = localStorage.getItem(OFFLINE_QUEUE_KEY_V43)!==null;
     saveOfflineQueueV43_(loadOfflineQueueV43_());
     hydrateQueueFromIdbV43_(!hadLocalQueueV46).then(()=>{if(empSel.value)setProjectedStateV43_(empSel.value);scheduleFlushV43_(0);});
@@ -2501,8 +2823,11 @@ function withProjectMarker_(notes, project){
 
   async function handleEmployeeChange(){
     const name=String(empSel.value||'').trim();
+    dashboardBaseV48_=name?(loadDashboardCacheV48_(name)||dashboardEmptyV48_(name)):null;
     setProjectedStateV43_(name);
-    if(!name)return;
+    if(!name){renderProfileLiveV49_(null,'');return;}
+    renderProfileLiveV49_(dashboardBaseV48_,navigator.onLine===false?'Offline · ultima stare memorată':'Se verifică live…');
+    refreshDashboardDataV48_(name,false).catch(()=>{});
     if(navigator.onLine===false){
       if(hasKnownStateV44_(name)){updateEmpStatus();}
       else setEmp('Offline • starea acestui angajat nu a fost încă memorată; butoanele sunt protejate.','err');
@@ -2568,6 +2893,212 @@ function withProjectMarker_(notes, project){
     catch(e){setInvoireStatus('Nu pot salva local: '+String(e&&e.message?e.message:e),'err');}
   }
 
+
+
+
+  /*********************** LIVE PROFILE + HISTORY V4.9 ************************/
+  const HISTORY_CACHE_PREFIX_V49='pontaj/history/v4.9/';
+  let historyDaysV49_=30;
+  function historyCacheKeyV49_(name,days){return HISTORY_CACHE_PREFIX_V49+stateKeyV43_(name)+'/'+String(days||30);}
+  function escV49_(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function signedClockV49_(ms){const n=Number(ms)||0;return (n>0?'+':n<0?'−':'')+fmtClockV48_(Math.abs(n),false);}
+  function renderProfileLiveV49_(snap,source){
+    const box=document.getElementById('profileLiveV49');const name=String(empSel.value||'').trim();if(!box)return;
+    if(!name){box.classList.remove('visible');return;}box.classList.add('visible');
+    snap=snap&&stateKeyV43_(snap.name)===stateKeyV43_(name)?snap:(loadDashboardCacheV48_(name)||dashboardEmptyV48_(name));
+    const st=dashboardStateForNameV48_(name)||snap.state||blankState();
+    const live=dashboardLiveTotalsV48_(Date.now());
+    setTextV48_('profileNameV49',name);setTextV48_('profileNormV49','Normă zilnică: '+(snap.isWeekend?'Weekend · fără normă':fmtNormV48_(snap.normHours)));
+    const p=document.getElementById('profileStateV49');let label='Inactiv',cls='idle';
+    if(st.extra&&st.extra.running){label='Extra activ';cls='extra';}else if(st.normal&&st.normal.running&&st.normal.paused){label='În pauză';cls='paused';}else if(st.normal&&st.normal.running){label='În lucru';cls='';}
+    if(p){p.className='profile-state-v49 '+cls;p.textContent=label;}
+    setTextV48_('profileWorkV49',fmtClockV48_(live.workMs,false));setTextV48_('profileCountedV49',fmtClockV48_(live.countedMs,false));setTextV48_('profilePauseV49',fmtClockV48_(live.pauseMs,false));setTextV48_('profileExtraV49',fmtClockV48_(live.extraMs,false));
+    const generated=new Date(snap.generatedAt||'');const stamp=!isNaN(generated)?generated.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
+    setTextV48_('profileSourceV49',source||(navigator.onLine===false?'Offline · ultima stare memorată':'Live server · '+stamp));
+  }
+  async function fetchHistoryV49_(name,days,force){
+    name=String(name||empSel.value||STATE.name||'').trim();days=Math.max(7,Math.min(90,Number(days)||30));if(!name)throw new Error('Selectează angajatul.');
+    const key=historyCacheKeyV49_(name,days);let cached=null;try{cached=JSON.parse(localStorage.getItem(key)||'null');}catch{}
+    if(navigator.onLine===false){if(cached)return Object.assign({},cached,{offline:true});throw new Error('Istoricul nu a fost încă memorat pe acest dispozitiv.');}
+    try{
+      const url=baseEndpoint()+'?fn=historyV49&name='+encodeURIComponent(name)+'&days='+days+'&_='+Date.now();
+      const r=await fetchWithTimeoutV43_(url,{cache:'no-store',redirect:'follow'},16000);if(!r||!r.ok)throw new Error('HTTP '+(r?r.status:0));
+      const data=JSON.parse(await r.text());if(!data||data.ok===false)throw new Error(data&&data.error||'Răspuns invalid');
+      try{localStorage.setItem(key,JSON.stringify(data));}catch{}return data;
+    }catch(e){if(cached)return Object.assign({},cached,{offline:true,stale:true});throw e;}
+  }
+  function renderHistoryV49_(data){
+    const list=document.getElementById('historyListV49'),src=document.getElementById('historySourceV49'),sub=document.getElementById('historySubV49');if(!list)return;
+    const items=Array.isArray(data&&data.items)?data.items:[];if(sub)sub.textContent=(data&&data.name?data.name+' · ':'')+'zilele trecute';
+    if(src)src.textContent=data&&data.offline?'Offline · date memorate':('Live server · '+(data&&data.generatedAt?new Date(data.generatedAt).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'actualizat acum'));
+    if(!items.length){list.innerHTML='<div class="history-empty-v49">Nu există date în perioada selectată.</div>';return;}
+    list.innerHTML=items.map(item=>{
+      const d=new Date(String(item.date||'')+'T12:00:00');const dateLabel=isNaN(d)?String(item.date||''):d.toLocaleDateString('ro-RO',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+      const diff=Number(item.diffMs||0),diffCls=diff>0?'positive':diff<0?'negative':'';
+      const start=item.firstStart?new Date(item.firstStart).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';const finish=item.lastFinish?new Date(item.lastFinish).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';
+      return '<article class="history-day-v49">'+
+        '<div class="history-date-v49"><div class="history-date-main-v49">'+escV49_(dateLabel)+'</div><div class="history-date-sub-v49">'+escV49_((item.hasActivity?'Start '+start+' · Finish '+finish:'Fără pontaj')+(item.activities&&item.activities.length?' · '+item.activities.join(', '):''))+'</div></div>'+
+        '<div class="history-metric-v49"><div class="history-metric-label-v49">Lucrat</div><div class="history-metric-value-v49">'+fmtClockV48_(item.workMs,false)+'</div></div>'+
+        '<div class="history-metric-v49 pause"><div class="history-metric-label-v49">Pauză</div><div class="history-metric-value-v49">'+fmtClockV48_(item.pauseMs,false)+'</div></div>'+
+        '<div class="history-metric-v49"><div class="history-metric-label-v49">Normă</div><div class="history-metric-value-v49">'+fmtClockV48_(item.normMs,false)+'</div></div>'+
+        '<div class="history-metric-v49 diff '+diffCls+'"><div class="history-metric-label-v49">Diferență</div><div class="history-metric-value-v49">'+signedClockV49_(diff)+'</div></div>'+
+        '<div class="history-metric-v49 extra"><div class="history-metric-label-v49">Extra</div><div class="history-metric-value-v49">'+fmtClockV48_(item.extraMs,false)+'</div></div>'+
+      '</article>';
+    }).join('');
+  }
+  async function openHistoryV49_(days){
+    const name=String(empSel.value||STATE.name||'').trim();if(!name){setPersistentNoticeV49_('Selectează mai întâi profilul angajatului.','warn');return;}
+    historyDaysV49_=Math.max(7,Math.min(90,Number(days)||historyDaysV49_));const modal=document.getElementById('historyModalV49'),list=document.getElementById('historyListV49');if(!modal)return;
+    modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.querySelectorAll('[data-history-days]').forEach(b=>b.classList.toggle('active',Number(b.dataset.historyDays)===historyDaysV49_));
+    if(list)list.innerHTML='<div class="history-loading-v49">Se încarcă istoricul pentru '+escV49_(name)+'…</div>';
+    try{renderHistoryV49_(await fetchHistoryV49_(name,historyDaysV49_,true));}catch(e){if(list)list.innerHTML='<div class="history-empty-v49">'+escV49_(e&&e.message?e.message:String(e))+'</div>';const src=document.getElementById('historySourceV49');if(src)src.textContent='Istoric indisponibil';}
+  }
+  function closeHistoryV49_(){const modal=document.getElementById('historyModalV49');if(modal){modal.hidden=true;modal.setAttribute('aria-hidden','true');}document.body.style.overflow='';}
+  function wireHistoryV49_(){
+    ['historyBtnV49','activeHistoryV49','profileHistoryV49'].forEach(id=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>openHistoryV49_(historyDaysV49_));});
+    const close=document.getElementById('historyCloseV49');if(close)close.addEventListener('click',closeHistoryV49_);
+    const modal=document.getElementById('historyModalV49');if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeHistoryV49_();});
+    document.querySelectorAll('[data-history-days]').forEach(b=>b.addEventListener('click',()=>openHistoryV49_(Number(b.dataset.historyDays))));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHistoryV49_();});
+  }
+
+  /*********************** PROFESSIONAL LIVE DASHBOARD V4.9 ************************/
+  const DASHBOARD_CACHE_PREFIX_V48 = 'pontaj/dashboard/v4.9/';
+  const DASHBOARD_CACHE_LEGACY_PREFIX_V48 = 'pontaj/dashboard/v4.8/';
+  const NORM_RING_CIRC_V48 = 615.752;
+  const EXTRA_RING_CIRC_V48 = 515.221;
+  let dashboardBaseV48_ = null;
+  let dashboardFetchPromiseV48_ = null;
+  let dashboardLastFetchAtV48_ = 0;
+  let dashboardTickTimerV48_ = null;
+
+  function dashboardKeyV48_(name){return DASHBOARD_CACHE_PREFIX_V48 + stateKeyV43_(name);}
+  function dashboardEmptyV48_(name){return {ok:true,name:String(name||''),normHours:0,isWeekend:false,workMs:0,pauseMs:0,extraMs:0,pauseCount:0,firstStart:null,generatedAt:new Date().toISOString(),state:cloneStateV43_(STATE,name),activity:''};}
+  function loadDashboardCacheV48_(name){
+    try{
+      let v=JSON.parse(localStorage.getItem(dashboardKeyV48_(name))||'null');
+      if(!v){v=JSON.parse(localStorage.getItem(DASHBOARD_CACHE_LEGACY_PREFIX_V48+stateKeyV43_(name))||'null');if(v)try{localStorage.setItem(dashboardKeyV48_(name),JSON.stringify(v));}catch{}}
+      return v&&stateKeyV43_(v.name)===stateKeyV43_(name)?v:null;
+    }catch{return null;}
+  }
+  function saveDashboardCacheV48_(snap){
+    if(!snap||!String(snap.name||'').trim())return;
+    try{localStorage.setItem(dashboardKeyV48_(snap.name),JSON.stringify(snap));}catch{}
+  }
+  function useDashboardBaseV48_(name){
+    name=String(name||empSel.value||STATE.name||'').trim();
+    if(!name)return null;
+    if(!dashboardBaseV48_||stateKeyV43_(dashboardBaseV48_.name)!==stateKeyV43_(name))dashboardBaseV48_=loadDashboardCacheV48_(name)||dashboardEmptyV48_(name);
+    return dashboardBaseV48_;
+  }
+  function dashboardStateForNameV48_(name){
+    if(stateKeyV43_(STATE&&STATE.name)===stateKeyV43_(name))return STATE;
+    return projectedStateV43_(name);
+  }
+  function dashboardLiveTotalsV48_(atMs){
+    const name=String(empSel.value||STATE.name||'').trim();
+    const base=useDashboardBaseV48_(name)||dashboardEmptyV48_(name);
+    const generated=new Date(base.generatedAt||Date.now()).getTime();
+    const now=Math.max(generated,isFinite(atMs)?Number(atMs):Date.now());
+    const delta=Math.max(0,now-generated);
+    const st=dashboardStateForNameV48_(name)||blankState();
+    let work=Math.max(0,Number(base.workMs||0)),pause=Math.max(0,Number(base.pauseMs||0)),extra=Math.max(0,Number(base.extraMs||0));
+    if(st.extra&&st.extra.running)extra+=delta;
+    else if(st.normal&&st.normal.running){if(st.normal.paused)pause+=delta;else work+=delta;}
+    const normMs=Math.max(0,Number(base.normHours||0)*3600000);
+    const pauseNorm=normMs>0?Math.min(pause,30*60000):0;
+    const counted=work+pauseNorm;
+    const overtime=base.isWeekend?work:Math.max(0,counted-normMs);
+    return {name,base,state:st,now,workMs:work,pauseMs:pause,extraMs:extra,normMs,countedMs:counted,overtimeMs:overtime,remainingMs:Math.max(0,normMs-counted)};
+  }
+  function freezeDashboardClockV48_(iso){
+    const name=String(empSel.value||STATE.name||'').trim();if(!name)return;
+    const at=new Date(iso||Date.now()).getTime();
+    const live=dashboardLiveTotalsV48_(isNaN(at)?Date.now():at);
+    dashboardBaseV48_=Object.assign({},live.base,{name,workMs:Math.round(live.workMs),pauseMs:Math.round(live.pauseMs),extraMs:Math.round(live.extraMs),generatedAt:new Date(live.now).toISOString(),state:cloneStateV43_(live.state,name)});
+    saveDashboardCacheV48_(dashboardBaseV48_);
+  }
+  function hasPendingDashboardV48_(name){return queueForEmployeeV43_(name).some(x=>x&&x.status!=='rejected');}
+  async function refreshDashboardDataV48_(name,force){
+    name=String(name||empSel.value||STATE.name||'').trim();if(!name)return null;
+    useDashboardBaseV48_(name);renderActiveDashboardV48_();renderProfileLiveV49_(dashboardBaseV48_,navigator.onLine===false?'Offline · ultima stare memorată':'Se verifică live…');
+    if(navigator.onLine===false||hasPendingDashboardV48_(name))return dashboardBaseV48_;
+    if(!force&&Date.now()-dashboardLastFetchAtV48_<15000)return dashboardBaseV48_;
+    if(dashboardFetchPromiseV48_)return dashboardFetchPromiseV48_;
+    dashboardFetchPromiseV48_=(async()=>{
+      try{
+        const url=baseEndpoint()+'?fn=dashboardV49&name='+encodeURIComponent(name)+'&_='+Date.now();
+        const r=await fetchWithTimeoutV43_(url,{cache:'no-store',redirect:'follow'},12000);
+        if(!r||!r.ok)throw new Error('HTTP '+(r?r.status:0));
+        const data=JSON.parse(await r.text());
+        if(!data||data.ok===false)throw new Error(data&&data.error||'Răspuns invalid');
+        if(stateKeyV43_(empSel.value||STATE.name)===stateKeyV43_(name)){
+          dashboardBaseV48_=data;saveDashboardCacheV48_(data);dashboardLastFetchAtV48_=Date.now();renderActiveDashboardV48_();renderProfileLiveV49_(data,'Live server · '+new Date(data.generatedAt||Date.now()).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
+        }else saveDashboardCacheV48_(data);
+        return data;
+      }catch(e){renderProfileLiveV49_(dashboardBaseV48_,navigator.onLine===false?'Offline · ultima stare memorată':'Live indisponibil · folosesc memoria locală');return dashboardBaseV48_;}
+      finally{dashboardFetchPromiseV48_=null;}
+    })();
+    return dashboardFetchPromiseV48_;
+  }
+  function fmtClockV48_(ms,seconds){
+    ms=Math.max(0,Math.floor(Number(ms)||0));const total=Math.floor(ms/1000),h=Math.floor(total/3600),m=Math.floor(total%3600/60),s=total%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+(seconds?':'+String(s).padStart(2,'0'):'');
+  }
+  function fmtNormV48_(hours){
+    const min=Math.max(0,Math.round(Number(hours||0)*60));if(!min)return'Fără normă';return Math.floor(min/60)+'h'+(min%60?' '+String(min%60).padStart(2,'0')+'m':'');
+  }
+  function fmtStartV48_(iso){
+    const d=new Date(iso||'');if(isNaN(d))return'—';return d.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+  }
+  function setTextV48_(id,value){const el=document.getElementById(id);if(el)el.textContent=value;}
+  function setRingV48_(id,circ,ratio){const el=document.getElementById(id);if(!el)return;ratio=Math.max(0,Math.min(1,Number(ratio)||0));el.style.strokeDashoffset=String(circ*(1-ratio));}
+  function syncActiveStatusV48_(){const src=document.getElementById('offlineQueueStatusText');setTextV48_('activeSyncV48',src?src.textContent:'V4.9');}
+  function renderActiveDashboardV48_(){
+    const dash=document.getElementById('activeDashboardV48');if(!dash)return;
+    const name=String(empSel.value||STATE.name||'').trim();
+    const st=name?dashboardStateForNameV48_(name):blankState();
+    const normal=!!(st.normal&&st.normal.running),paused=normal&&!!st.normal.paused,extra=!!(st.extra&&st.extra.running),active=normal||extra;
+    document.body.classList.toggle('pontaj-active-v48',active);
+    dash.hidden=!active;
+    if(!active){if(dashboardTickTimerV48_){clearInterval(dashboardTickTimerV48_);dashboardTickTimerV48_=null;}return;}
+    useDashboardBaseV48_(name);
+    const live=dashboardLiveTotalsV48_(Date.now()),base=live.base;
+    setTextV48_('activeEmployeeNameV48',name||'Angajat');
+    setTextV48_('activeNormV48',base.isWeekend?'Weekend · fără normă':fmtNormV48_(base.normHours));
+    const pill=document.getElementById('activeStatePillV48');if(pill){pill.className='active-state-pill-v48'+(extra?' extra':paused?' paused':'');pill.textContent=extra?'Extra · Activ':paused?'În pauză':'Activ · În lucru';}
+    setTextV48_('workedTimeV48',fmtClockV48_(live.workMs,true));
+    setTextV48_('pauseTimeV48',fmtClockV48_(live.pauseMs,false));
+    setTextV48_('countedTimeV48',fmtClockV48_(live.countedMs,false));
+    setTextV48_('overtimeTimeV48','+'+fmtClockV48_(live.overtimeMs,false));
+    setTextV48_('extraTimeV48',fmtClockV48_(live.extraMs,false));
+    setRingV48_('normRingProgressV48',NORM_RING_CIRC_V48,live.normMs>0?live.countedMs/live.normMs:(live.workMs?1:0));
+    setRingV48_('extraRingProgressV48',EXTRA_RING_CIRC_V48,extra?((live.extraMs%(4*3600000))/(4*3600000)):0);
+    const extraCard=document.getElementById('extraCardV48');if(extraCard)extraCard.classList.toggle('active',extra);
+    setTextV48_('extraCaptionV48',extra?'Sesiune EXTRA activă':'Disponibil după încheierea normei');
+    const normalControls=document.getElementById('normalControlsV48'),extraControls=document.getElementById('extraControlsV48');
+    if(normalControls)normalControls.hidden=!normal;if(extraControls)extraControls.hidden=!extra;
+    const pauseBtn=document.getElementById('activePauseV48'),unpauseBtn=document.getElementById('activeUnpauseV48'),finishBtn=document.getElementById('activeFinishV48');
+    if(pauseBtn)pauseBtn.hidden=paused;if(unpauseBtn)unpauseBtn.hidden=!paused;if(finishBtn){finishBtn.disabled=paused;finishBtn.title=paused?'Apasă Unpause înainte de Finish':'';}
+    setTextV48_('summaryWorkV48',fmtClockV48_(live.workMs,false));
+    setTextV48_('summaryNormV48','din '+fmtNormV48_(base.normHours));
+    setTextV48_('summaryOvertimeV48','+'+fmtClockV48_(live.overtimeMs,false));
+    setTextV48_('summaryPauseV48',fmtClockV48_(live.pauseMs,false));
+    const count=Math.max(0,Number(base.pauseCount||0));setTextV48_('summaryPauseCountV48',count+' '+(count===1?'pauză':'pauze'));
+    const start=base.firstStart||st.lastNormalStart||st.lastExtraStart;setTextV48_('summaryStartV48',fmtStartV48_(start));
+    setTextV48_('dashboardUpdatedV48',navigator.onLine===false?'Actualizare locală':'Actualizat acum');
+    syncActiveStatusV48_();renderProfileLiveV49_(base,navigator.onLine===false?'Offline · cronometru local':'Live · actualizare continuă');
+    if(!dashboardTickTimerV48_)dashboardTickTimerV48_=setInterval(()=>renderActiveDashboardV48_(),1000);
+  }
+  function wireActiveDashboardV48_(){
+    const click=(id,target)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>{const t=document.getElementById(target);if(t&&!t.disabled)t.click();});};
+    click('activeFinishV48','btnFinish');click('activePauseV48','btnPause');click('activeUnpauseV48','btnUnpause');click('activeExtraFinishV48','btnExtraFinish');
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&empSel.value)refreshDashboardDataV48_(empSel.value,true);});
+    window.addEventListener('online',()=>{if(empSel.value)refreshDashboardDataV48_(empSel.value,true);});
+    setInterval(()=>{const n=String(empSel.value||STATE.name||'').trim();if(n)refreshDashboardDataV48_(n,false);},20000);
+  }
+
+
   const actionFenceV44_ = new Map();
   function actionFenceKeyV44_(name,action){return stateKeyV43_(name)+'|'+_normAction(action);}
 
@@ -2582,6 +3113,7 @@ function withProjectMarker_(notes, project){
     if(!hasKnownStateV44_(ctx.name)){setStatus(navigator.onLine===false?'Starea nu a fost memorată înainte de pierderea conexiunii. Conectează o dată dispozitivul pentru sincronizare.':'Aștept confirmarea stării serverului; reîncerc automat.','warn');refreshServerState(ctx.name);setProjectedStateV43_(ctx.name);return;}
     const projected=projectedStateV43_(ctx.name),err=validateLocalActionV43_(projected,a);if(err){setStatus(err,'warn');setProjectedStateV43_(ctx.name);return;}
     busy=true;actionFenceV44_.set(fenceKey,Date.now());setUILock(true);disableAllButtons(true);const ts=pressedTs;
+    freezeDashboardClockV48_(ts);
     try{enqueueActionV43_(ctx,ts);setProjectedStateV43_(ctx.name);const label=a.replace('_',' ').toUpperCase(),off=navigator.onLine===false;setStatus(off?`${label} salvat instant pe dispozitiv ✓ • ordinea este păstrată.`:`${label} salvat instant ✓ • se sincronizează în fundal.`,off?'warn':'ok');if(a==='finish'||a==='extra_finish')showToast(`<b>${ctx.name}</b><div class="small">${label} salvat la <b>${new Date(ts).toLocaleTimeString('ro-RO')}</b></div>`,'ok');lastActionAt=Date.now();}
     catch(e){actionFenceV44_.delete(fenceKey);setStatus('Nu am putut salva pe dispozitiv: '+String(e&&e.message?e.message:e),'err');}
     finally{await sleep(220);busy=false;setUILock(false);disableAllButtons(false);setProjectedStateV43_(ctx.name);}
@@ -2612,6 +3144,7 @@ function withProjectMarker_(notes, project){
   console.log('Servelect Pontaj build', PONTAJ_BUILD);
 
   (async function init(){
+    restorePersistentNoticeV49_();
     await autoMigrateUiCacheV45_();
     checkRemoteBuildV45_(true);
     try {
@@ -2713,6 +3246,8 @@ function withProjectMarker_(notes, project){
     setupHHMM24Input(invoireOneHourStart);
 
     wireButtons();
+    wireActiveDashboardV48_();
+    wireHistoryV49_();
 
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');

@@ -1,4 +1,4 @@
-const BUILD='offline-first-v4.7-20260720-1';
+const BUILD='offline-first-v4.9-live-profile-history-notice-20260720-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=['./','./index.html','./config.json','./version.json','./manifest.webmanifest','./favicon.png','./background.jpg','./departments.csv','./employees.csv','./employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv','./admin.html','./reports.html','./fix-day.html','./self.html'];
@@ -16,5 +16,5 @@ async function wakeClientsForSync(){
   const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
   clients.forEach(client=>client.postMessage({type:'PONTAJ_SYNC_WAKE',build:BUILD}));
 }
-self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v47'||e.tag==='pontaj-sync-v45'||e.tag==='pontaj-sync-v44')e.waitUntil(wakeClientsForSync());});
-self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v47'||e.tag==='pontaj-periodic-v45'||e.tag==='pontaj-periodic-v44')e.waitUntil(wakeClientsForSync());});
+self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v49'||e.tag==='pontaj-sync-v47'||e.tag==='pontaj-sync-v45'||e.tag==='pontaj-sync-v44')e.waitUntil(wakeClientsForSync());});
+self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v49'||e.tag==='pontaj-periodic-v47'||e.tag==='pontaj-periodic-v45'||e.tag==='pontaj-periodic-v44')e.waitUntil(wakeClientsForSync());});
