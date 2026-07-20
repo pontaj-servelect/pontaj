@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ro">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Actualizare Pontaj</title><style>body{font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f4f7f9;color:#334155}.box{max-width:520px;padding:28px;border-radius:18px;background:#fff;box-shadow:0 16px 45px rgba(15,23,42,.12);text-align:center}.ok{color:#4d7c0f}.err{color:#b91c1c}</style></head>
+<body><div class="box"><h1>Actualizare SERVELECT Pontaj</h1><p id="msg">Șterg numai cache-ul aplicației. Acțiunile și stările locale rămân păstrate.</p></div>
+<script>
+(async()=>{
+  const msg=document.getElementById('msg');
+  try{
+    if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+    if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+    msg.className='ok';msg.textContent='Cache actualizat. Se deschide V4.3…';
+    setTimeout(()=>location.replace('./index.html?v=offline-first-v4.3-20260720-1'),350);
+  }catch(e){msg.className='err';msg.textContent='Nu am putut reseta cache-ul: '+String(e&&e.message?e.message:e);}
+})();
+</script></body></html>
