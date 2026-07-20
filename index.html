@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="pontaj-build" content="offline-first-v4.1-20260720" />
   <title>SERVELECT • Pontaj & Concedii</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -354,7 +355,7 @@
 
       <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt păstrate local până la confirmarea în Google Sheet">
         <span class="sync-dot" aria-hidden="true"></span>
-        <span id="offlineQueueStatusText">Se verifică sincronizarea…</span>
+        <span id="offlineQueueStatusText">V4.1 • se verifică sincronizarea…</span>
       </div>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
@@ -2010,22 +2011,55 @@ function withProjectMarker_(notes, project){
 
 
   /*********************** OFFLINE-FIRST QUEUE V4 ************************/
-  const OFFLINE_QUEUE_KEY = 'pontaj/offlineQueue/v4';
+  const PONTAJ_BUILD = 'offline-first-v4.1-20260720';
+  window.PONTAJ_BUILD = PONTAJ_BUILD;
+  const OFFLINE_QUEUE_KEY = 'pontaj/offlineQueue/v4.1';
+  const OFFLINE_QUEUE_LEGACY_KEY = 'pontaj/offlineQueue/v4';
   const LAST_GPS_KEY = 'pontaj/lastGps/v4';
   const OFFLINE_QUEUE_LIMIT = 300;
   let offlineFlushRunning_ = false;
   let offlineFlushTimer_ = null;
 
+  function localStorageAvailable_(){
+    try{
+      const k = '__pontaj_storage_test__';
+      localStorage.setItem(k, '1');
+      const ok = localStorage.getItem(k) === '1';
+      localStorage.removeItem(k);
+      return ok;
+    }catch(e){ return false; }
+  }
   function loadOfflineQueue_(){
     try{
-      const q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      let q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      if ((!Array.isArray(q) || !q.length) && OFFLINE_QUEUE_LEGACY_KEY){
+        const legacy = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_LEGACY_KEY) || '[]');
+        if (Array.isArray(legacy) && legacy.length){
+          q = legacy;
+          localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(legacy.slice(-OFFLINE_QUEUE_LIMIT)));
+        }
+      }
       return Array.isArray(q) ? q : [];
     }catch{ return []; }
   }
   function saveOfflineQueue_(q){
-    try{ localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify((q || []).slice(-OFFLINE_QUEUE_LIMIT))); }
-    catch(e){ console.warn('Nu pot salva coada offline', e); }
-    updateOfflineQueueBadge_();
+    const trimmed = (q || []).slice(-OFFLINE_QUEUE_LIMIT);
+    try{
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(trimmed));
+      const verify = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      if (!Array.isArray(verify) || verify.length !== trimmed.length){
+        throw new Error('verificarea scrierii locale a eșuat');
+      }
+      updateOfflineQueueBadge_();
+      return true;
+    }catch(e){
+      console.warn('Nu pot salva coada offline', e);
+      const el = document.getElementById('offlineQueueStatus');
+      const txt = document.getElementById('offlineQueueStatusText');
+      if (el) { el.classList.remove('pending','offline'); el.classList.add('error'); }
+      if (txt) txt.textContent = 'Memoria locală este blocată';
+      throw new Error('Browserul nu permite salvarea locală. Ieși din modul Incognito/Privat și permite datele site-ului.');
+    }
   }
   function updateOfflineQueueBadge_(forcedError){
     const el = document.getElementById('offlineQueueStatus');
@@ -2044,9 +2078,9 @@ function withProjectMarker_(notes, project){
       txt.textContent = online ? `Se sincronizează ${pending} acțiuni…` : `Offline • ${pending} acțiuni salvate`;
     } else if (!online){
       el.classList.add('offline');
-      txt.textContent = 'Offline • fără acțiuni restante';
+      txt.textContent = 'V4.1 • Offline • fără acțiuni restante';
     } else {
-      txt.textContent = 'Online • sincronizat';
+      txt.textContent = 'V4.1 • Online • sincronizat';
     }
   }
   function enqueueOfflineAction_(ctx, ts){
@@ -2067,6 +2101,8 @@ function withProjectMarker_(notes, project){
       lastError: ''
     });
     saveOfflineQueue_(q);
+    const persisted = loadOfflineQueue_().some(x => x && x.requestId === ctx.requestId);
+    if (!persisted) throw new Error('Acțiunea nu a putut fi păstrată în memoria dispozitivului.');
     scheduleOfflineFlush_(50);
     return ctx.requestId;
   }
@@ -2259,14 +2295,22 @@ function withProjectMarker_(notes, project){
     offlineFlushTimer_ = setTimeout(()=>flushOfflineQueue_(), Math.max(0, Number(delay || 0)));
   }
   function initOfflineSync_(){
-    updateOfflineQueueBadge_();
+    const badge = document.getElementById('offlineQueueStatus');
+    if (badge) badge.title = 'Build ' + PONTAJ_BUILD + ' • acțiunile sunt păstrate local până la confirmarea în Google Sheet';
+    if (!localStorageAvailable_()){
+      if (badge) badge.classList.add('error');
+      const txt = document.getElementById('offlineQueueStatusText');
+      if (txt) txt.textContent = 'V4.1 • memoria locală este blocată';
+      console.error('Pontaj offline: localStorage indisponibil');
+    } else {
+      updateOfflineQueueBadge_();
+    }
     window.addEventListener('online', ()=>{ updateOfflineQueueBadge_(); scheduleOfflineFlush_(100); });
     window.addEventListener('offline', updateOfflineQueueBadge_);
     document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) scheduleOfflineFlush_(100); });
     setInterval(()=>scheduleOfflineFlush_(0), 15000);
     scheduleOfflineFlush_(700);
 
-    const badge = document.getElementById('offlineQueueStatus');
     if (badge){
       badge.style.cursor = 'pointer';
       badge.addEventListener('click', ()=>{
@@ -2279,7 +2323,9 @@ function withProjectMarker_(notes, project){
     }
 
     if ('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker registration failed', err));
+      navigator.serviceWorker.register('./service-worker.js?v=offline-v4.1-20260720', {scope:'./'})
+        .then(reg => reg.update())
+        .catch(err=>console.warn('Service worker registration failed', err));
     }
   }
 
@@ -2492,6 +2538,8 @@ function withProjectMarker_(notes, project){
 
     reflectState();
   }
+
+  console.log('Servelect Pontaj build', PONTAJ_BUILD);
 
   (async function init(){
     try {
