@@ -1,4 +1,4 @@
-const BUILD='offline-first-v4.9-live-profile-history-notice-20260720-1';
+const BUILD='offline-first-v5.0-mobile-native-nav-seven-day-history-20260720-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=['./','./index.html','./config.json','./version.json','./manifest.webmanifest','./favicon.png','./background.jpg','./departments.csv','./employees.csv','./employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv','./admin.html','./reports.html','./fix-day.html','./self.html'];
