@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-v4.3-20260720-1" />
-  <meta name="pontaj-build" content="offline-first-v4.4-20260720-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.6-20260720-1" />
+  <meta name="pontaj-build" content="offline-first-v4.6-20260720-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -343,7 +343,7 @@
 
       <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt salvate imediat pe dispozitiv și confirmate ulterior în Google Sheet">
         <span class="sync-dot" aria-hidden="true"></span>
-        <span id="offlineQueueStatusText">V4.4 • Se verifică memoria locală…</span>
+        <span id="offlineQueueStatusText">V4.6 • Se verifică memoria locală…</span>
       </div>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
@@ -2030,14 +2030,77 @@ function withProjectMarker_(notes, project){
 
 
 
-  /*********************** OFFLINE-FIRST V4.4 ************************/
-  const PONTAJ_BUILD = 'offline-first-v4.4-20260720-1';
-  const OFFLINE_QUEUE_KEY_V43 = 'pontaj/offlineQueue/v4.4';
-  const OFFLINE_QUEUE_LEGACY_KEYS_V43 = ['pontaj/offlineQueue/v4.3','pontaj/offlineQueue/v4.2','pontaj/offlineQueue/v4.1','pontaj/offlineQueue/v4'];
-  const LOCAL_STATE_MAP_KEY_V43 = 'pontaj/stateByEmployee/v4.4';
-  const SERVER_STATE_MAP_KEY_V43 = 'pontaj/serverStateByEmployee/v4.4';
-  const LAST_GPS_KEY_V43 = 'pontaj/lastGps/v4.4';
-  const IDB_NAME_V43 = 'servelect-pontaj-v44';
+  /*********************** OFFLINE-FIRST V4.6 ************************/
+  const PONTAJ_BUILD = 'offline-first-v4.6-20260720-1';
+  const APP_CACHE_PREFIX_V45 = 'servelect-pontaj-';
+  const APP_CACHE_NAME_V45 = APP_CACHE_PREFIX_V45 + PONTAJ_BUILD;
+  const UI_BUILD_MARKER_KEY_V45 = 'pontaj/uiBuild/current';
+  let remoteBuildCheckRunningV45_ = false;
+  let remoteBuildLastCheckV45_ = 0;
+
+  async function purgeOldUiCachesV45_(deleteCurrent){
+    if (!('caches' in window)) return;
+    try{
+      const keys = await caches.keys();
+      await Promise.all(keys
+        .filter(key => key.indexOf(APP_CACHE_PREFIX_V45) === 0 && (deleteCurrent || key !== APP_CACHE_NAME_V45))
+        .map(key => caches.delete(key)));
+    }catch(e){ console.warn('Curățarea automată a cache-ului UI a eșuat', e); }
+  }
+
+  async function autoMigrateUiCacheV45_(){
+    let previousBuild = '';
+    try{ previousBuild = localStorage.getItem(UI_BUILD_MARKER_KEY_V45) || ''; }catch{}
+    if (previousBuild !== PONTAJ_BUILD){
+      // Marcăm buildul nou, dar lăsăm service worker-ul nou să șteargă
+      // cache-urile vechi doar DUPĂ ce noul cache a fost instalat. Astfel
+      // nu pierdem fallback-ul offline în timpul actualizării.
+      try{ localStorage.setItem(UI_BUILD_MARKER_KEY_V45, PONTAJ_BUILD); }catch{}
+    }
+  }
+
+  async function forceUiUpgradeV45_(remoteBuild){
+    const target = String(remoteBuild || PONTAJ_BUILD).trim() || PONTAJ_BUILD;
+    try{ await purgeOldUiCachesV45_(true); }catch{}
+    try{
+      if ('serviceWorker' in navigator){
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(reg => reg.update().catch(()=>{})));
+      }
+    }catch{}
+    const onceKey = 'pontaj-auto-upgrade-' + target;
+    if (!sessionStorage.getItem(onceKey)){
+      sessionStorage.setItem(onceKey, '1');
+      const u = new URL(location.href);
+      u.searchParams.set('v', target);
+      u.searchParams.set('_cache', String(Date.now()));
+      location.replace(u.toString());
+    }
+  }
+
+  async function checkRemoteBuildV45_(force){
+    if (navigator.onLine === false || remoteBuildCheckRunningV45_) return;
+    const now = Date.now();
+    if (!force && now - remoteBuildLastCheckV45_ < 15000) return;
+    remoteBuildCheckRunningV45_ = true;
+    remoteBuildLastCheckV45_ = now;
+    try{
+      const r = await fetch('version.json?_=' + now, {cache:'no-store', headers:{'Cache-Control':'no-cache'}});
+      if (!r.ok) return;
+      const v = await r.json();
+      const remoteBuild = String(v && v.build || '').trim();
+      if (remoteBuild && remoteBuild !== PONTAJ_BUILD){
+        await forceUiUpgradeV45_(remoteBuild);
+      }
+    }catch{}
+    finally{ remoteBuildCheckRunningV45_ = false; }
+  }
+  const OFFLINE_QUEUE_KEY_V43 = 'pontaj/offlineQueue/v4.6';
+  const OFFLINE_QUEUE_LEGACY_KEYS_V43 = ['pontaj/offlineQueue/v4.5','pontaj/offlineQueue/v4.4','pontaj/offlineQueue/v4.3','pontaj/offlineQueue/v4.2','pontaj/offlineQueue/v4.1','pontaj/offlineQueue/v4'];
+  const LOCAL_STATE_MAP_KEY_V43 = 'pontaj/stateByEmployee/v4.6';
+  const SERVER_STATE_MAP_KEY_V43 = 'pontaj/serverStateByEmployee/v4.6';
+  const LAST_GPS_KEY_V43 = 'pontaj/lastGps/v4.6';
+  const IDB_NAME_V43 = 'servelect-pontaj-v46';
   const IDB_STORE_V43 = 'sync';
   const QUEUE_LIMIT_V43 = 400;
   let offlineFlushRunningV43_ = false;
@@ -2189,10 +2252,10 @@ function withProjectMarker_(notes, project){
     const el=document.getElementById('offlineQueueStatus'),txt=document.getElementById('offlineQueueStatusText'); if(!el||!txt)return;
     const q=loadOfflineQueueV43_(), pending=q.filter(x=>x&&x.status!=='rejected').length, rejected=q.filter(x=>x&&x.status==='rejected').length;
     const online=navigator.onLine!==false; el.classList.remove('pending','offline','error');
-    if(forcedError||rejected){el.classList.add('error');txt.textContent=rejected?`V4.4 • ${rejected} acțiuni respinse`:'V4.4 • Eroare sincronizare';}
-    else if(pending){el.classList.add(online?'pending':'offline');txt.textContent=online?`V4.4 • Se sincronizează ${pending} acțiuni…`:`V4.4 • Offline • ${pending} acțiuni salvate`;}
-    else if(!online){el.classList.add('offline');txt.textContent='V4.4 • Offline • sincronizat local';}
-    else txt.textContent='V4.4 • Online • sincronizat';
+    if(forcedError||rejected){el.classList.add('error');txt.textContent=rejected?`V4.6 • ${rejected} acțiuni respinse`:'V4.6 • Eroare sincronizare';}
+    else if(pending){el.classList.add(online?'pending':'offline');txt.textContent=online?`V4.6 • Se sincronizează ${pending} acțiuni…`:`V4.6 • Offline • ${pending} acțiuni salvate`;}
+    else if(!online){el.classList.add('offline');txt.textContent='V4.6 • Offline • sincronizat local';}
+    else txt.textContent='V4.6 • Online • sincronizat';
   }
   function cachedGpsV43_(){try{const g=JSON.parse(localStorage.getItem(LAST_GPS_KEY_V43)||'null');return g&&Date.now()-Number(g.capturedAt||0)<900000?g:null;}catch{return null;}}
   function captureGpsBackgroundV43_(requestId){
@@ -2268,7 +2331,7 @@ function withProjectMarker_(notes, project){
         if(done)continue;
         patchQueueItemV43_(item.requestId,{status:'pending',nextAttemptAt:Date.now()+500,lastError:'Aștept confirmarea serverului.'});break;
       }
-    }catch(e){console.warn('Pontaj V4.4 flush',e);updateOfflineBadgeV43_(true);}
+    }catch(e){console.warn('Pontaj V4.6 flush',e);updateOfflineBadgeV43_(true);}
     finally{offlineFlushRunningV43_=false;updateOfflineBadgeV43_();}
   }
   function scheduleFlushV43_(delay){clearTimeout(offlineFlushTimerV43_);offlineFlushTimerV43_=setTimeout(flushQueueV43_,Math.max(0,Number(delay||0)));}
@@ -2281,25 +2344,49 @@ function withProjectMarker_(notes, project){
   async function hydrateQueueFromIdbV43_(){try{const idbQ=await idbGetV43_('queue');if(Array.isArray(idbQ)&&idbQ.length)saveOfflineQueueV43_(normalizeQueueV43_(loadOfflineQueueV43_().concat(idbQ)));}catch{}}
   async function registerBackgroundSyncV43_(){
     if(!('serviceWorker'in navigator))return;
-    try{const reg=await navigator.serviceWorker.ready;if(reg.sync)await reg.sync.register('pontaj-sync-v44');}catch{}
+    try{const reg=await navigator.serviceWorker.ready;if(reg.sync)await reg.sync.register('pontaj-sync-v46');}catch{}
   }
   async function activateLatestServiceWorkerV43_(){
-    if(!('serviceWorker'in navigator))return;
+    if(!('serviceWorker' in navigator))return;
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v='+encodeURIComponent(PONTAJ_BUILD),{scope:'./',updateViaCache:'none'});await reg.update();
-      const activate=worker=>{if(worker)worker.postMessage({type:'SKIP_WAITING'});}; if(reg.waiting)activate(reg.waiting);
-      reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)activate(w);});});
-      let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;reloading=true;const k='pontaj-sw-reload-'+PONTAJ_BUILD;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');location.reload();}});
+      await autoMigrateUiCacheV45_();
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v='+encodeURIComponent(PONTAJ_BUILD)+'&_='+Date.now(),{scope:'./',updateViaCache:'none'});
+      await reg.update();
+      const activate=worker=>{if(worker)worker.postMessage({type:'SKIP_WAITING',build:PONTAJ_BUILD});};
+      if(reg.waiting)activate(reg.waiting);
+      reg.addEventListener('updatefound',()=>{
+        const w=reg.installing;if(!w)return;
+        w.addEventListener('statechange',()=>{
+          if(w.state==='installed')activate(w);
+        });
+      });
+      let reloading=false;
+      navigator.serviceWorker.addEventListener('controllerchange',async()=>{
+        if(reloading)return;
+        reloading=true;
+        await purgeOldUiCachesV45_(false);
+        const k='pontaj-sw-reload-'+PONTAJ_BUILD;
+        if(!sessionStorage.getItem(k)){
+          sessionStorage.setItem(k,'1');
+          const u=new URL(location.href);u.searchParams.set('v',PONTAJ_BUILD);u.searchParams.set('_sw',String(Date.now()));location.replace(u.toString());
+        }
+      });
+      navigator.serviceWorker.addEventListener('message',async ev=>{
+        const data=ev&&ev.data||{};
+        if(data.type==='PONTAJ_CACHE_ACTIVATED'&&data.build===PONTAJ_BUILD){
+          await purgeOldUiCachesV45_(false);
+        }
+      });
     }catch(e){console.warn('Service worker indisponibil',e);}
   }
   function initOfflineV43_(){
     const badge=document.getElementById('offlineQueueStatus');if(badge)badge.title='Build '+PONTAJ_BUILD+' • localStorage + IndexedDB • coadă ordonată';
-    if(!localStorageAvailableV43_()){if(badge)badge.classList.add('error');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.4 • memoria browserului este blocată';return;}
+    if(!localStorageAvailableV43_()){if(badge)badge.classList.add('error');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.6 • memoria browserului este blocată';return;}
     saveOfflineQueueV43_(loadOfflineQueueV43_());hydrateQueueFromIdbV43_().then(()=>{if(empSel.value)setProjectedStateV43_(empSel.value);scheduleFlushV43_(0);});
-    const kick=()=>{updateOfflineBadgeV43_();scheduleFlushV43_(0);registerBackgroundSyncV43_();refreshActiveSnapshotV44_(false).catch(()=>{});};
+    const kick=()=>{updateOfflineBadgeV43_();scheduleFlushV43_(0);registerBackgroundSyncV43_();refreshActiveSnapshotV44_(false).catch(()=>{});checkRemoteBuildV45_(false);};
     window.addEventListener('online',kick);window.addEventListener('offline',()=>{updateOfflineBadgeV43_();if(empSel.value)setProjectedStateV43_(empSel.value);});window.addEventListener('focus',kick);window.addEventListener('pageshow',kick);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick();});try{navigator.connection&&navigator.connection.addEventListener('change',kick);}catch{}
-    setInterval(()=>{if(loadOfflineQueueV43_().length)scheduleFlushV43_(0);},1000);scheduleFlushV43_(100);activateLatestServiceWorkerV43_();
+    setInterval(()=>{if(loadOfflineQueueV43_().length)scheduleFlushV43_(0);},1000);setInterval(()=>checkRemoteBuildV45_(false),60000);scheduleFlushV43_(100);autoMigrateUiCacheV45_().then(()=>activateLatestServiceWorkerV43_());
     if(badge){badge.style.cursor='pointer';badge.onclick=()=>{scheduleFlushV43_(0);};}
   }
 
@@ -2392,6 +2479,7 @@ function withProjectMarker_(notes, project){
     const now=Date.now();if(busy||now-lastActionAt<350)return;
     if(!deptSel.value){setStatus('Alege departamentul.','err');return;}if(!empSel.value){setStatus('Selectează angajat.','err');return;}if(!actSel.value){setStatus('Alege tip de activitate.','err');return;}
     const ctx=captureActionContext_(action),a=ctx.action,isCom=['comercial','coemercial'].includes(String(ctx.department||'').toLowerCase());
+    if(hasPendingEquivalentV46_(ctx.name,a)){setStatus('Această acțiune este deja salvată și așteaptă confirmarea.','warn');setProjectedStateV43_(ctx.name);return;}
     const fenceKey=actionFenceKeyV44_(ctx.name,a),lastFence=Number(actionFenceV44_.get(fenceKey)||0);
     if(now-lastFence<1800){setStatus('Această acțiune a fost deja apăsată și este memorată.','warn');return;}
     if(isInvoireActivity()){setStatus('Pentru învoire folosește butonul dedicat.','warn');return;}if(isCom&&(a==='extra_start'||a==='extra_finish')){setStatus('Departamentul Comercial nu poate folosi ore EXTRA.','warn');return;}if(!isCom&&!ctx.location){setStatus('Scrie clientul/locația.','err');locInput.focus();return;}if(LEAVE_TYPES_SET.has(String(ctx.activity||'').toLowerCase())){setStatus('Pentru concediu folosește cererea de concediu.','warn');return;}
@@ -2425,9 +2513,179 @@ function withProjectMarker_(notes, project){
     reflectState();
   }
 
+
+
+  /*********************** V4.6 RELIABILITY OVERRIDES ************************/
+  // Regula de siguranță: pagina este singurul expeditor. Service worker-ul nu
+  // mai trimite Google Form în fundal, deoarece un răspuns no-cors nu poate fi
+  // confirmat și producea retrimiteri infinite ale aceluiași REQUEST_ID.
+  let offlineQueueReadyV46_ = false;
+  let queueReconcileRunningV46_ = false;
+
+  function semanticQueueKeyV46_(item){
+    const c=item&&item.ctx||{};
+    return [stateKeyV43_(c.name),_normAction(item&&item.action),String(item&&item.timestamp||'')].join('|');
+  }
+  function hasPendingEquivalentV46_(name,action){
+    const nk=stateKeyV43_(name),a=_normAction(action);
+    return loadOfflineQueueV43_().some(x=>x&&x.status!=='rejected'&&stateKeyV43_(x.ctx&&x.ctx.name)===nk&&_normAction(x.action)===a);
+  }
+  function actionReflectedByStateV46_(state,item){
+    if(!state||!item)return false;
+    const a=_normAction(item.action),n=state.normal||{},e=state.extra||{};
+    if(a==='start')return !!n.running;
+    if(a==='pause')return !!(n.running&&n.paused);
+    if(a==='unpause')return !!(n.running&&!n.paused);
+    if(a==='finish')return !n.running&&!!state.lastNormalFinish;
+    if(a==='extra_start')return !!e.running;
+    if(a==='extra_finish')return !e.running&&!!state.lastExtraFinish;
+    return false;
+  }
+  function applyStrictProjectedV46_(state,item){
+    const err=validateLocalActionV43_(state,item.action);
+    if(err)return {ok:false,error:err,state};
+    applyActionToStateV43_(state,item.action,item.timestamp);
+    return {ok:true,state};
+  }
+
+  // IDB este doar backup. Nu îl mai concatenăm peste o coadă locală existentă.
+  // Restaurarea se face numai când cheia localStorage lipsește complet.
+  async function hydrateQueueFromIdbV43_(){
+    try{
+      const raw=localStorage.getItem(OFFLINE_QUEUE_KEY_V43);
+      if(raw!==null){
+        await mirrorQueueToIdbV43_(loadOfflineQueueV43_());
+        return;
+      }
+      const idbQ=await idbGetV43_('queue');
+      if(Array.isArray(idbQ)&&idbQ.length)saveOfflineQueueV43_(normalizeQueueV43_(idbQ));
+      else saveOfflineQueueV43_([]);
+    }catch{ try{saveOfflineQueueV43_(loadOfflineQueueV43_());}catch{} }
+  }
+
+  async function reconcileQueueV46_(){
+    if(queueReconcileRunningV46_)return;
+    queueReconcileRunningV46_=true;
+    try{
+      let q=normalizeQueueV43_(loadOfflineQueueV43_());
+      // Colapsăm și dublurile semantice provenite din versiunile defecte.
+      const sem=new Map();
+      q.forEach(item=>{
+        const k=semanticQueueKeyV46_(item),prev=sem.get(k);
+        if(!prev||Number(item.createdAt||0)<Number(prev.createdAt||0))sem.set(k,item);
+      });
+      q=[...sem.values()].sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
+      saveOfflineQueueV43_(q);
+
+      if(navigator.onLine===false){offlineQueueReadyV46_=true;return;}
+
+      // Mai întâi cerem ACK pentru fiecare REQUEST_ID. Orice rând deja ajuns în
+      // Sheet este eliminat local fără nicio retrimitere.
+      const unresolved=[];
+      for(const item of q){
+        const ack=await fetchAckV43_(item);
+        if(ack&&ack.ready){
+          if(ack.state)saveCanonicalStateV43_(item.ctx.name,ack.state);
+          continue;
+        }
+        unresolved.push(item);
+      }
+
+      // Curățăm acțiunile vechi invalide față de starea autoritară curentă și
+      // păstrăm numai o succesiune strict validă pentru fiecare angajat.
+      const byEmployee=new Map();
+      unresolved.forEach(item=>{
+        const k=stateKeyV43_(item.ctx&&item.ctx.name);
+        if(!byEmployee.has(k))byEmployee.set(k,[]);
+        byEmployee.get(k).push(item);
+      });
+      const keep=[];
+      for(const items of byEmployee.values()){
+        const name=String(items[0]&&items[0].ctx&&items[0].ctx.name||'').trim();
+        let base=await fetchState(name);
+        if(base)saveCanonicalStateV43_(name,base);
+        base=cloneStateV43_(base||loadCanonicalStateV43_(name)||localStateRecordV44_(name)||blankState(),name);
+        items.sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
+        for(const item of items){
+          if(actionReflectedByStateV46_(base,item))continue;
+          const r=applyStrictProjectedV46_(base,item);
+          if(!r.ok)continue;
+          keep.push(Object.assign({},item,{status:item.status==='sent'?'sent':'pending',nextAttemptAt:0,lastError:''}));
+        }
+      }
+      saveOfflineQueueV43_(keep);
+      if(empSel&&empSel.value)setProjectedStateV43_(empSel.value);
+    }catch(e){console.warn('V4.6 queue reconcile',e);}
+    finally{offlineQueueReadyV46_=true;queueReconcileRunningV46_=false;updateOfflineBadgeV43_();}
+  }
+
+  // Trimitere exact o singură dată. După status=sent se face numai polling ACK;
+  // nu există retrimitere automată la 10 secunde.
+  async function flushQueueV43_(){
+    if(!offlineQueueReadyV46_||offlineFlushRunningV43_||navigator.onLine===false){updateOfflineBadgeV43_();return;}
+    offlineFlushRunningV43_=true;updateOfflineBadgeV43_();
+    try{
+      const q=loadOfflineQueueV43_().filter(x=>x&&x.status!=='rejected')
+        .sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));
+      const item=q[0];
+      if(!item)return;
+
+      const ack0=await fetchAckV43_(item);
+      if(handleAckV43_(item,ack0)){scheduleFlushV43_(0);return;}
+
+      if(item.status!=='sent'){
+        try{
+          submitFormEntriesV43_(item);
+          patchQueueItemV43_(item.requestId,{status:'sent',attempts:Number(item.attempts||0)+1,lastAttemptAt:Date.now(),nextAttemptAt:0,lastError:'Trimis o singură dată; aștept confirmarea.'});
+        }catch(e){
+          patchQueueItemV43_(item.requestId,{status:'pending',lastError:String(e&&e.message?e.message:e)});
+          return;
+        }
+      }
+
+      // Polling scurt, fără retransmitere.
+      const started=Date.now();
+      while(Date.now()-started<9000&&navigator.onLine!==false){
+        await sleep(450);
+        const ack=await fetchAckV43_(item);
+        if(handleAckV43_(item,ack)){scheduleFlushV43_(0);return;}
+      }
+      patchQueueItemV43_(item.requestId,{status:'sent',lastError:'Trimis; confirmarea din Sheet este încă în așteptare.'});
+    }catch(e){console.warn('Pontaj V4.6 flush',e);updateOfflineBadgeV43_(true);}
+    finally{offlineFlushRunningV43_=false;updateOfflineBadgeV43_();}
+  }
+
+  function initOfflineV43_(){
+    const badge=document.getElementById('offlineQueueStatus');
+    if(badge)badge.title='Build '+PONTAJ_BUILD+' • expediere unică • ACK obligatoriu • fără retrimitere service worker';
+    if(!localStorageAvailableV43_()){
+      if(badge)badge.classList.add('error');
+      const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.6 • memoria browserului este blocată';
+      return;
+    }
+    offlineQueueReadyV46_=false;
+    hydrateQueueFromIdbV43_().then(reconcileQueueV46_).then(()=>scheduleFlushV43_(0));
+    const kick=()=>{updateOfflineBadgeV43_();reconcileQueueV46_().then(()=>scheduleFlushV43_(0));refreshActiveSnapshotV44_(false).catch(()=>{});checkRemoteBuildV45_(false);};
+    window.addEventListener('online',kick);
+    window.addEventListener('offline',()=>{updateOfflineBadgeV43_();if(empSel.value)setProjectedStateV43_(empSel.value);});
+    window.addEventListener('focus',kick);window.addEventListener('pageshow',kick);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick();});
+    try{navigator.connection&&navigator.connection.addEventListener('change',kick);}catch{}
+    // Pentru item-urile sent facem doar ACK polling; nu retrimitem.
+    setInterval(()=>{if(loadOfflineQueueV43_().length)scheduleFlushV43_(0);},2500);
+    setInterval(()=>checkRemoteBuildV45_(false),60000);
+    autoMigrateUiCacheV45_().then(()=>activateLatestServiceWorkerV43_());
+    if(badge){badge.style.cursor='pointer';badge.onclick=()=>{reconcileQueueV46_().then(()=>scheduleFlushV43_(0));};}
+    if('serviceWorker'in navigator){
+      navigator.serviceWorker.addEventListener('message',ev=>{if(ev&&ev.data&&ev.data.type==='PONTAJ_SYNC_REQUEST')kick();});
+    }
+  }
+
   console.log('Servelect Pontaj build', PONTAJ_BUILD);
 
   (async function init(){
+    await autoMigrateUiCacheV45_();
+    checkRemoteBuildV45_(true);
     try {
       const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -2615,9 +2873,7 @@ function withProjectMarker_(notes, project){
     syncInvoireUI();
     reflectState();
 
-    fetch('version.json?_='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{
-      if(v&&v.build&&v.build!==PONTAJ_BUILD){location.replace(location.pathname+'?v='+encodeURIComponent(v.build));}
-    }).catch(()=>{});
+    checkRemoteBuildV45_(true);
 
 
   })();
