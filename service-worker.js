@@ -1,8 +1,8 @@
-const BUILD='offline-first-v4.6-20260720-1';
+const BUILD='offline-first-v4.7-20260720-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=['./','./index.html','./config.json','./version.json','./manifest.webmanifest','./favicon.png','./background.jpg','./departments.csv','./employees.csv','./employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv','./admin.html','./reports.html','./fix-day.html','./self.html'];
-const DB='servelect-pontaj-v46',STORE='sync';
+const DB='servelect-pontaj-v47',STORE='sync';
 function openDb(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE);};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function getVal(k){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly'),r=tx.objectStore(STORE).get(k);r.onsuccess=()=>{db.close();res(r.result);};r.onerror=()=>{db.close();rej(r.error);};});}
 async function putVal(k,v){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(v,k);tx.oncomplete=()=>{db.close();res();};tx.onerror=()=>{db.close();rej(tx.error);};});}
@@ -16,5 +16,5 @@ async function wakeClientsForSync(){
   const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
   clients.forEach(client=>client.postMessage({type:'PONTAJ_SYNC_WAKE',build:BUILD}));
 }
-self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v46'||e.tag==='pontaj-sync-v45'||e.tag==='pontaj-sync-v44')e.waitUntil(wakeClientsForSync());});
-self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v46'||e.tag==='pontaj-periodic-v45'||e.tag==='pontaj-periodic-v44')e.waitUntil(wakeClientsForSync());});
+self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v47'||e.tag==='pontaj-sync-v45'||e.tag==='pontaj-sync-v44')e.waitUntil(wakeClientsForSync());});
+self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v47'||e.tag==='pontaj-periodic-v45'||e.tag==='pontaj-periodic-v44')e.waitUntil(wakeClientsForSync());});
