@@ -1,41 +1,14 @@
-const CACHE_NAME = 'servelect-pontaj-offline-v4.2-20260720';
-const CORE_REQUIRED = ['./', './index.html', './config.json', './manifest.webmanifest'];
-const CORE_OPTIONAL = [
-  './favicon.png','./background.jpg','./departments.csv','./employees.csv',
-  './employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv',
-  './admin.html','./reports.html','./fix-day.html','./self.html'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil((async()=>{
-    const cache=await caches.open(CACHE_NAME);
-    await cache.addAll(CORE_REQUIRED);
-    await Promise.allSettled(CORE_OPTIONAL.map(u=>cache.add(u)));
-    await self.skipWaiting();
-  })());
-});
-self.addEventListener('activate', event => {
-  event.waitUntil((async()=>{
-    const keys=await caches.keys();
-    await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
-    await self.clients.claim();
-  })());
-});
-self.addEventListener('fetch', event => {
-  const req=event.request;
-  if(req.method!=='GET') return;
-  const url=new URL(req.url);
-  if(url.origin!==self.location.origin) return;
-  const networkFirst=/(?:index\.html|config\.json|\.csv)$/i.test(url.pathname)||req.mode==='navigate';
-  if(networkFirst){
-    event.respondWith(fetch(req).then(resp=>{
-      if(resp&&resp.ok){const copy=resp.clone();caches.open(CACHE_NAME).then(c=>c.put(req,copy));}
-      return resp;
-    }).catch(async()=>await caches.match(req)||await caches.match('./index.html')));
-    return;
-  }
-  event.respondWith(caches.match(req).then(hit=>hit||fetch(req).then(resp=>{
-    if(resp&&resp.ok){const copy=resp.clone();caches.open(CACHE_NAME).then(c=>c.put(req,copy));}
-    return resp;
-  })));
-});
+const BUILD='offline-first-v4.3-20260720-1';
+const CACHE_NAME='servelect-pontaj-'+BUILD;
+const CORE=['./','./index.html','./config.json','./version.json','./manifest.webmanifest','./favicon.png','./background.jpg','./departments.csv','./employees.csv','./employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv','./admin.html','./reports.html','./fix-day.html','./self.html'];
+const DB='servelect-pontaj-v43',STORE='sync';
+function openDb(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE);};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function getVal(k){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly'),r=tx.objectStore(STORE).get(k);r.onsuccess=()=>{db.close();res(r.result);};r.onerror=()=>{db.close();rej(r.error);};});}
+async function putVal(k,v){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(v,k);tx.oncomplete=()=>{db.close();res();};tx.onerror=()=>{db.close();rej(tx.error);};});}
+self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE_NAME);await Promise.allSettled(CORE.map(u=>c.add(u)));await self.skipWaiting();})()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));await self.clients.claim();})()));
+self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting();});
+self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==self.location.origin)return;const nf=req.mode==='navigate'||/(?:index\.html|config\.json|version\.json|\.csv)$/i.test(url.pathname);if(nf){e.respondWith(fetch(req,{cache:'no-store'}).then(r=>{if(r&&r.ok)caches.open(CACHE_NAME).then(c=>c.put(req,r.clone()));return r;}).catch(async()=>await caches.match(req)||await caches.match('./index.html')));return;}e.respondWith(caches.match(req).then(hit=>hit||fetch(req).then(r=>{if(r&&r.ok)caches.open(CACHE_NAME).then(c=>c.put(req,r.clone()));return r;})));});
+async function backgroundSend(){let q=await getVal('queue');if(!Array.isArray(q)||!q.length)return;const ordered=q.filter(x=>x&&x.status!=='rejected').sort((a,b)=>new Date(a.timestamp||0)-new Date(b.timestamp||0)||Number(a.createdAt||0)-Number(b.createdAt||0));for(const item of ordered){if(!item.formAction||!item.formEntries)continue;const since=Date.now()-Number(item.lastAttemptAt||0);if(item.lastAttemptAt&&since<10000)continue;try{const body=new URLSearchParams();Object.entries(item.formEntries).forEach(([k,v])=>body.append(k,String(v??'')));await fetch(item.formAction,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body});item.status='sent';item.attempts=Number(item.attempts||0)+1;item.lastAttemptAt=Date.now();item.updatedAt=Date.now();await new Promise(r=>setTimeout(r,350));}catch(e){item.lastError=String(e);break;}}await putVal('queue',q);}
+self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v43')e.waitUntil(backgroundSend());});
+self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v43')e.waitUntil(backgroundSend());});
