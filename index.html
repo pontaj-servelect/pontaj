@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -298,6 +301,22 @@
     .glow.active{ filter: drop-shadow(0 0 14px rgba(149,202,75,.75)) drop-shadow(0 0 28px rgba(149,202,75,.45)); }
     .tag{ margin-top: clamp(10px, 2.2vw, 18px); font-weight:700; font-size: clamp(18px, 3.6vw, 34px); line-height:1.15; }
     @media (prefers-reduced-motion: reduce){ .glow, .bar, .splash{ transition:none } }
+
+    /* V4 OFFLINE-FIRST: stare coadă locală */
+    .sync-chip{
+      display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.84);border:1px solid rgba(81,106,117,.18);
+      color:#2f3e45;font-weight:700;font-size:11px;white-space:nowrap;
+      box-shadow:0 4px 14px rgba(15,23,42,.08);
+    }
+    .sync-dot{width:8px;height:8px;border-radius:50%;background:#95CA4B;box-shadow:0 0 0 3px rgba(149,202,75,.18)}
+    .sync-chip.pending .sync-dot{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.18)}
+    .sync-chip.offline .sync-dot{background:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.18)}
+    .sync-chip.error .sync-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+    @media(max-width:720px){
+      .nav{flex-wrap:wrap}
+      .sync-chip{order:3;width:100%;justify-content:center}
+    }
   </style>
 </head>
 <body>
@@ -331,6 +350,12 @@
           <h1><span>SERVELECT</span><small>Pontaj & Management Concedii</small></h1>
         </div>
       </a>
+
+
+      <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt păstrate local până la confirmarea în Google Sheet">
+        <span class="sync-dot" aria-hidden="true"></span>
+        <span id="offlineQueueStatusText">Se verifică sincronizarea…</span>
+      </div>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
       <div class="chip chip-menu" id="cfg">
@@ -1446,6 +1471,7 @@ function withProjectMarker_(notes, project){
   let CFG = null;
   let STATE = blankState();
   const LS_KEY = 'pontaj/state/v1';
+  const LS_STATE_MAP_KEY = 'pontaj/stateByEmployee/v4';
 
   function blankState(){
     return {
@@ -1460,8 +1486,31 @@ function withProjectMarker_(notes, project){
       pauseMsByDay: {}
     };
   }
-  function loadLS(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch{return null;} }
-  function saveLS(){ try { localStorage.setItem(LS_KEY, JSON.stringify(STATE)); } catch{} }
+  function loadStateMap_(){
+    try { return JSON.parse(localStorage.getItem(LS_STATE_MAP_KEY) || '{}') || {}; }
+    catch { return {}; }
+  }
+  function loadStateForName_(name){
+    const key = String(name || '').trim().toLowerCase();
+    if (!key) return null;
+    const map = loadStateMap_();
+    return map[key] || null;
+  }
+  function loadLS(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); }
+    catch { return null; }
+  }
+  function saveLS(){
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(STATE));
+      const name = String(STATE && STATE.name || '').trim();
+      if (name){
+        const map = loadStateMap_();
+        map[name.toLowerCase()] = STATE;
+        localStorage.setItem(LS_STATE_MAP_KEY, JSON.stringify(map));
+      }
+    } catch{}
+  }
 
   function updateEmpStatus() {
     const selectedName = empSel.value;
@@ -1753,19 +1802,29 @@ function withProjectMarker_(notes, project){
     const base = (fromCfg || location.href).replace(/\?.*$/,'');
     return base;
   }
-  async function fetchState(name){
-    const url = baseEndpoint() + '?fn=state&name=' + encodeURIComponent(name);
+  async function fetchWithTimeout_(url, options, timeoutMs){
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = setTimeout(()=>{ try { if (ctrl) ctrl.abort(); } catch{} }, Math.max(500, Number(timeoutMs || 3500)));
     try{
-      const r = await fetch(url, { cache:'no-store' });
+      return await fetch(url, Object.assign({}, options || {}, ctrl ? {signal:ctrl.signal} : {}));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  async function fetchState(name){
+    const url = baseEndpoint() + '?fn=state&name=' + encodeURIComponent(name) + '&_=' + Date.now();
+    try{
+      const r = await fetchWithTimeout_(url, { cache:'no-store' }, 3200);
       const txt = await r.text();
-      return JSON.parse(txt).state || null;
+      const data = JSON.parse(txt);
+      return data && data.ok ? (data.state || null) : null;
     }catch{ return null; }
   }
   async function fetchStats(name, fresh){
     const url = baseEndpoint() + '?fn=stats&name=' + encodeURIComponent(name) +
       (fresh ? '&fresh=1' : '') + '&_=' + Date.now();
     try{
-      const r = await fetch(url, { cache:'no-store' });
+      const r = await fetchWithTimeout_(url, { cache:'no-store' }, 4200);
       const txt = await r.text();
       const data = JSON.parse(txt);
       return (data && data.ok) ? data.stats : null;
@@ -1783,7 +1842,7 @@ function withProjectMarker_(notes, project){
     });
 
     try{
-      const r = await fetch(baseEndpoint() + '?' + qs.toString(), { cache:'no-store' });
+      const r = await fetchWithTimeout_(baseEndpoint() + '?' + qs.toString(), { cache:'no-store' }, 4200);
       const txt = await r.text();
       const data = JSON.parse(txt);
       return data && data.ok ? data : null;
@@ -1848,7 +1907,7 @@ function withProjectMarker_(notes, project){
   async function fetchPauseTotals(name, untilIso){
     const url = baseEndpoint() + '?fn=pausetotals&name=' + encodeURIComponent(name) + (untilIso ? ('&until=' + encodeURIComponent(untilIso)) : '');
     try{
-      const r = await fetch(url, { cache:'no-store' });
+      const r = await fetchWithTimeout_(url, { cache:'no-store' }, 4200);
       const txt = await r.text();
       const data = JSON.parse(txt);
       return (data && data.ok) ? data : null;
@@ -1857,11 +1916,11 @@ function withProjectMarker_(notes, project){
   async function guardRemote(name, action){
     const url = baseEndpoint() + '?fn=guard';
     try{
-      const r = await fetch(url, {
+      const r = await fetchWithTimeout_(url, {
         method: 'POST',
         headers: {'Content-Type':'text/plain;charset=utf-8'},
         body: JSON.stringify({ name, action: _normAction(action) })
-      });
+      }, 4200);
       const txt = await r.text();
       let data; try { data = JSON.parse(txt); } catch { return {ok:true}; }
       return data;
@@ -1949,6 +2008,281 @@ function withProjectMarker_(notes, project){
     document.getElementById('f_nonce').value      = ctx.requestId;
   }
 
+
+  /*********************** OFFLINE-FIRST QUEUE V4 ************************/
+  const OFFLINE_QUEUE_KEY = 'pontaj/offlineQueue/v4';
+  const LAST_GPS_KEY = 'pontaj/lastGps/v4';
+  const OFFLINE_QUEUE_LIMIT = 300;
+  let offlineFlushRunning_ = false;
+  let offlineFlushTimer_ = null;
+
+  function loadOfflineQueue_(){
+    try{
+      const q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      return Array.isArray(q) ? q : [];
+    }catch{ return []; }
+  }
+  function saveOfflineQueue_(q){
+    try{ localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify((q || []).slice(-OFFLINE_QUEUE_LIMIT))); }
+    catch(e){ console.warn('Nu pot salva coada offline', e); }
+    updateOfflineQueueBadge_();
+  }
+  function updateOfflineQueueBadge_(forcedError){
+    const el = document.getElementById('offlineQueueStatus');
+    const txt = document.getElementById('offlineQueueStatusText');
+    if (!el || !txt) return;
+    const q = loadOfflineQueue_();
+    const pending = q.filter(x => x && x.status !== 'blocked').length;
+    const blocked = q.filter(x => x && x.status === 'blocked').length;
+    const online = navigator.onLine !== false;
+    el.classList.remove('pending','offline','error');
+    if (forcedError || blocked){
+      el.classList.add('error');
+      txt.textContent = blocked ? `${blocked} acțiuni necesită verificare` : 'Eroare sincronizare';
+    } else if (pending){
+      el.classList.add(online ? 'pending' : 'offline');
+      txt.textContent = online ? `Se sincronizează ${pending} acțiuni…` : `Offline • ${pending} acțiuni salvate`;
+    } else if (!online){
+      el.classList.add('offline');
+      txt.textContent = 'Offline • fără acțiuni restante';
+    } else {
+      txt.textContent = 'Online • sincronizat';
+    }
+  }
+  function enqueueOfflineAction_(ctx, ts){
+    const q = loadOfflineQueue_();
+    if (q.some(x => x && x.requestId === ctx.requestId)) return ctx.requestId;
+    q.push({
+      id: ctx.requestId,
+      requestId: ctx.requestId,
+      action: _normAction(ctx.action),
+      timestamp: ts,
+      createdAt: Date.now(),
+      ctx: Object.assign({}, ctx),
+      gps: null,
+      gpsResolved: false,
+      attempts: 0,
+      status: 'pending',
+      nextAttemptAt: 0,
+      lastError: ''
+    });
+    saveOfflineQueue_(q);
+    scheduleOfflineFlush_(50);
+    return ctx.requestId;
+  }
+  function patchQueueItem_(requestId, patch){
+    const q = loadOfflineQueue_();
+    const idx = q.findIndex(x => x && x.requestId === requestId);
+    if (idx < 0) return null;
+    q[idx] = Object.assign({}, q[idx], patch || {});
+    saveOfflineQueue_(q);
+    return q[idx];
+  }
+  function removeQueueItem_(requestId){
+    const q = loadOfflineQueue_().filter(x => x && x.requestId !== requestId);
+    saveOfflineQueue_(q);
+  }
+  function getCachedGps_(){
+    try{
+      const g = JSON.parse(localStorage.getItem(LAST_GPS_KEY) || 'null');
+      if (!g || !g.capturedAt) return null;
+      if ((Date.now() - Number(g.capturedAt)) > 15 * 60 * 1000) return null;
+      return g;
+    }catch{ return null; }
+  }
+  function saveCachedGps_(g){
+    try{ localStorage.setItem(LAST_GPS_KEY, JSON.stringify(Object.assign({}, g, {capturedAt:Date.now()}))); }
+    catch{}
+  }
+  function geolocateForQueue_(){
+    return new Promise(resolve => {
+      if (!('geolocation' in navigator)) return resolve(getCachedGps_() || {lat:'',lon:'',acc:'',source:'none'});
+      let done = false;
+      const finish = g => { if (done) return; done = true; resolve(g || getCachedGps_() || {lat:'',lon:'',acc:'',source:'none'}); };
+      const timer = setTimeout(()=>finish(getCachedGps_()), 5000);
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          clearTimeout(timer);
+          const g = {lat:pos.coords.latitude, lon:pos.coords.longitude, acc:Math.round(pos.coords.accuracy || 0), source:'fresh'};
+          saveCachedGps_(g);
+          finish(g);
+        },
+        () => { clearTimeout(timer); finish(getCachedGps_()); },
+        {enableHighAccuracy:false, timeout:4500, maximumAge:120000}
+      );
+    });
+  }
+  async function ensureQueueGps_(item){
+    if (item.gpsResolved) return item;
+    const gps = await geolocateForQueue_();
+    return patchQueueItem_(item.requestId, {gps:gps || {lat:'',lon:'',acc:''}, gpsResolved:true}) || item;
+  }
+  function validateLocalAction_(state, action){
+    const running = !!(state && state.normal && state.normal.running);
+    const paused = !!(state && state.normal && state.normal.paused);
+    const extraR = !!(state && state.extra && state.extra.running);
+    switch(_normAction(action)){
+      case 'start':        if (running) return 'Ai deja START activ.'; if (extraR) return 'Finalizează „EXTRA” înainte de START.'; break;
+      case 'pause':        if (!running) return 'Nu poți PAUSE fără START.'; if (paused) return 'Ești deja în PAUSE.'; break;
+      case 'unpause':      if (!running) return 'Nu poți UNPAUSE fără START.'; if (!paused) return 'Nu ești în PAUSE.'; break;
+      case 'finish':       if (!running) return 'Nu poți FINISH fără START.'; if (paused) return 'Nu poți FINISH în PAUSE — apasă UNPAUSE mai întâi.'; break;
+      case 'extra_start':  if (running) return 'Închide norma (FINISH) înainte de EXTRA START.'; if (extraR) return 'EXTRA este deja pornit.'; break;
+      case 'extra_finish': if (!extraR) return 'Nu poți EXTRA FINISH fără EXTRA START.'; break;
+    }
+    return null;
+  }
+  function submitQueueItemToGoogleForm_(item){
+    if (!(form.action && form.action.trim().length && form.querySelector('[name]'))){
+      throw new Error('Config formular indisponibil. Acțiunea rămâne salvată local.');
+    }
+    const gps = item.gps || {lat:'',lon:'',acc:'',source:'none'};
+    let sendCtx = item.ctx;
+    if (!gps.lat || !gps.lon){
+      sendCtx = Object.assign({}, item.ctx, {
+        notesPayload: String(item.ctx.notesPayload || '').trim() +
+          (String(item.ctx.notesPayload || '').trim() ? '\n' : '') +
+          '[[GPS_UNAVAILABLE_AT_ACTION]]'
+      });
+    } else if (gps.source === 'fresh'){
+      sendCtx = item.ctx;
+    } else {
+      sendCtx = Object.assign({}, item.ctx, {
+        notesPayload: String(item.ctx.notesPayload || '').trim() +
+          (String(item.ctx.notesPayload || '').trim() ? '\n' : '') +
+          '[[GPS_SOURCE::cached]]'
+      });
+    }
+    setFormPayload(item.action, item.timestamp, gps, sendCtx);
+    form.submit();
+  }
+  async function fetchQueueAck_(item){
+    return fetchActionResult_(item.ctx, item.timestamp);
+  }
+  async function waitForQueueAck_(item, timeoutMs){
+    const started = Date.now();
+    let attempt = 0;
+    while (Date.now() - started < Number(timeoutMs || 18000)){
+      const ack = await fetchQueueAck_(item);
+      if (ack && ack.ready) return ack;
+      attempt++;
+      await sleep(Math.min(2200, 650 + attempt * 220));
+      if (navigator.onLine === false) return null;
+    }
+    return null;
+  }
+  function showQueueAck_(item, ack){
+    const sameEmployee = String(empSel.value || '').trim() === item.ctx.name;
+    if (ack && ack.stats && item.action === 'finish'){
+      const ore = fmtHoursToHM(ack.stats.totalHours);
+      const supl = fmtHoursToHM(ack.stats.overtime);
+      if (sameEmployee) setStatus(`Finish sincronizat ✓ — Azi: ${ore} • Suplimentar: ${supl}.`, 'ok');
+      showToast(`<b>${item.ctx.name}</b><div class="small">Azi — Ore: <b>${ore}</b> • Suplimentar: <b>${supl}</b></div>`, 'ok');
+    } else if (ack && ack.stats && item.action === 'extra_finish'){
+      const extra = fmtHoursToHM(ack.stats.extra);
+      if (sameEmployee) setStatus(`Extra Finish sincronizat ✓ — Extra azi: ${extra}.`, 'ok');
+      showToast(`<b>${item.ctx.name}</b><div class="small">Extra azi: <b>${extra}</b></div>`, 'ok');
+    } else if (sameEmployee){
+      setStatus(`${String(item.action || '').toUpperCase()} sincronizat ✓`, 'ok');
+    }
+  }
+  async function flushOfflineQueue_(){
+    if (offlineFlushRunning_ || navigator.onLine === false) { updateOfflineQueueBadge_(); return; }
+    offlineFlushRunning_ = true;
+    updateOfflineQueueBadge_();
+    try{
+      while (navigator.onLine !== false){
+        let q = loadOfflineQueue_();
+        let item = q.find(x => x && x.status !== 'blocked' && Number(x.nextAttemptAt || 0) <= Date.now());
+        if (!item) break;
+
+        // Mai întâi verificăm dacă o încercare anterioară a ajuns deja în Sheet.
+        const existingAck = await fetchQueueAck_(item);
+        if (existingAck && existingAck.ready){
+          removeQueueItem_(item.requestId);
+          showQueueAck_(item, existingAck);
+          continue;
+        }
+
+        item = await ensureQueueGps_(item);
+
+        // Guard-ul remote este consultat rapid. Lipsa răspunsului nu blochează coada;
+        // validarea locală a fost făcută la apăsare.
+        const g = await guardRemote(item.ctx.name, item.action);
+        if (g && g.ok === false){
+          patchQueueItem_(item.requestId, {status:'blocked', lastError:g.msg || 'Acțiune respinsă de server.'});
+          setStatus(`${item.ctx.name}: ${g.msg || 'Acțiunea necesită verificare.'}`, 'err');
+          updateOfflineQueueBadge_(true);
+          break;
+        }
+
+        try{
+          submitQueueItemToGoogleForm_(item);
+          patchQueueItem_(item.requestId, {attempts:Number(item.attempts || 0)+1, lastAttemptAt:Date.now(), lastError:''});
+        }catch(err){
+          const attempts = Number(item.attempts || 0) + 1;
+          patchQueueItem_(item.requestId, {
+            attempts,
+            lastError:String(err && err.message ? err.message : err),
+            nextAttemptAt:Date.now() + Math.min(60000, 3000 * attempts)
+          });
+          break;
+        }
+
+        const ack = await waitForQueueAck_(item, 18000);
+        if (ack && ack.ready){
+          removeQueueItem_(item.requestId);
+          showQueueAck_(item, ack);
+          if (String(empSel.value || '').trim() === item.ctx.name){
+            refreshServerState(item.ctx.name).then(()=>{ reflectState(); updateEmpStatus(); });
+          }
+          continue;
+        }
+
+        const attempts = Number(item.attempts || 0) + 1;
+        patchQueueItem_(item.requestId, {
+          attempts,
+          nextAttemptAt:Date.now() + Math.min(60000, 5000 * attempts),
+          lastError:'Confirmarea din Sheet nu a sosit încă.'
+        });
+        break;
+      }
+    } catch(e){
+      console.warn('Offline queue flush error', e);
+      updateOfflineQueueBadge_(true);
+    } finally {
+      offlineFlushRunning_ = false;
+      updateOfflineQueueBadge_();
+    }
+  }
+  function scheduleOfflineFlush_(delay){
+    clearTimeout(offlineFlushTimer_);
+    offlineFlushTimer_ = setTimeout(()=>flushOfflineQueue_(), Math.max(0, Number(delay || 0)));
+  }
+  function initOfflineSync_(){
+    updateOfflineQueueBadge_();
+    window.addEventListener('online', ()=>{ updateOfflineQueueBadge_(); scheduleOfflineFlush_(100); });
+    window.addEventListener('offline', updateOfflineQueueBadge_);
+    document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) scheduleOfflineFlush_(100); });
+    setInterval(()=>scheduleOfflineFlush_(0), 15000);
+    scheduleOfflineFlush_(700);
+
+    const badge = document.getElementById('offlineQueueStatus');
+    if (badge){
+      badge.style.cursor = 'pointer';
+      badge.addEventListener('click', ()=>{
+        const q = loadOfflineQueue_().map(x => x && x.status === 'blocked'
+          ? Object.assign({}, x, {status:'pending', nextAttemptAt:0, lastError:''})
+          : x);
+        saveOfflineQueue_(q);
+        scheduleOfflineFlush_(20);
+      });
+    }
+
+    if ('serviceWorker' in navigator){
+      navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker registration failed', err));
+    }
+  }
+
   async function refreshServerState(nameOverride){
     const targetName = String(nameOverride || STATE.name || empSel.value || '').trim();
     if (!targetName) return null;
@@ -1978,14 +2312,23 @@ function withProjectMarker_(notes, project){
   }
 
   async function handleEmployeeChange(){
-    STATE = blankState();
-    STATE.name = empSel.value || '';
+    const name = empSel.value || '';
+    const cached = loadStateForName_(name);
+    STATE = cached ? Object.assign(blankState(), cached) : blankState();
+    STATE.name = name;
     saveLS();
 
-    setEmp('Se verifică starea angajatului…', '');
-    await refreshServerState();
     reflectState();
     updateEmpStatus();
+    setEmp(navigator.onLine === false ? 'Stare locală — conexiune indisponibilă.' : 'Stare locală încărcată; verific serverul…', navigator.onLine === false ? 'warn' : '');
+
+    // Nu blocăm interfața după selectarea angajatului.
+    refreshServerState(name).then(remote => {
+      if (remote && String(empSel.value || '').trim() === name){
+        reflectState();
+        updateEmpStatus();
+      }
+    });
   }
 
   function isComercialDept(){
@@ -2027,117 +2370,30 @@ function withProjectMarker_(notes, project){
 
   async function submitInvoire(){
     const now = Date.now();
-
-    if (busy) {
-      setInvoireStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
-      setStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
-      return;
-    }
-
-    if (now - lastActionAt < CLICK_COOLDOWN_MS) {
-      setInvoireStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
-      setStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
-      return;
-    }
-
-    if (!deptSel.value) {
-      setInvoireStatus('Alege departamentul.', 'err');
-      setStatus('Alege departamentul.', 'err');
-      return;
-    }
-
-    if (!empSel.value) {
-      setInvoireStatus('Selectează angajat.', 'err');
-      setStatus('Selectează angajat.', 'err');
-      return;
-    }
-
-    if (!isInvoireActivity()) {
-      setInvoireStatus('Alege tipul de activitate „invoire”.', 'err');
-      setStatus('Alege tipul de activitate „invoire”.', 'err');
-      return;
-    }
-
+    if (busy || now - lastActionAt < 250){ return; }
+    if (!deptSel.value) { setInvoireStatus('Alege departamentul.', 'err'); return; }
+    if (!empSel.value) { setInvoireStatus('Selectează angajat.', 'err'); return; }
+    if (!isInvoireActivity()) { setInvoireStatus('Alege tipul de activitate „invoire”.', 'err'); return; }
     if (!validateInvoireSelection()) {
-      setInvoireStatus('Completează ora/intervalul în format 24h. Exemplu: 10:00 sau 10:00-12:00.', 'err');
-      setStatus('Pentru activitatea „invoire” trebuie selectată ora sau intervalul orar.', 'err');
-
-      if (getInvoireMode() === 'onehour' && invoireOneHourStart) {
-        invoireOneHourStart.focus();
-      } else if (invoireFrom) {
-        invoireFrom.focus();
-      }
-
+      setInvoireStatus('Completează ora/intervalul în format 24h.', 'err');
       return;
     }
 
-    busy = true;
-    setUILock(true);
-    disableAllButtons(true);
-    const lockStart = Date.now();
+    const ctx = captureActionContext_('invoire');
+    const ts = new Date().toISOString();
+    enqueueOfflineAction_(ctx, ts);
+    lastActionAt = Date.now();
 
-    try {
-      const intervalLabel = getInvoireIntervalLabel();
-
-      setInvoireStatus('Se obține locația GPS…', '');
-      setStatus('Se obține locația GPS…', '');
-
-      const gps = await geolocateOnce();
-
-      setInvoireStatus('Se trimite învoirea…', '');
-      setStatus('Se trimite învoirea…', '');
-
-      const ts = new Date().toISOString();
-
-      // Acțiune separată, nu pornește pontajul normal.
-      // Code.gs o primește ca rând normal în Form Responses, iar onFormSubmit îți completează coloanele Invoire.
-      setFormPayload('invoire', ts, gps);
-
-      if (form.action && form.action.trim().length && form.querySelector('[name]')) {
-        form.submit();
-      } else {
-        setInvoireStatus('Atenție: nu există config de formular — învoirea nu a fost trimisă în Excel.', 'warn');
-        setStatus('Atenție: nu există config de formular — învoirea nu a fost trimisă în Excel.', 'warn');
-        return;
-      }
-
-      setInvoireStatus(`Învoire trimisă ✓ (${intervalLabel}).`, 'ok');
-      setStatus(`Învoire trimisă ✓ (${intervalLabel}).`, 'ok');
-
-      showToast(
-        `<b>Învoire trimisă</b><div class="small">${empSel.value} • <b>${intervalLabel}</b></div>`,
-        'ok'
-      );
-
-      await sleep(900);
-
-    } catch (err) {
-      const msg = String(err && err.message ? err.message : err);
-      setInvoireStatus(msg, 'err');
-      setStatus(msg, 'err');
-    } finally {
-      const elapsed = Date.now() - lockStart;
-      if (elapsed < GUARD_MIN_LOCK_MS) await sleep(GUARD_MIN_LOCK_MS - elapsed);
-      lastActionAt = Date.now();
-      await sleep(CLICK_COOLDOWN_MS);
-      busy = false;
-      setUILock(false);
-      disableAllButtons(false);
-      reflectState();
-      updateEmpStatus();
-    }
+    const intervalLabel = getInvoireIntervalLabel();
+    setInvoireStatus(`Învoire salvată instant ✓ (${intervalLabel}).`, 'ok');
+    setStatus(navigator.onLine === false ? 'Salvat pe telefon • se trimite automat când revine internetul.' : 'Salvat local • sincronizarea rulează în fundal.', navigator.onLine === false ? 'warn' : 'ok');
+    showToast(`<b>Învoire salvată</b><div class="small">${ctx.name} • <b>${intervalLabel}</b></div>`, 'ok');
   }
 
   async function submitAction(action) {
     const now = Date.now();
-    if (busy) {
-      setStatus('Deja se procesează o acțiune, te rog așteaptă câteva secunde.', 'warn');
-      return;
-    }
-    if (now - lastActionAt < CLICK_COOLDOWN_MS) {
-      setStatus('Nu apăsa butoanele atât de repede 😊', 'warn');
-      return;
-    }
+    if (busy) return;
+    if (now - lastActionAt < 250) return;
 
     if (!deptSel.value) { setStatus('Alege departamentul.', 'err'); return; }
     if (!empSel.value)  { setStatus('Selectează angajat.', 'err'); return; }
@@ -2149,10 +2405,8 @@ function withProjectMarker_(notes, project){
 
     if (isInvoireActivity()) {
       setStatus('Pentru învoire folosește butonul „Trimite învoirea”.', 'warn');
-      setInvoireStatus('Pentru învoire folosește butonul „Trimite învoirea”.', 'warn');
       return;
     }
-
     if (isCom && (actNorm === 'extra_start' || actNorm === 'extra_finish')) {
       setStatus('Departamentul Comercial nu poate folosi ore EXTRA.', 'warn');
       return;
@@ -2167,54 +2421,21 @@ function withProjectMarker_(notes, project){
       return;
     }
 
+    // Guard local instant. Nu mai așteptăm rețeaua înainte de a accepta apăsarea.
+    const stateForGuard = (STATE && STATE.name === ctx.name) ? STATE : (loadStateForName_(ctx.name) || blankState());
+    const localError = validateLocalAction_(stateForGuard, actNorm);
+    if (localError){ setStatus(localError, 'warn'); return; }
+
     busy = true;
     setUILock(true);
     disableAllButtons(true);
-    const lockStart = Date.now();
+    const ts = new Date().toISOString();
 
-    try {
-      setStatus(`Sincronizez starea pentru ${ctx.name}…`, '');
+    try{
+      // 1) Persistăm mai întâi pe dispozitiv. Acesta este momentul oficial al acțiunii.
+      enqueueOfflineAction_(ctx, ts);
 
-      const remoteBefore = await fetchState(ctx.name);
-      const stateForGuard = remoteBefore || (
-        STATE && STATE.name === ctx.name ? STATE : blankState()
-      );
-
-      {
-        const running = !!(stateForGuard.normal && stateForGuard.normal.running);
-        const paused  = !!(stateForGuard.normal && stateForGuard.normal.paused);
-        const extraR  = !!(stateForGuard.extra && stateForGuard.extra.running);
-        const e = (()=>{
-          switch(actNorm){
-            case 'start':        if (running) return 'Ai deja START activ.'; if (extraR) return 'Finalizează „EXTRA” înainte de START.'; break;
-            case 'pause':        if (!running) return 'Nu poți PAUSE fără START.'; if (paused) return 'Ești deja în PAUSE.'; break;
-            case 'unpause':      if (!running) return 'Nu poți UNPAUSE fără START.'; if (!paused) return 'Nu ești în PAUSE.'; break;
-            case 'finish':       if (!running) return 'Nu poți FINISH fără START.'; if (paused) return 'Nu poți FINISH în PAUSE — apasă UNPAUSE mai întâi.'; break;
-            case 'extra_start':  if (running) return 'Închide norma (FINISH) înainte de EXTRA START.'; if (extraR) return 'EXTRA este deja pornit.'; break;
-            case 'extra_finish': if (!extraR) return 'Nu poți EXTRA FINISH fără EXTRA START.'; break;
-          }
-          return null;
-        })();
-        if (e) { setStatus(e, 'warn'); return; }
-      }
-
-      setStatus('Verific reguli…', '');
-      const g = await guardRemote(ctx.name, actNorm);
-      if (!g.ok) { setStatus(g.msg || 'Acțiune blocată de regulile de pontaj.', 'warn'); return; }
-
-      setStatus('Se obține locația GPS…', '');
-      const gps = await geolocateOnce();
-
-      const ts = new Date().toISOString();
-      setFormPayload(actNorm, ts, gps, ctx);
-
-      if (form.action && form.action.trim().length && form.querySelector('[name]')) {
-        form.submit();
-      } else {
-        setStatus('Atenție: nu există config de formular — acțiunea nu a fost înregistrată.', 'warn');
-        return;
-      }
-
+      // 2) Actualizăm imediat starea vizuală și memoria locală.
       if (String(empSel.value || '').trim() === ctx.name){
         applyLocalTransition(actNorm, ts);
         saveLS();
@@ -2222,33 +2443,26 @@ function withProjectMarker_(notes, project){
         updateEmpStatus();
       }
 
-      if (actNorm === 'unpause'){
-        try{
-          await computePauseFromSheetAndShow(ctx.name, ts);
-        } catch(e){
-          setStatus('UNPAUSE trimis ✓ — pauza se actualizează în fundal.', 'warn');
-        }
-      } else {
-        setStatus(`Trimis ✓ (${actNorm.toUpperCase()}).`, 'ok');
-      }
+      const offline = navigator.onLine === false;
+      const label = actNorm.replace('_', ' ').toUpperCase();
+      setStatus(
+        offline
+          ? `${label} salvat instant pe telefon ✓ • se va trimite automat când revine internetul.`
+          : `${label} salvat instant ✓ • se sincronizează în fundal.`,
+        offline ? 'warn' : 'ok'
+      );
 
-      // Nu ținem butoanele blocate până apar statisticile în Sheet.
-      // Polling-ul rulează separat și folosește snapshot-ul angajatului trimis.
       if (actNorm === 'finish' || actNorm === 'extra_finish'){
-        showActionResultWhenReady_(ctx, ts);
+        showToast(`<b>${ctx.name}</b><div class="small">${label} salvat local la <b>${new Date(ts).toLocaleTimeString('ro-RO')}</b></div>`, 'ok');
       }
 
-      await sleep(900);
-      await refreshServerState(ctx.name);
-      reflectState();
-
-    } catch (err) {
-      setStatus(String(err && err.message ? err.message : err), 'err');
-    } finally {
-      const elapsed = Date.now() - lockStart;
-      if (elapsed < GUARD_MIN_LOCK_MS) await sleep(GUARD_MIN_LOCK_MS - elapsed);
       lastActionAt = Date.now();
-      await sleep(CLICK_COOLDOWN_MS);
+      scheduleOfflineFlush_(20);
+    } catch(err){
+      setStatus('Nu am putut salva acțiunea pe dispozitiv: ' + String(err && err.message ? err.message : err), 'err');
+    } finally {
+      // UI se eliberează imediat; sincronizarea continuă separat.
+      await sleep(120);
       busy = false;
       setUILock(false);
       disableAllButtons(false);
@@ -2281,7 +2495,7 @@ function withProjectMarker_(notes, project){
 
   (async function init(){
     try {
-      const r = await fetch('config.json?v=' + Date.now(), {cache:'no-store'});
+      const r = await fetchWithTimeout_('config.json?v=' + Date.now(), {cache:'no-store'}, 3500);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       CFG = await r.json();
       if (!CFG || !CFG.fields) throw new Error('Config incomplet');
@@ -2294,6 +2508,7 @@ function withProjectMarker_(notes, project){
 
     bindCFGToForm();
     bindLeaveForm();
+    initOfflineSync_();
 
     await loadDepartments();
     await loadProjects();
