@@ -1438,7 +1438,7 @@
             <div class="admin-small-text">
               Monitorizare în timp real (client-side) pentru:
               <ul style="margin:4px 0 0 16px;padding:0;font-size:11px;color:var(--muted);">
-                <li>Pauză &gt; limită (implicit 40 min, din configurare) fără UNPAUSE – notificări din 15 în 15 minute.</li>
+                <li>Pauză &gt; limită (implicit 30 min, din configurare) fără UNPAUSE – notificări din 15 în 15 minute.</li>
                 <li>Normă depășită (8h / 8h30 sau valori din <code>normSettings</code>) fără FINISH – notificări din 30 în 30 de minute.</li>
                 <li>EXTRA în curs &gt; 30 min – notificări din 15 în 15 minute.</li>
               </ul>
@@ -1590,7 +1590,7 @@
   // A1: Normă/pauză implicită (fallback) – suprascrisă din config.json
   let DEFAULT_NORM_MS             = 8   * 60 * 60 * 1000;
   let LONG_NORM_MS                = 8.5 * 60 * 60 * 1000;
-  let DEFAULT_PAUSE_MARGIN_MS     = 40  * 60 * 1000;
+  let DEFAULT_PAUSE_MARGIN_MS     = 30  * 60 * 1000;
   // A1: pauză inclusă în normă (fallback) – 30 min
   let DEFAULT_PAUSE_NORM_MS = 30 * 60 * 1000;
 
@@ -1670,7 +1670,7 @@ function applyNormSettingsFromConfig(cfg){
     defaultNormMs: DEFAULT_NORM_MS,
     defaultLongNormMs: LONG_NORM_MS,
 
-    // ✅ limită alertă (ce aveai tu deja - 40m default)
+    // Limită alertă: aceeași valoare implicită de 30m ca în config și backend.
     defaultPauseMarginMs: DEFAULT_PAUSE_MARGIN_MS,
 
     // ✅ NOU: pauză inclusă în normă (30m default)

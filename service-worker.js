@@ -1,20 +1,94 @@
-const BUILD='offline-first-v5.2-all-actions-reliability-20260721-1';
+'use strict';
+
+const BUILD='offline-first-v4.8.1-enterprise-ui-20260720-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
-const CORE=['./','./index.html','./config.json','./version.json','./manifest.webmanifest','./favicon.png','./background.jpg','./departments.csv','./employees.csv','./employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv','./admin.html','./reports.html','./fix-day.html','./self.html'];
-const DB='servelect-pontaj-v47',STORE='sync';
-function openDb(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE);};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
-async function getVal(k){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly'),r=tx.objectStore(STORE).get(k);r.onsuccess=()=>{db.close();res(r.result);};r.onerror=()=>{db.close();rej(r.error);};});}
-async function putVal(k,v){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(v,k);tx.oncomplete=()=>{db.close();res();};tx.onerror=()=>{db.close();rej(tx.error);};});}
-async function clearOldCaches(deleteCurrent){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith(CACHE_PREFIX)&&(deleteCurrent||k!==CACHE_NAME)).map(k=>caches.delete(k)));}
-async function cacheFreshAsset(cache,url){try{const bust=url+(url.includes('?')?'&':'?')+'__build='+encodeURIComponent(BUILD);const resp=await fetch(new Request(bust,{cache:'reload'}));if(resp&&resp.ok)await cache.put(url,resp.clone());}catch{}}
-self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE_NAME);await Promise.all(CORE.map(u=>cacheFreshAsset(c,u)));await self.skipWaiting();})()));
-self.addEventListener('activate',e=>e.waitUntil((async()=>{await clearOldCaches(false);await self.clients.claim();const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});clients.forEach(client=>client.postMessage({type:'PONTAJ_CACHE_ACTIVATED',build:BUILD}));})()));
-self.addEventListener('message',e=>{const d=e.data||{};if(d.type==='SKIP_WAITING')self.skipWaiting();if(d.type==='CLEAR_OLD_CACHES')e.waitUntil(clearOldCaches(!!d.deleteCurrent));});
-self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==self.location.origin)return;const networkFirst=req.mode==='navigate'||/(?:index\.html|config\.json|version\.json|manifest\.webmanifest|\.csv)$/i.test(url.pathname);if(networkFirst){e.respondWith((async()=>{try{const resp=await fetch(req,{cache:'no-store'});if(resp&&resp.ok){const c=await caches.open(CACHE_NAME);const canonical=new Request(url.origin+url.pathname);c.put(canonical,resp.clone()).catch(()=>{});}return resp;}catch{const hit=await caches.match(req,{ignoreSearch:true});return hit||await caches.match('./index.html',{ignoreSearch:true});}})());return;}e.respondWith((async()=>{const hit=await caches.match(req,{ignoreSearch:true});if(hit)return hit;const resp=await fetch(req);if(resp&&resp.ok){const c=await caches.open(CACHE_NAME);c.put(new Request(url.origin+url.pathname),resp.clone()).catch(()=>{});}return resp;})());});
-async function wakeClientsForSync(){
-  const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-  clients.forEach(client=>client.postMessage({type:'PONTAJ_SYNC_WAKE',build:BUILD}));
+const CORE=[
+  './','./index.html','./config.json','./version.json','./manifest.webmanifest',
+  './favicon.png','./background.jpg','./departments.csv','./employees.csv',
+  './employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv',
+  './admin.html','./reports.html','./fix-day.html','./self.html','./reset-cache.html','./admin-auth.json',
+  './audio/chime.mp3','./audio/stage1.mp3','./audio/stage2.mp3','./audio/stage3.mp3'
+];
+
+function canonicalRequest(url){
+  return new Request(url.origin+url.pathname,{method:'GET'});
 }
-self.addEventListener('sync',e=>{if(e.tag==='pontaj-sync-v52'||e.tag==='pontaj-sync-v51'||e.tag==='pontaj-sync-v49'||e.tag==='pontaj-sync-v47'||e.tag==='pontaj-sync-v45'||e.tag==='pontaj-sync-v44')e.waitUntil(wakeClientsForSync());});
-self.addEventListener('periodicsync',e=>{if(e.tag==='pontaj-periodic-v52'||e.tag==='pontaj-periodic-v51'||e.tag==='pontaj-periodic-v49'||e.tag==='pontaj-periodic-v47'||e.tag==='pontaj-periodic-v45'||e.tag==='pontaj-periodic-v44')e.waitUntil(wakeClientsForSync());});
+
+async function cacheFreshAsset(cache,path){
+  try{
+    const url=new URL(path,self.registration.scope);
+    url.searchParams.set('__build',BUILD);
+    const response=await fetch(new Request(url.toString(),{cache:'reload',credentials:'same-origin'}));
+    if(response&&response.ok)await cache.put(canonicalRequest(url),response.clone());
+  }catch(_error){
+    // O resursă auxiliară indisponibilă nu trebuie să anuleze instalarea shell-ului.
+  }
+}
+
+async function deleteOldCaches(){
+  const keys=await caches.keys();
+  await Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key)));
+}
+
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    await Promise.all(CORE.map(path=>cacheFreshAsset(cache,path)));
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    await deleteOldCaches();
+    await self.clients.claim();
+    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    clients.forEach(client=>client.postMessage({type:'PONTAJ_CACHE_ACTIVATED',build:BUILD}));
+  })());
+});
+
+self.addEventListener('message',event=>{
+  const data=event.data||{};
+  if(data.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());
+  if(data.type==='GET_BUILD'&&event.source)event.source.postMessage({type:'PONTAJ_SW_BUILD',build:BUILD});
+});
+
+async function networkFirst(request,url,navigation){
+  const cache=await caches.open(CACHE_NAME);
+  try{
+    const response=await fetch(request,{cache:'no-store'});
+    if(response&&response.ok)cache.put(canonicalRequest(url),response.clone()).catch(()=>{});
+    return response;
+  }catch(error){
+    const cached=await cache.match(canonicalRequest(url));
+    if(cached)return cached;
+    if(navigation){
+      const shell=await cache.match(new Request(new URL('./index.html',self.registration.scope).toString()));
+      if(shell)return shell;
+    }
+    throw error;
+  }
+}
+
+async function cacheFirstRevalidate(request,url){
+  const cache=await caches.open(CACHE_NAME);
+  const key=canonicalRequest(url);
+  const cached=await cache.match(key);
+  const refresh=fetch(request).then(response=>{
+    if(response&&response.ok)cache.put(key,response.clone()).catch(()=>{});
+    return response;
+  });
+  if(cached){refresh.catch(()=>{});return cached;}
+  return refresh;
+}
+
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+  const navigation=request.mode==='navigate';
+  const mutable=navigation||/(?:\/|^)(?:index\.html|config\.json|version\.json|manifest\.webmanifest|[^/]+\.csv)$/i.test(url.pathname);
+  event.respondWith(mutable?networkFirst(request,url,navigation):cacheFirstRevalidate(request,url));
+});

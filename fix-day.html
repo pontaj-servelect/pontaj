@@ -307,7 +307,8 @@
 
   function requireAdmin(){
     const s = getAdminSession();
-    if (!s || !s.email) {
+    const identity = s && (s.email || s.user || s.name || s.id || s.userHash);
+    if (!identity) {
       toast("Nu ești logat", "Te trimit către pagina de pontaj pentru autentificare.");
       setTimeout(()=> location.href = "index.html", 700);
       return null;
@@ -388,7 +389,7 @@
   }
 
   function escapeHtml(s){
-    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#039;" }[m]));
+    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
   }
 
   function renderEvents(events){
@@ -498,7 +499,11 @@
       name: state.employee,
       date: state.date,
       ops,
-      admin: { email: admin.email || "", name: admin.name || "" }
+      admin: {
+        email: admin.email || "",
+        name: admin.name || admin.user || "",
+        id: admin.id || admin.userHash || ""
+      }
     };
 
     setStatus("Se aplică…");
@@ -524,7 +529,7 @@
   }
 
   async function boot(){
-    requireAdmin();
+    if (!requireAdmin()) return;
     initActionSelect();
 
     // defaults
