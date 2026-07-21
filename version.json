@@ -1,19 +1,20 @@
 {
-  "version": "4.9.2",
-  "build": "offline-first-v4.9.2-mobile-focus-mode-20260721-1",
+  "version": "4.9.3",
+  "build": "offline-first-v4.9.3-pause-count-norm-device-clock-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
-    "mobile-focus-mode-normal-ring-with-pause",
-    "mobile-focus-mode-overtime",
-    "mobile-focus-mode-extra",
-    "full-white-overlay-safe-area-close-button",
-    "desktop-interface-unchanged",
-    "background-handoff-release-lease-before-service-worker",
-    "strict-consecutive-transition-validation",
-    "cross-device-server-clock-offset",
-    "canonical-client-timestamp-priority"
+    "canonical-valid-pause-count",
+    "optimistic-offline-pause-count",
+    "paid-break-cap-30-minutes",
+    "no-break-requires-full-norm",
+    "overtime-after-counted-norm-only",
+    "device-independent-duration-anchor",
+    "active-dashboard-refresh-maximum-5-seconds",
+    "mobile-focus-mode-preserved",
+    "background-handoff-preserved",
+    "strict-consecutive-transition-validation"
   ],
-  "notes": "Focus Mode exclusiv pe telefoane pentru norma/pauza, suplimentar si EXTRA. Sincronizarea si backendul raman cele din V4.9.1/V4.9.0.",
+  "notes": "Pauzele valide sunt numărate din cronologia canonică. Norma de 8h creditează maximum 30m pauză; fără pauză sunt necesare 8h lucrate. Telefonul și desktopul ancorează durata la momentul local al recepției snapshotului, eliminând diferențele produse de cold-start-ul Apps Script.",
   "date": "2026-07-21"
 }
