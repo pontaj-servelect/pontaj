@@ -1,14 +1,13 @@
 {
-  "version": "4.8.6",
-  "build": "offline-first-v4.8.6-admin-handler-runtime-fix-20260721-1",
+  "version": "4.8.7",
+  "build": "offline-first-v4.8.7-admin-jsonp-cold-start-fix-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "professional-circle-profile-switch-live-resume-idb-cache-mobile",
   "fixes": [
-    "admin-handler-local-canonical-event-construction",
-    "admin-handler-plain-object-contract",
-    "admin-runtime-error-json-jsonp-response",
-    "resume-sync-watchdog",
-    "service-worker-background-sync"
+    "admin-jsonp-120-second-cold-start-window",
+    "admin-fetch-jsonp-parallel-first-success",
+    "late-jsonp-callback-noop-safety",
+    "service-worker-cache-refresh"
   ],
-  "notes": "Fixeaza ReferenceError-ul adminEvents din V4.8.5, pastreaza serializarea unica JSON/JSONP si returneaza diagnostic server-side explicit."
+  "notes": "Remediaza timeoutul JSONP de 25 secunde si eroarea callback is not defined cand Apps Script raspunde tarziu."
 }
