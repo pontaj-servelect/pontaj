@@ -1,8 +1,8 @@
 {
-  "version": "4.9.12",
-  "build": "offline-first-v4.9.12-robot-pet-mobile-root-overlay-fix-20260721-1",
+  "version": "4.9.13",
+  "build": "offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-vector-pet-mobile-root-overlay-fixed",
+  "ui": "enterprise-robot-pet-desktop-idle-dock-active-inline-mobile-overlay",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
