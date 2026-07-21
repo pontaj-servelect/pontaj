@@ -1,19 +1,19 @@
 {
-  "version": "4.9.0",
-  "build": "offline-first-v4.9.0-strict-transition-server-clock-background-sync-20260721-1",
+  "version": "4.9.1",
+  "build": "offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-status-text-cleanup-mobile-preserved",
   "fixes": [
+    "background-handoff-release-lease-before-service-worker",
+    "background-sync-immediate-message-plus-one-shot-registration",
+    "foreground-post-keepalive-on-hide",
+    "service-worker-lease-retry-and-sending-wait",
+    "service-worker-navigation-replay-fallback",
+    "foreground-resume-sync",
     "strict-consecutive-transition-validation",
     "cross-device-server-clock-offset",
-    "canonical-client-timestamp-priority",
-    "background-sync-do-not-abort-on-hide",
-    "foreground-resume-sync",
-    "pause-extra-overtime-canonical-refresh",
-    "collapsible-desktop-sidebar",
-    "remove-visible-sync-and-active-status-copy",
-    "telegram-client-timestamp-priority"
+    "canonical-client-timestamp-priority"
   ],
-  "notes": "Validare stricta intre actiuni, timp live bazat pe ceasul serverului, sincronizare foreground/background best-effort si meniu desktop compactabil.",
+  "notes": "Handoff corect intre pagina si service worker, retry la lock ocupat si reluare imediata la revenire. Background Sync ramane best-effort si depinde de suportul browserului/OS.",
   "date": "2026-07-21"
 }

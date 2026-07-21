@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.0-strict-transition-server-clock-background-sync-20260721-1';
+const BUILD='offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -45,6 +45,7 @@ self.addEventListener('activate',event=>{
     await self.clients.claim();
     const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
     clients.forEach(client=>client.postMessage({type:'PONTAJ_CACHE_ACTIVATED',build:BUILD}));
+    await processPontajQueueV484({soft:true,reason:'activate'}).catch(()=>{});
   })());
 });
 
@@ -91,9 +92,12 @@ self.addEventListener('fetch',event=>{
   const navigation=request.mode==='navigate';
   const mutable=navigation||/(?:\/|^)(?:index\.html|config\.json|version\.json|manifest\.webmanifest|[^/]+\.csv)$/i.test(url.pathname);
   event.respondWith(mutable?networkFirst(request,url,navigation):cacheFirstRevalidate(request,url));
+  // Fallback pentru browsere fără SyncManager: la orice revenire/navigare care
+  // pornește service worker-ul încercăm și coada, fără a bloca răspunsul paginii.
+  if(navigation)event.waitUntil(processPontajQueueV484({soft:true,reason:'navigation-start'}).catch(()=>{}));
 });
 
-/* ================= OFFLINE ACTION BACKGROUND SYNC V4.9.0 ================= */
+/* ================= OFFLINE ACTION BACKGROUND SYNC V4.9.1 ================= */
 const PONTAJ_SYNC_TAG_V484='servelect-pontaj-sync-v48';
 const PONTAJ_DB_V484='servelect-pontaj-v48';
 const PONTAJ_DB_VERSION_V484=1;
@@ -102,7 +106,7 @@ const PONTAJ_META_STORE_V484='meta';
 const PONTAJ_TERMINAL_STORE_V484='terminalJournal';
 const PONTAJ_LEASE_KEY_V484='syncLease';
 const PONTAJ_PROTOCOL_V484='servelect-pontaj-sync/v4.8';
-const PONTAJ_SW_OWNER_V484='service-worker-v4.9.0';
+const PONTAJ_SW_OWNER_V484='service-worker-v4.9.1';
 const PONTAJ_SW_LEASE_MS_V484=45000;
 const PONTAJ_FINAL_ACCEPTED_V484=new Set(['accepted','already_processed','accepted_duplicate','deleted_manually','tombstoned']);
 const PONTAJ_FINAL_REJECTED_V484=new Set(['rejected','cancelled','retired']);
@@ -178,7 +182,7 @@ async function releaseSwLeaseV484(){
 }
 
 async function terminalizeActionV484(item,status,ack){
-  const terminal={requestId:item.requestId,status,terminalAt:Date.now(),action:item.snapshot&&item.snapshot.action||'',clientTimestamp:item.snapshot&&item.snapshot.clientTimestamp||'',name:item.snapshot&&item.snapshot.name||'',reason:String(ack&&((ack.reason||ack.message))||''),rowNumber:Number(ack&&ack.rowNumber)||null,source:'service-worker-v4.9.0',attempts:Number(item.attempts||0)};
+  const terminal={requestId:item.requestId,status,terminalAt:Date.now(),action:item.snapshot&&item.snapshot.action||'',clientTimestamp:item.snapshot&&item.snapshot.clientTimestamp||'',name:item.snapshot&&item.snapshot.name||'',reason:String(ack&&((ack.reason||ack.message))||''),rowNumber:Number(ack&&ack.rowNumber)||null,source:'service-worker-v4.9.1',attempts:Number(item.attempts||0)};
   const db=await openPontajDbV484();
   const tx=db.transaction([PONTAJ_ACTIVE_STORE_V484,PONTAJ_TERMINAL_STORE_V484],'readwrite');const done=idbTxV484(tx);
   tx.objectStore(PONTAJ_ACTIVE_STORE_V484).delete(item.requestId);
@@ -230,16 +234,51 @@ async function notifyClientsV484(payload){
   clients.forEach(client=>client.postMessage(Object.assign({type:'PONTAJ_SYNC_UPDATED',build:BUILD},payload||{})));
 }
 
-async function processPontajQueueV484(){
-  if(!await acquireSwLeaseV484())throw new Error('SYNC_LEASE_BUSY');
+function sleepV491(ms){return new Promise(resolve=>setTimeout(resolve,Math.max(0,Number(ms||0))));}
+
+async function acquireSwLeaseWithRetryV491(maxWaitMs){
+  const started=Date.now(),limit=Math.max(0,Number(maxWaitMs||0));
+  do{
+    if(await acquireSwLeaseV484())return true;
+    if(Date.now()-started>=limit)return false;
+    await sleepV491(500);
+  }while(true);
+}
+
+async function scheduleNextBackgroundSyncV491(){
+  try{
+    if(self.registration&&self.registration.sync&&typeof self.registration.sync.register==='function'){
+      await self.registration.sync.register(PONTAJ_SYNC_TAG_V484);
+      return true;
+    }
+  }catch(_){ }
+  return false;
+}
+
+async function processPontajQueueV484(options){
+  const opts=options||{},soft=!!opts.soft,startedAt=Date.now(),MAX_RUN_MS=28000;
+  let initial=(await readActiveActionsV484()).filter(item=>item&&!item.migrationProbeOnly).sort(compareActionsV484);
+  if(!initial.length)return {ok:true,empty:true};
+  if(!await acquireSwLeaseWithRetryV491(soft?1500:12000)){
+    await scheduleNextBackgroundSyncV491();
+    if(soft)return {ok:false,busy:true};
+    throw new Error('SYNC_LEASE_BUSY');
+  }
   try{
     const endpoint=await endpointV484();
-    while(true){
+    while(Date.now()-startedAt<MAX_RUN_MS){
       if(!await renewSwLeaseV484())throw new Error('SYNC_LEASE_LOST');
       let rows=(await readActiveActionsV484()).filter(item=>item&&!item.migrationProbeOnly).sort(compareActionsV484);
-      if(!rows.length)break;
+      if(!rows.length){await notifyClientsV484({status:'queue-empty'});return {ok:true,empty:true};}
       let item=rows[0];const now=Date.now();
-      if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now&&item.sendingOwner!==PONTAJ_SW_OWNER_V484)throw new Error('FOREGROUND_SYNC_ACTIVE');
+      if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now&&item.sendingOwner!==PONTAJ_SW_OWNER_V484){
+        // Pagina poate fi suspendată exact în timpul requestului. Așteptăm puțin
+        // să apară ACK-ul; dacă lease-ul expiră, retrimiterea are același ID și
+        // este sigură datorită idempotency-ului server-side.
+        const remaining=Math.min(1500,Math.max(150,Number(item.sendingExpiresAt||0)-now));
+        await sleepV491(remaining);
+        continue;
+      }
       if(item.status==='failed-retryable'||item.status==='sending')item=await patchActiveActionV484(item.requestId,{status:'queued',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:0});
       const attempts=Number(item.attempts||0)+1;
       item=await patchActiveActionV484(item.requestId,{status:'sending',attempts,lastAttemptAt:now,sendingOwner:PONTAJ_SW_OWNER_V484,sendingExpiresAt:now+PONTAJ_SW_LEASE_MS_V484,nextAttemptAt:now+PONTAJ_SW_LEASE_MS_V484,lastErrorCode:'',lastErrorMessage:''});
@@ -251,18 +290,21 @@ async function processPontajQueueV484(){
         const wait=Math.min(300000,2000*Math.pow(2,Math.min(8,Math.max(0,attempts-1))));
         await patchActiveActionV484(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:String(error&&error.message||error).slice(0,80),lastErrorMessage:'Sincronizarea din fundal va fi reluata.'});
         await notifyClientsV484({requestId:item.requestId,status:'failed-retryable',name:item.snapshot&&item.snapshot.name||''});
+        await scheduleNextBackgroundSyncV491();
+        if(soft)return {ok:false,error:String(error&&error.message||error)};
         throw error;
       }
     }
-    await notifyClientsV484({status:'queue-empty'});
+    await scheduleNextBackgroundSyncV491();
+    return {ok:false,deferred:true};
   }finally{await releaseSwLeaseV484().catch(()=>{});}
 }
 
 self.addEventListener('sync',event=>{
-  if(event.tag===PONTAJ_SYNC_TAG_V484)event.waitUntil(processPontajQueueV484());
+  if(event.tag===PONTAJ_SYNC_TAG_V484)event.waitUntil(processPontajQueueV484({reason:'background-sync'}));
 });
 
 self.addEventListener('message',event=>{
   const data=event.data||{};
-  if(data.type==='PONTAJ_SYNC_NOW')event.waitUntil(processPontajQueueV484().catch(()=>{}));
+  if(data.type==='PONTAJ_SYNC_NOW')event.waitUntil(processPontajQueueV484({soft:true,reason:data.reason||'message'}).catch(()=>{}));
 });
