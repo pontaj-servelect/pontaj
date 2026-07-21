@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.8.1-enterprise-ui-20260720-1';
+const BUILD='offline-first-v4.8.4-admin-fetch-background-resume-sync-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -91,4 +91,178 @@ self.addEventListener('fetch',event=>{
   const navigation=request.mode==='navigate';
   const mutable=navigation||/(?:\/|^)(?:index\.html|config\.json|version\.json|manifest\.webmanifest|[^/]+\.csv)$/i.test(url.pathname);
   event.respondWith(mutable?networkFirst(request,url,navigation):cacheFirstRevalidate(request,url));
+});
+
+/* ================= OFFLINE ACTION BACKGROUND SYNC V4.8.4 ================= */
+const PONTAJ_SYNC_TAG_V484='servelect-pontaj-sync-v48';
+const PONTAJ_DB_V484='servelect-pontaj-v48';
+const PONTAJ_DB_VERSION_V484=1;
+const PONTAJ_ACTIVE_STORE_V484='activeActions';
+const PONTAJ_META_STORE_V484='meta';
+const PONTAJ_TERMINAL_STORE_V484='terminalJournal';
+const PONTAJ_LEASE_KEY_V484='syncLease';
+const PONTAJ_PROTOCOL_V484='servelect-pontaj-sync/v4.8';
+const PONTAJ_SW_OWNER_V484='service-worker-v4.8.4';
+const PONTAJ_SW_LEASE_MS_V484=45000;
+const PONTAJ_FINAL_ACCEPTED_V484=new Set(['accepted','already_processed','accepted_duplicate','deleted_manually','tombstoned']);
+const PONTAJ_FINAL_REJECTED_V484=new Set(['rejected','cancelled','retired']);
+
+function openPontajDbV484(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(PONTAJ_DB_V484,PONTAJ_DB_VERSION_V484);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(PONTAJ_ACTIVE_STORE_V484)){
+        const store=db.createObjectStore(PONTAJ_ACTIVE_STORE_V484,{keyPath:'requestId'});
+        store.createIndex('nextAttemptAt','nextAttemptAt',{unique:false});
+      }
+      if(!db.objectStoreNames.contains(PONTAJ_META_STORE_V484))db.createObjectStore(PONTAJ_META_STORE_V484,{keyPath:'key'});
+      if(!db.objectStoreNames.contains(PONTAJ_TERMINAL_STORE_V484)){
+        const store=db.createObjectStore(PONTAJ_TERMINAL_STORE_V484,{keyPath:'requestId'});
+        store.createIndex('terminalAt','terminalAt',{unique:false});
+      }
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error('IndexedDB open failed'));
+  });
+}
+
+function idbRequestV484(req){return new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+function idbTxV484(tx){return new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IndexedDB transaction aborted'));});}
+
+async function readActiveActionsV484(){
+  const db=await openPontajDbV484();
+  const tx=db.transaction(PONTAJ_ACTIVE_STORE_V484,'readonly');const done=idbTxV484(tx);
+  const rows=await idbRequestV484(tx.objectStore(PONTAJ_ACTIVE_STORE_V484).getAll());
+  await done;db.close();return rows||[];
+}
+
+async function patchActiveActionV484(requestId,patch){
+  const db=await openPontajDbV484();
+  const tx=db.transaction(PONTAJ_ACTIVE_STORE_V484,'readwrite');const done=idbTxV484(tx);
+  const store=tx.objectStore(PONTAJ_ACTIVE_STORE_V484);
+  const item=await idbRequestV484(store.get(requestId));
+  let updated=null;
+  if(item){updated=Object.assign({},item,patch||{},{updatedAt:Date.now()});store.put(updated);}
+  await done;db.close();return updated;
+}
+
+async function acquireSwLeaseV484(){
+  const db=await openPontajDbV484();
+  const tx=db.transaction(PONTAJ_META_STORE_V484,'readwrite');const done=idbTxV484(tx);
+  const store=tx.objectStore(PONTAJ_META_STORE_V484);
+  const current=await idbRequestV484(store.get(PONTAJ_LEASE_KEY_V484));
+  const now=Date.now();let acquired=false;
+  if(!current||Number(current.expiresAt||0)<=now||current.owner===PONTAJ_SW_OWNER_V484){
+    store.put({key:PONTAJ_LEASE_KEY_V484,owner:PONTAJ_SW_OWNER_V484,expiresAt:now+PONTAJ_SW_LEASE_MS_V484,updatedAt:now});acquired=true;
+  }
+  await done;db.close();return acquired;
+}
+
+async function renewSwLeaseV484(){
+  const db=await openPontajDbV484();
+  const tx=db.transaction(PONTAJ_META_STORE_V484,'readwrite');const done=idbTxV484(tx);
+  const store=tx.objectStore(PONTAJ_META_STORE_V484);
+  const current=await idbRequestV484(store.get(PONTAJ_LEASE_KEY_V484));let renewed=false;
+  if(current&&current.owner===PONTAJ_SW_OWNER_V484){store.put(Object.assign({},current,{expiresAt:Date.now()+PONTAJ_SW_LEASE_MS_V484,updatedAt:Date.now()}));renewed=true;}
+  await done;db.close();return renewed;
+}
+
+async function releaseSwLeaseV484(){
+  const db=await openPontajDbV484();
+  const tx=db.transaction(PONTAJ_META_STORE_V484,'readwrite');const done=idbTxV484(tx);
+  const store=tx.objectStore(PONTAJ_META_STORE_V484);
+  const current=await idbRequestV484(store.get(PONTAJ_LEASE_KEY_V484));
+  if(current&&current.owner===PONTAJ_SW_OWNER_V484)store.delete(PONTAJ_LEASE_KEY_V484);
+  await done;db.close();
+}
+
+async function terminalizeActionV484(item,status,ack){
+  const terminal={requestId:item.requestId,status,terminalAt:Date.now(),action:item.snapshot&&item.snapshot.action||'',clientTimestamp:item.snapshot&&item.snapshot.clientTimestamp||'',name:item.snapshot&&item.snapshot.name||'',reason:String(ack&&((ack.reason||ack.message))||''),rowNumber:Number(ack&&ack.rowNumber)||null,source:'service-worker-v4.8.4',attempts:Number(item.attempts||0)};
+  const db=await openPontajDbV484();
+  const tx=db.transaction([PONTAJ_ACTIVE_STORE_V484,PONTAJ_TERMINAL_STORE_V484],'readwrite');const done=idbTxV484(tx);
+  tx.objectStore(PONTAJ_ACTIVE_STORE_V484).delete(item.requestId);
+  tx.objectStore(PONTAJ_TERMINAL_STORE_V484).put(terminal);
+  await done;db.close();
+}
+
+function compareActionsV484(a,b){
+  const ax=Number(a&&a.snapshot&&a.snapshot.clientTimestampMs||0),bx=Number(b&&b.snapshot&&b.snapshot.clientTimestampMs||0);
+  if(ax!==bx)return ax-bx;
+  const as=String(a&&a.snapshot&&(a.snapshot.localSequence||a.snapshot.clientSequence)||''),bs=String(b&&b.snapshot&&(b.snapshot.localSequence||b.snapshot.clientSequence)||'');
+  return as.localeCompare(bs)||String(a.requestId||'').localeCompare(String(b.requestId||''));
+}
+
+async function endpointV484(){
+  const url=new URL('./config.json?sw_sync='+Date.now(),self.registration.scope);
+  const response=await fetch(url.toString(),{cache:'no-store'});
+  if(!response.ok)throw new Error('CONFIG_HTTP_'+response.status);
+  const cfg=await response.json();
+  const endpoint=String(cfg.syncEndpoint||cfg.stateEndpoint||cfg.guardEndpoint||'').replace(/\?.*$/,'').trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))throw new Error('SYNC_ENDPOINT_INVALID');
+  return endpoint;
+}
+
+function actionPayloadV484(item){
+  const s=item.snapshot||{},g=Object.assign({},s.gps||{},item.enrichment&&item.enrichment.gps||{});
+  const hasCoordinates=Number.isFinite(Number(g.lat))&&Number.isFinite(Number(g.lon));
+  const notesBase=String(s.notesPayload||'').trim();
+  const markers='[[REQUEST_ID::'+s.requestId+']] [[CLIENT_TS::'+s.clientTimestamp+']] [[CLIENT_SEQUENCE::'+String(s.localSequence||s.clientSequence||'')+']]';
+  return {fn:'offlineActionV48',protocol:PONTAJ_PROTOCOL_V484,protocolVersion:'4.8',version:BUILD,requestId:s.requestId,REQUEST_ID:s.requestId,action:String(s.action||''),clientTimestamp:s.clientTimestamp,clientTimestampMs:Number(s.clientTimestampMs),timestamp:s.clientTimestamp,localSequence:String(s.localSequence||s.clientSequence||''),clientSequence:String(s.localSequence||s.clientSequence||''),createdAt:new Date(Number(s.createdAt||s.clientTimestampMs||Date.now())).toISOString(),createdAtMs:Number(s.createdAt||s.clientTimestampMs||Date.now()),clientTimezone:String(s.clientTimezone||'Europe/Bucharest'),clientUtcOffsetMinutes:Number(s.clientUtcOffsetMinutes||0),name:String(s.name||''),department:String(s.department||''),activity:String(s.activity||''),location:String(s.location||''),project:String(s.project||''),notes:(notesBase?notesBase+' ':'')+markers,latitude:hasCoordinates?String(g.lat):'',longitude:hasCoordinates?String(g.lon):'',accuracy:g.acc==null?'':String(g.acc),gpsCapturedAt:g.capturedAt?new Date(Number(g.capturedAt)).toISOString():'',device:String(s.device||''),mapsLink:hasCoordinates?'https://maps.google.com/?q='+g.lat+','+g.lon:''};
+}
+
+async function postActionV484(endpoint,item){
+  const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),25000);
+  try{
+    const response=await fetch(endpoint+'?fn=offlineActionV48',{method:'POST',cache:'no-store',redirect:'follow',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8','Accept':'application/json'},body:JSON.stringify(actionPayloadV484(item)),signal:ctrl.signal});
+    const text=await response.text();
+    if(!response.ok)throw new Error('HTTP_'+response.status);
+    if(/^\s*</.test(text))throw new Error('ACK_HTML_REJECTED');
+    const ack=JSON.parse(text);const status=String(ack&&ack.status||'').toLowerCase();
+    if(!ack||ack.protocol!==PONTAJ_PROTOCOL_V484||String(ack.requestId||ack.REQUEST_ID||'')!==item.requestId)throw new Error('ACK_INVALID');
+    if(!PONTAJ_FINAL_ACCEPTED_V484.has(status)&&!PONTAJ_FINAL_REJECTED_V484.has(status))throw new Error('ACK_STATUS_INVALID');
+    return Object.assign({},ack,{status});
+  }finally{clearTimeout(timer);}
+}
+
+async function notifyClientsV484(payload){
+  const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  clients.forEach(client=>client.postMessage(Object.assign({type:'PONTAJ_SYNC_UPDATED',build:BUILD},payload||{})));
+}
+
+async function processPontajQueueV484(){
+  if(!await acquireSwLeaseV484())throw new Error('SYNC_LEASE_BUSY');
+  try{
+    const endpoint=await endpointV484();
+    while(true){
+      if(!await renewSwLeaseV484())throw new Error('SYNC_LEASE_LOST');
+      let rows=(await readActiveActionsV484()).filter(item=>item&&!item.migrationProbeOnly).sort(compareActionsV484);
+      if(!rows.length)break;
+      let item=rows[0];const now=Date.now();
+      if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now&&item.sendingOwner!==PONTAJ_SW_OWNER_V484)throw new Error('FOREGROUND_SYNC_ACTIVE');
+      if(item.status==='failed-retryable'||item.status==='sending')item=await patchActiveActionV484(item.requestId,{status:'queued',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:0});
+      const attempts=Number(item.attempts||0)+1;
+      item=await patchActiveActionV484(item.requestId,{status:'sending',attempts,lastAttemptAt:now,sendingOwner:PONTAJ_SW_OWNER_V484,sendingExpiresAt:now+PONTAJ_SW_LEASE_MS_V484,nextAttemptAt:now+PONTAJ_SW_LEASE_MS_V484,lastErrorCode:'',lastErrorMessage:''});
+      try{
+        const ack=await postActionV484(endpoint,item);
+        await terminalizeActionV484(item,ack.status,ack);
+        await notifyClientsV484({requestId:item.requestId,status:ack.status,name:item.snapshot&&item.snapshot.name||''});
+      }catch(error){
+        const wait=Math.min(300000,2000*Math.pow(2,Math.min(8,Math.max(0,attempts-1))));
+        await patchActiveActionV484(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:String(error&&error.message||error).slice(0,80),lastErrorMessage:'Sincronizarea din fundal va fi reluata.'});
+        await notifyClientsV484({requestId:item.requestId,status:'failed-retryable',name:item.snapshot&&item.snapshot.name||''});
+        throw error;
+      }
+    }
+    await notifyClientsV484({status:'queue-empty'});
+  }finally{await releaseSwLeaseV484().catch(()=>{});}
+}
+
+self.addEventListener('sync',event=>{
+  if(event.tag===PONTAJ_SYNC_TAG_V484)event.waitUntil(processPontajQueueV484());
+});
+
+self.addEventListener('message',event=>{
+  const data=event.data||{};
+  if(data.type==='PONTAJ_SYNC_NOW')event.waitUntil(processPontajQueueV484().catch(()=>{}));
 });

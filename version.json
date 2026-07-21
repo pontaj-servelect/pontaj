@@ -1,6 +1,7 @@
 {
-  "version": "4.8.1",
-  "build": "offline-first-v4.8.1-enterprise-ui-20260720-1",
+  "version": "4.8.4",
+  "build": "offline-first-v4.8.4-admin-fetch-background-resume-sync-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "professional-circle-mobile-home-history-details"
+  "ui": "professional-circle-profile-switch-live-resume-idb-cache-mobile",
+  "fixes": ["admin-fetch-jsonp-fallback", "resume-sync-watchdog", "service-worker-background-sync"]
 }

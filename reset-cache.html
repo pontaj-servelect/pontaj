@@ -8,8 +8,8 @@
   try{
     if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
     if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
-    msg.className='ok';msg.textContent='Cache actualizat. Se deschide V4.8.1…';
-    setTimeout(()=>location.replace('./index.html?v=offline-first-v4.8.1-enterprise-ui-20260720-1'),350);
+    msg.className='ok';msg.textContent='Cache actualizat. Se deschide V4.8.4…';
+    setTimeout(()=>location.replace('./index.html?v=offline-first-v4.8.4-admin-fetch-background-resume-sync-20260721-1'),350);
   }catch(e){msg.className='err';msg.textContent='Nu am putut reseta cache-ul: '+String(e&&e.message?e.message:e);}
 })();
 </script></body></html>
