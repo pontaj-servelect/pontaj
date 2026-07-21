@@ -1,0 +1,100 @@
+/* ============================================================================
+   ServelectRobotPet · Build SRP-1.0 — stiluri componentă
+   ----------------------------------------------------------------------------
+   Dimensiunea se controlează prin --tl-size (sau robot.setSize(px)).
+   Culorile pe stări sunt setate din JS prin --tl-accent / --tl-face / --tl-ring
+   și tranziționează lin din CSS (fill/stroke, .5s).
+   ========================================================================== */
+
+.tl-robot {
+  --tl-size: 280px;
+  --tl-accent: #3BD6CC;   /* luminile hardware: urechi, top, bază            */
+  --tl-face:   #A7EFE6;   /* trăsăturile feței: sprâncene, gură              */
+  --tl-ring:   #CFF5EF;   /* inelul ochilor                                  */
+
+  position: relative;
+  display: inline-block;
+  width: var(--tl-size);
+  line-height: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tl-robot .tl-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible; /* glow-urile nu se taie la marginea viewBox-ului */
+  filter: drop-shadow(0 16px 32px rgba(26, 46, 76, 0.12));
+}
+
+/* -- origini de transformare (JS animează doar transform + opacity) -------- */
+.tl-float  { will-change: transform; transform-box: fill-box; transform-origin: 50% 74%; }
+.tl-head-motion { will-change: transform; transform-box: fill-box; transform-origin: 50% 82%; }
+.tl-face   { will-change: transform; }
+.tl-shadow { will-change: transform, opacity, filter; transform-box: fill-box; transform-origin: 50% 50%; }
+.tl-eye    { will-change: transform; transform-box: fill-box; transform-origin: 50% 58%; }
+.tl-brow   { transform-box: fill-box; transform-origin: 50% 50%; }
+.tl-pupil  { will-change: transform; }
+.tl-jcore, .tl-jhalo { will-change: opacity; }
+
+/* -- legarea culorilor de variabilele de stare ----------------------------- */
+.tl-core { fill: var(--tl-accent); transition: fill .5s ease; }
+.tl-halo { fill: var(--tl-accent); transition: fill .5s ease; }
+
+.tl-line-core {
+  stroke: var(--tl-accent);
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke .5s ease;
+}
+.tl-line-halo {
+  stroke: var(--tl-accent);
+  fill: none;
+  stroke-width: 11;
+  stroke-linecap: round;
+  transition: stroke .5s ease;
+}
+
+.tl-ring {
+  fill: none;
+  stroke: var(--tl-ring);
+  stroke-width: 6.5;
+  transition: stroke .5s ease;
+}
+.tl-iris { fill: #232B37; }
+.tl-iris-rim {
+  fill: none;
+  stroke: #7FD9CE;
+  stroke-opacity: .16;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.tl-brow path,
+.tl-mouth {
+  fill: none;
+  stroke: var(--tl-face);
+  stroke-width: 8.5;
+  stroke-linecap: round;
+  transition: stroke .5s ease;
+}
+
+/* -- extra pe stări -------------------------------------------------------- */
+.tl-screen-tint {
+  fill: #0A0F16;
+  opacity: 0;
+  transition: opacity .6s ease;
+  pointer-events: none;
+}
+.tl-robot[data-state="offline"] .tl-screen-tint { opacity: .3; }
+.tl-robot[data-state="extra"] .tl-screen-tint { opacity: .06; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-robot .tl-svg { filter: drop-shadow(0 10px 22px rgba(26, 46, 76, 0.10)); }
+  .tl-core, .tl-halo, .tl-line-core, .tl-line-halo, .tl-ring,
+  .tl-brow path, .tl-mouth, .tl-screen-tint { transition-duration: 0ms; }
+}

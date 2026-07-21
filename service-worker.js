@@ -1,10 +1,11 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.8-dashboard-jsonp-authority-20260721-1';
+const BUILD='offline-first-v4.9.10-robot-pet-audited-ui-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
   './','./index.html','./config.json','./version.json','./manifest.webmanifest',
+  './robot-pet.css','./robot-pet.js','./assets/robot-pet-fallback.png',
   './favicon.png','./background.jpg','./departments.csv','./employees.csv',
   './employee_norms.csv','./projects.csv','./locations.csv','./roster_template.csv',
   './admin.html','./reports.html','./fix-day.html','./self.html','./reset-cache.html','./admin-auth.json',
