@@ -1,12 +1,14 @@
 {
-  "version": "4.8.5",
-  "build": "offline-first-v4.8.5-admin-json-jsonp-contract-fix-20260721-1",
+  "version": "4.8.6",
+  "build": "offline-first-v4.8.6-admin-handler-runtime-fix-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "professional-circle-profile-switch-live-resume-idb-cache-mobile",
   "fixes": [
-    "admin-fetch-jsonp-fallback",
+    "admin-handler-local-canonical-event-construction",
+    "admin-handler-plain-object-contract",
+    "admin-runtime-error-json-jsonp-response",
     "resume-sync-watchdog",
     "service-worker-background-sync"
   ],
-  "notes": "Admin endpoint single-serialization JSON/JSONP contract fix; resilient endpoint candidate selection; foreground/background offline sync retained."
+  "notes": "Fixeaza ReferenceError-ul adminEvents din V4.8.5, pastreaza serializarea unica JSON/JSONP si returneaza diagnostic server-side explicit."
 }

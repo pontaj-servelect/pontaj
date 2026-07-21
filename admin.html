@@ -1664,8 +1664,8 @@
     return GLOBAL_CFG;
   }
 
-  const ADMIN_BUILD_V485='4.8.5';
-  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.5';
+  const ADMIN_BUILD_V485='4.8.6';
+  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.6';
 
   function adminReadCacheV484(){
     try{
@@ -1741,7 +1741,7 @@
     }catch(err){
       const cached=allowCache!==false?adminReadCacheV484():null;
       if(cached)return {data:cached.data,stale:true,savedAt:cached.savedAt,error:String(err&&err.message||err)};
-      throw new Error('Nu pot incarca datele administrative. Frontendul este V4.8.5, dar endpointul Apps Script nu raspunde cu contractul adminEvents JSON/JSONP. Inlocuieste Code.gs, editeaza deploymentul existent si publica New version (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
+      throw new Error('Nu pot incarca datele administrative. Frontendul este V4.8.6, dar endpointul Apps Script nu raspunde cu contractul adminEvents JSON/JSONP. Inlocuieste Code.gs, editeaza deploymentul existent si publica New version (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
     }
   }
 
