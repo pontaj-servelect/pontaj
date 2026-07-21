@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.2-mobile-focus-mode-20260721-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.2-mobile-focus-mode-20260721-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -683,6 +683,124 @@
       body.desktop-sidebar-collapsed-v490 .desktop-sidebar-toggle-v490 svg{transform:rotate(180deg)}
     }
 
+
+
+    /* ================= MOBILE FOCUS MODE V4.9.2 ================= */
+    .mobile-focus-overlay-v492{display:none}
+    @media(max-width:820px){
+      .main-ring-v48,.overtime-card-v48,.extra-card-v48{
+        cursor:pointer;
+        -webkit-tap-highlight-color:transparent;
+        touch-action:manipulation;
+      }
+      .main-ring-v48:focus-visible,.overtime-card-v48:focus-visible,.extra-card-v48:focus-visible{
+        outline:3px solid rgba(8,108,240,.28);
+        outline-offset:4px;
+      }
+      .mobile-focus-overlay-v492{
+        position:fixed;
+        inset:0;
+        z-index:10000;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        min-height:100dvh;
+        padding:max(24px,env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));
+        background:#fff;
+        overflow:auto;
+        overscroll-behavior:contain;
+      }
+      .mobile-focus-overlay-v492[hidden]{display:none!important}
+      .mobile-focus-stage-v492{
+        width:100%;
+        min-height:calc(100dvh - 48px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:0;
+      }
+      .mobile-focus-host-v492{
+        width:100%;
+        display:grid;
+        place-items:center;
+      }
+      .mobile-focus-label-v492{
+        margin-top:26px;
+        color:#718096;
+        font-size:12px;
+        line-height:1;
+        font-weight:900;
+        letter-spacing:.24em;
+        text-transform:uppercase;
+        text-align:center;
+      }
+      .mobile-focus-close-v492{
+        appearance:none;
+        width:52px;
+        height:52px;
+        margin-top:18px;
+        padding:0;
+        display:grid;
+        place-items:center;
+        border:1px solid #dce5ef;
+        border-radius:50%;
+        background:#fff;
+        color:#17375f;
+        box-shadow:0 10px 28px rgba(22,53,91,.12);
+        font:400 31px/1 Arial,sans-serif;
+        cursor:pointer;
+        -webkit-tap-highlight-color:transparent;
+      }
+      .mobile-focus-close-v492:active{transform:scale(.96)}
+      .mobile-focus-close-v492:focus-visible{outline:3px solid rgba(8,108,240,.28);outline-offset:4px}
+      body.mobile-focus-open-v492{overflow:hidden!important;background:#fff!important}
+      .mobile-focus-overlay-v492 .main-ring-v48{
+        width:min(88vw,410px)!important;
+        max-width:410px!important;
+        margin:0!important;
+        filter:drop-shadow(0 16px 30px rgba(0,103,255,.15))!important;
+      }
+      .mobile-focus-overlay-v492 .worked-time-v48{font-size:clamp(43px,13vw,62px)!important}
+      .mobile-focus-overlay-v492 .worked-label-v48{font-size:13px!important}
+      .mobile-focus-overlay-v492 .ring-clock-v48{width:30px!important;height:30px!important;margin-bottom:7px!important}
+      .mobile-focus-overlay-v492 .inner-pause-v48{width:112px!important;padding:9px!important;margin-top:9px!important}
+      .mobile-focus-overlay-v492 .pause-label-v48{font-size:10px!important}
+      .mobile-focus-overlay-v492 .pause-time-v48{font-size:20px!important}
+      .mobile-focus-overlay-v492 .norm-now-v48{min-width:138px!important;margin-top:9px!important;padding-top:8px!important;font-size:10px!important}
+      .mobile-focus-overlay-v492 .norm-now-time-v48{font-size:20px!important}
+      .mobile-focus-overlay-v492 .overtime-card-v48{
+        width:min(82vw,360px)!important;
+        min-height:250px!important;
+        margin:0!important;
+        padding:30px 22px!important;
+        flex-direction:column!important;
+        gap:13px!important;
+        border-radius:32px!important;
+        background:#f2fbf5!important;
+        border:1px solid #d6efdf!important;
+        box-shadow:0 18px 45px rgba(20,94,52,.12)!important;
+      }
+      .mobile-focus-overlay-v492 .overtime-arrow-v48{font-size:58px!important;line-height:1!important}
+      .mobile-focus-overlay-v492 .overtime-card-v48>div:last-child{text-align:center!important}
+      .mobile-focus-overlay-v492 .overtime-label-v48{font-size:16px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+      .mobile-focus-overlay-v492 .overtime-time-v48{font-size:54px!important;line-height:1.1!important;margin-top:10px!important}
+      .mobile-focus-overlay-v492 .extra-card-v48{
+        width:min(84vw,370px)!important;
+        margin:0!important;
+        padding:28px 20px 24px!important;
+        border-radius:32px!important;
+        background:#f7f4ff!important;
+        border:1px solid #e3d8ff!important;
+        box-shadow:0 18px 45px rgba(104,46,190,.14)!important;
+      }
+      .mobile-focus-overlay-v492 .extra-ring-v48{width:min(68vw,290px)!important}
+      .mobile-focus-overlay-v492 .extra-label-v48{font-size:18px!important}
+      .mobile-focus-overlay-v492 .extra-time-v48{font-size:44px!important}
+      .mobile-focus-overlay-v492 .extra-star-v48{font-size:38px!important}
+      .mobile-focus-overlay-v492 .extra-caption-v48{font-size:12px!important;margin-top:12px!important;min-height:0!important}
+    }
+
 </style>
 </head>
 <body>
@@ -783,6 +901,16 @@
         </div>
       </div>
     </nav>
+
+
+
+    <div id="mobileFocusOverlayV492" class="mobile-focus-overlay-v492" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Focus Mode">
+      <div class="mobile-focus-stage-v492">
+        <div id="mobileFocusHostV492" class="mobile-focus-host-v492"></div>
+        <div class="mobile-focus-label-v492">FOCUS MODE</div>
+        <button id="mobileFocusCloseV492" class="mobile-focus-close-v492" type="button" aria-label="Ieși din Focus Mode">×</button>
+      </div>
+    </div>
 
     <!-- Dashboard profesional. Apare numai după START / EXTRA START. -->
     <section id="activeDashboardV48" class="active-dashboard-v48" hidden aria-live="polite" aria-label="Pontaj activ">
@@ -2277,8 +2405,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.1';
-  const PONTAJ_BUILD = 'offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1';
+  const PONTAJ_VERSION = '4.9.2';
+  const PONTAJ_BUILD = 'offline-first-v4.9.2-mobile-focus-mode-20260721-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2687,7 +2815,7 @@ function withProjectMarker_(notes, project){
         try{const ack=await submitDirectActionV48_(item);await finalizeAckV48_(item,ack);if(flushProgressV48_)flushProgressV48_.completed++;}
         catch(e){const resumedRecently=navigator.onLine!==false&&(Date.now()-lastSyncWakeV484_<12000),wait=resumedRecently?0:backoffMsV48_(attempts);await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent.'});requestSyncV48_(wait);registerBackgroundSyncV484_();break;}
       }
-    }catch(e){console.warn('Sincronizarea V4.9.1 a întâmpinat o eroare temporară.');}
+    }catch(e){console.warn('Sincronizarea V4.9.2 a întâmpinat o eroare temporară.');}
     finally{flushProgressV48_=null;offlineFlushRunningV48_=false;try{await releaseLeaseV48_();}catch{}await refreshQueueMemoryV48_().catch(()=>{});updateOfflineBadgeV48_();if(document.visibilityState==='hidden'&&activeQueueV48_.size)handoffSyncToServiceWorkerV491_('foreground-flush-ended-hidden').catch(()=>{});}
   }
   async function registerBackgroundSyncV484_(reason){
@@ -2934,11 +3062,11 @@ function withProjectMarker_(notes, project){
   /*********************** ENTERPRISE UI V4.8.1 ************************/
   const ACTIVE_SESSION_CONTEXT_KEY_V481='pontaj/activeSessionContext/v4.8.1';
   const DETAILS_SELECTION_KEY_V481='pontaj/detailsSelection/v4.8.1';
-  const DASHBOARD_CACHE_PREFIX_V481='pontaj/dashboard/v4.9.1/';
+  const DASHBOARD_CACHE_PREFIX_V481='pontaj/dashboard/v4.9.2/';
   const HISTORY_CACHE_PREFIX_V481='pontaj/history/v4.8.1/';
   const DETAILS_BY_EMPLOYEE_KEY_V482='pontaj/detailsByEmployee/v4.8.2';
   const DETAILS_SELECTION_META_KEY_V483='ui/detailsSelection/v4.8.3';
-  const DASHBOARD_META_PREFIX_V483='ui/dashboard/v4.9.1/';
+  const DASHBOARD_META_PREFIX_V483='ui/dashboard/v4.9.2/';
   const EMPLOYEE_NORMS_CACHE_KEY_V483='pontaj/employeeNorms/v4.8.3';
   const EMPLOYEE_NORMS_META_KEY_V483='ui/employeeNorms/v4.8.3';
   let EMPLOYEE_NORMS_V483_=new Map();
@@ -3203,7 +3331,7 @@ function withProjectMarker_(notes, project){
     try{renderDesktopHistoryV488_(await fetchHistoryV481_(name));}catch(e){const host=document.getElementById('desktopHistoryStripV488');if(host)host.innerHTML='<div class="desktop-history-loading-v488">'+escapeHtmlV481_(e&&e.message||e)+'</div>';}
   }
 
-  const DESKTOP_SIDEBAR_PREF_V490='pontaj/desktopSidebarCollapsed/v4.9.1';
+  const DESKTOP_SIDEBAR_PREF_V490='pontaj/desktopSidebarCollapsed/v4.9.2';
   function applyDesktopSidebarV490_(collapsed){
     document.body.classList.toggle('desktop-sidebar-collapsed-v490',!!collapsed);
     const b=document.getElementById('desktopSidebarToggleV490');if(b){b.setAttribute('aria-expanded',collapsed?'false':'true');b.setAttribute('aria-label',collapsed?'Mărește meniul lateral':'Restrânge meniul lateral');b.title=collapsed?'Mărește meniul lateral':'Restrânge meniul lateral';}
@@ -3216,8 +3344,77 @@ function withProjectMarker_(notes, project){
     const sync=document.getElementById('offlineQueueStatus');if(sync)sync.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSyncDiagnosticsV48_();}});
   }
 
+
+
+  /* ================= MOBILE FOCUS MODE V4.9.2 ================= */
+  let mobileFocusStateV492_=null;
+  function isMobileFocusViewportV492_(){
+    return !!(window.matchMedia&&window.matchMedia('(max-width: 820px)').matches);
+  }
+  function closeMobileFocusV492_(restoreFocus){
+    const state=mobileFocusStateV492_,overlay=document.getElementById('mobileFocusOverlayV492');
+    if(state&&state.element&&state.parent){
+      try{
+        if(state.nextSibling&&state.nextSibling.parentNode===state.parent)state.parent.insertBefore(state.element,state.nextSibling);
+        else state.parent.appendChild(state.element);
+      }catch(_e){}
+      if(state.previousRole==null)state.element.removeAttribute('role');else state.element.setAttribute('role',state.previousRole);
+      if(state.previousTabIndex==null)state.element.removeAttribute('tabindex');else state.element.setAttribute('tabindex',state.previousTabIndex);
+      state.element.classList.remove('mobile-focus-selected-v492');
+    }
+    mobileFocusStateV492_=null;
+    document.body.classList.remove('mobile-focus-open-v492');
+    if(overlay){overlay.hidden=true;overlay.setAttribute('aria-hidden','true');}
+    if(restoreFocus!==false&&state&&state.element&&state.element.isConnected){try{state.element.focus({preventScroll:true});}catch(_e){}}
+  }
+  function openMobileFocusV492_(element,label){
+    if(!element||!isMobileFocusViewportV492_())return;
+    if(mobileFocusStateV492_)closeMobileFocusV492_(false);
+    const overlay=document.getElementById('mobileFocusOverlayV492'),host=document.getElementById('mobileFocusHostV492'),close=document.getElementById('mobileFocusCloseV492');
+    if(!overlay||!host)return;
+    const parent=element.parentNode,nextSibling=element.nextSibling;
+    mobileFocusStateV492_={element,parent,nextSibling,previousRole:element.getAttribute('role'),previousTabIndex:element.getAttribute('tabindex'),label:String(label||'Focus Mode')};
+    element.classList.add('mobile-focus-selected-v492');
+    host.appendChild(element);
+    overlay.setAttribute('aria-label','Focus Mode · '+String(label||''));
+    overlay.hidden=false;
+    overlay.setAttribute('aria-hidden','false');
+    document.body.classList.add('mobile-focus-open-v492');
+    requestAnimationFrame(()=>{try{close&&close.focus({preventScroll:true});}catch(_e){}});
+  }
+  function bindMobileFocusTargetV492_(element,label){
+    if(!element||element.dataset.mobileFocusV492==='1')return;
+    element.dataset.mobileFocusV492='1';
+    element.setAttribute('role','button');
+    element.setAttribute('tabindex','0');
+    element.setAttribute('aria-label','Deschide '+label+' în Focus Mode');
+    const activate=e=>{
+      if(!isMobileFocusViewportV492_())return;
+      if(e&&e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;
+      if(e&&e.type==='keydown')e.preventDefault();
+      openMobileFocusV492_(element,label);
+    };
+    element.addEventListener('click',activate);
+    element.addEventListener('keydown',activate);
+  }
+  function setupMobileFocusModeV492_(){
+    bindMobileFocusTargetV492_(document.querySelector('.main-ring-v48'),'Normă și pauză');
+    bindMobileFocusTargetV492_(document.querySelector('.overtime-card-v48'),'Suplimentar');
+    bindMobileFocusTargetV492_(document.getElementById('extraCardV48'),'Extra');
+    const close=document.getElementById('mobileFocusCloseV492');
+    if(close)close.addEventListener('click',()=>closeMobileFocusV492_(true));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobileFocusStateV492_)closeMobileFocusV492_(true);});
+    window.addEventListener('resize',()=>{if(mobileFocusStateV492_&&!isMobileFocusViewportV492_())closeMobileFocusV492_(false);});
+    const dashboard=document.getElementById('activeDashboardV48');
+    if(dashboard&&window.MutationObserver){
+      new MutationObserver(()=>{if(mobileFocusStateV492_&&dashboard.hidden)closeMobileFocusV492_(false);}).observe(dashboard,{attributes:true,attributeFilter:['hidden']});
+    }
+  }
+
+
   (async function init(){
     setupDesktopSidebarV490_();
+    setupMobileFocusModeV492_();
     const desktopDashboardBtnV488=document.getElementById('desktopDashboardBtnV488');if(desktopDashboardBtnV488)desktopDashboardBtnV488.addEventListener('click',()=>setDesktopViewV488_('dashboard'));
     const desktopSettingsBtnV488=document.getElementById('desktopSettingsBtnV488');if(desktopSettingsBtnV488)desktopSettingsBtnV488.addEventListener('click',()=>setDesktopViewV488_('settings'));
     const desktopHistoryOpenV488=document.getElementById('desktopHistoryOpenV488');if(desktopHistoryOpenV488)desktopHistoryOpenV488.addEventListener('click',openHistoryV481_);

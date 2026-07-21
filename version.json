@@ -1,19 +1,19 @@
 {
-  "version": "4.9.1",
-  "build": "offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1",
+  "version": "4.9.2",
+  "build": "offline-first-v4.9.2-mobile-focus-mode-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-collapsible-sidebar-status-text-cleanup-mobile-preserved",
+  "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
+    "mobile-focus-mode-normal-ring-with-pause",
+    "mobile-focus-mode-overtime",
+    "mobile-focus-mode-extra",
+    "full-white-overlay-safe-area-close-button",
+    "desktop-interface-unchanged",
     "background-handoff-release-lease-before-service-worker",
-    "background-sync-immediate-message-plus-one-shot-registration",
-    "foreground-post-keepalive-on-hide",
-    "service-worker-lease-retry-and-sending-wait",
-    "service-worker-navigation-replay-fallback",
-    "foreground-resume-sync",
     "strict-consecutive-transition-validation",
     "cross-device-server-clock-offset",
     "canonical-client-timestamp-priority"
   ],
-  "notes": "Handoff corect intre pagina si service worker, retry la lock ocupat si reluare imediata la revenire. Background Sync ramane best-effort si depinde de suportul browserului/OS.",
+  "notes": "Focus Mode exclusiv pe telefoane pentru norma/pauza, suplimentar si EXTRA. Sincronizarea si backendul raman cele din V4.9.1/V4.9.0.",
   "date": "2026-07-21"
 }

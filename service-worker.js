@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.1-background-handoff-reliable-resume-20260721-1';
+const BUILD='offline-first-v4.9.2-mobile-focus-mode-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -97,7 +97,7 @@ self.addEventListener('fetch',event=>{
   if(navigation)event.waitUntil(processPontajQueueV484({soft:true,reason:'navigation-start'}).catch(()=>{}));
 });
 
-/* ================= OFFLINE ACTION BACKGROUND SYNC V4.9.1 ================= */
+/* ================= OFFLINE ACTION BACKGROUND SYNC V4.9.2 ================= */
 const PONTAJ_SYNC_TAG_V484='servelect-pontaj-sync-v48';
 const PONTAJ_DB_V484='servelect-pontaj-v48';
 const PONTAJ_DB_VERSION_V484=1;
@@ -106,7 +106,7 @@ const PONTAJ_META_STORE_V484='meta';
 const PONTAJ_TERMINAL_STORE_V484='terminalJournal';
 const PONTAJ_LEASE_KEY_V484='syncLease';
 const PONTAJ_PROTOCOL_V484='servelect-pontaj-sync/v4.8';
-const PONTAJ_SW_OWNER_V484='service-worker-v4.9.1';
+const PONTAJ_SW_OWNER_V484='service-worker-v4.9.2';
 const PONTAJ_SW_LEASE_MS_V484=45000;
 const PONTAJ_FINAL_ACCEPTED_V484=new Set(['accepted','already_processed','accepted_duplicate','deleted_manually','tombstoned']);
 const PONTAJ_FINAL_REJECTED_V484=new Set(['rejected','cancelled','retired']);
@@ -182,7 +182,7 @@ async function releaseSwLeaseV484(){
 }
 
 async function terminalizeActionV484(item,status,ack){
-  const terminal={requestId:item.requestId,status,terminalAt:Date.now(),action:item.snapshot&&item.snapshot.action||'',clientTimestamp:item.snapshot&&item.snapshot.clientTimestamp||'',name:item.snapshot&&item.snapshot.name||'',reason:String(ack&&((ack.reason||ack.message))||''),rowNumber:Number(ack&&ack.rowNumber)||null,source:'service-worker-v4.9.1',attempts:Number(item.attempts||0)};
+  const terminal={requestId:item.requestId,status,terminalAt:Date.now(),action:item.snapshot&&item.snapshot.action||'',clientTimestamp:item.snapshot&&item.snapshot.clientTimestamp||'',name:item.snapshot&&item.snapshot.name||'',reason:String(ack&&((ack.reason||ack.message))||''),rowNumber:Number(ack&&ack.rowNumber)||null,source:'service-worker-v4.9.2',attempts:Number(item.attempts||0)};
   const db=await openPontajDbV484();
   const tx=db.transaction([PONTAJ_ACTIVE_STORE_V484,PONTAJ_TERMINAL_STORE_V484],'readwrite');const done=idbTxV484(tx);
   tx.objectStore(PONTAJ_ACTIVE_STORE_V484).delete(item.requestId);
