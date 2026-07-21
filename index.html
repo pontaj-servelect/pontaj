@@ -2405,8 +2405,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.6';
-  const PONTAJ_BUILD = 'offline-first-v4.9.6-live-ledger-manual-override-20260721-1';
+  const PONTAJ_VERSION = '4.9.7';
+  const PONTAJ_BUILD = 'offline-first-v4.9.7-compact-dashboard-authority-20260721-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3062,11 +3062,11 @@ function withProjectMarker_(notes, project){
   /*********************** ENTERPRISE UI V4.8.1 ************************/
   const ACTIVE_SESSION_CONTEXT_KEY_V481='pontaj/activeSessionContext/v4.8.1';
   const DETAILS_SELECTION_KEY_V481='pontaj/detailsSelection/v4.8.1';
-  const DASHBOARD_CACHE_PREFIX_V481='pontaj/dashboard/v4.9.6/';
+  const DASHBOARD_CACHE_PREFIX_V481='pontaj/dashboard/v4.9.7/';
   const HISTORY_CACHE_PREFIX_V481='pontaj/history/v4.8.1/';
   const DETAILS_BY_EMPLOYEE_KEY_V482='pontaj/detailsByEmployee/v4.8.2';
   const DETAILS_SELECTION_META_KEY_V483='ui/detailsSelection/v4.8.3';
-  const DASHBOARD_META_PREFIX_V483='ui/dashboard/v4.9.6/';
+  const DASHBOARD_META_PREFIX_V483='ui/dashboard/v4.9.7/';
   const EMPLOYEE_NORMS_CACHE_KEY_V483='pontaj/employeeNorms/v4.8.3';
   const EMPLOYEE_NORMS_META_KEY_V483='ui/employeeNorms/v4.8.3';
   let EMPLOYEE_NORMS_V483_=new Map();
@@ -3260,7 +3260,7 @@ function withProjectMarker_(notes, project){
     const d=Object.assign({},server||{}),items=Array.isArray(pending)?pending:[],serverIds=new Set(Array.isArray(d.eventRequestIds)?d.eventRequestIds.map(String):[]);
     const unconfirmed=items.filter(x=>pendingBelongsToServerDayV495_(x,d.day)&&!serverIds.has(String(x&&x.requestId||'')));
     if(unconfirmed.length&&currentCached){
-      const local=Object.assign({},currentCached,{normHours:d.normHours,isWeekend:d.isWeekend,activity:d.activity||currentCached.activity,serverRevision:d.revision||'',serverShadowAt:d.generatedAt||'',source:'local-pending-v4.9.6'});
+      const local=Object.assign({},currentCached,{normHours:d.normHours,isWeekend:d.isWeekend,activity:d.activity||currentCached.activity,serverRevision:d.revision||'',serverShadowAt:d.generatedAt||'',source:'local-pending-v4.9.7'});
       local.pauseMs=Math.max(Number(currentCached.pauseMs||0),Number(d.pauseMs||0));
       local.pauseCount=Math.max(Number(currentCached.pauseCount||0),Number(d.pauseCount||0));
       local.paidPauseMs=Math.max(Number(currentCached.paidPauseMs||0),Number(d.paidPauseMs||0));
@@ -3268,14 +3268,14 @@ function withProjectMarker_(notes, project){
       local.pauseSource=d.pauseSource||currentCached.pauseSource||'';
       return local;
     }
-    d.source='server-canonical-v4.9.6';
+    d.source='server-canonical-v4.9.7';
     return d;
   }
   function reconcileDashboardV489_(server,currentCached,pending){return reconcileDashboardV495_(server,currentCached,pending);}
   function pontajDashboardReconcileSelfTestV489_Run(){
     const local={name:'Test',workMs:5*3600000,pauseMs:0,extraMs:0,generatedAt:'2026-07-21T10:00:00.000Z'},server={name:'Test',workMs:30*60000,pauseMs:0,extraMs:0,generatedAt:'2026-07-21T10:01:00.000Z',eventRequestIds:[]},pending=[{requestId:'pause-local'}];
     const protectedLocal=reconcileDashboardV489_(server,local,pending),acceptedServer=reconcileDashboardV489_(Object.assign({},server,{workMs:5*3600000,eventRequestIds:['pause-local']}),local,pending),plainServer=reconcileDashboardV489_(Object.assign({},server,{workMs:5*3600000}),local,[]);
-    const tests=[{name:'nu resetează 5h la 30m cât PAUSE este local',ok:protectedLocal.workMs===5*3600000&&protectedLocal.source==='local-pending-v4.9.6'},{name:'server devine autoritar după REQUEST_ID',ok:acceptedServer.workMs===5*3600000&&acceptedServer.source==='server-canonical-v4.9.6'},{name:'fără coadă folosește serverul',ok:plainServer.workMs===5*3600000&&plainServer.source==='server-canonical-v4.9.6'}];return{ok:tests.every(t=>t.ok),version:PONTAJ_VERSION,tests};
+    const tests=[{name:'nu resetează 5h la 30m cât PAUSE este local',ok:protectedLocal.workMs===5*3600000&&protectedLocal.source==='local-pending-v4.9.7'},{name:'server devine autoritar după REQUEST_ID',ok:acceptedServer.workMs===5*3600000&&acceptedServer.source==='server-canonical-v4.9.7'},{name:'fără coadă folosește serverul',ok:plainServer.workMs===5*3600000&&plainServer.source==='server-canonical-v4.9.7'}];return{ok:tests.every(t=>t.ok),version:PONTAJ_VERSION,tests};
   }
 
   function pontajDeviceClockSelfTestV493_Run(){
@@ -3301,19 +3301,33 @@ function withProjectMarker_(notes, project){
     if(dashboardFetchPromisesV482_.has(key))return dashboardFetchPromisesV482_.get(key);
     const promise=(async()=>{try{
       const requestStartedAtV493=Date.now();
-      const r=await fetchWithTimeoutV48_(baseEndpoint()+'?fn=dashboardV496&name='+encodeURIComponent(name)+'&_='+requestStartedAtV493,{cache:'no-store',redirect:'follow',headers:{'Cache-Control':'no-cache'}},16000);
-      if(!r.ok)throw new Error('HTTP '+r.status);let d=JSON.parse(await r.text());if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='professional-dashboard-v4.9.6'||String(d.pauseSource||'')!=='session-aware-pause-ledger-v4.9.6'){const er=new Error('Backend Apps Script vechi sau contract dashboard incomplet. Publică Code.gs V4.9.6 ca New version.');er.code='BACKEND_CONTRACT_V496';throw er;}if(stateKeyV48_(d.name)!==key)throw new Error('Profil diferit în răspuns');const receivedAtV493=Date.now();d.receivedAtMs=receivedAtV493;d.anchorLocalMs=receivedAtV493;d.requestRoundTripMs=Math.max(0,receivedAtV493-requestStartedAtV493);d.serverClockOffsetMs=Number.isFinite(Number(d.serverNowMs))?Number(d.serverNowMs)-((requestStartedAtV493+receivedAtV493)/2):0;if(d.canonicalTimestamp!==true)throw new Error('Snapshot fără timestamp canonic');
+      const r=await fetchWithTimeoutV48_(baseEndpoint()+'?fn=dashboardV497&name='+encodeURIComponent(name)+'&_='+requestStartedAtV493,{cache:'no-store',redirect:'follow',headers:{'Cache-Control':'no-cache'}},30000);
+      if(!r.ok)throw new Error('HTTP '+r.status);let d=JSON.parse(await r.text());if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='professional-dashboard-v4.9.7'||String(d.pauseSource||'')!=='session-aware-pause-ledger-v4.9.7'){const er=new Error('Backend Apps Script vechi sau contract dashboard incomplet. Publică Code.gs V4.9.7 ca New version.');er.code='BACKEND_CONTRACT_V497';throw er;}if(stateKeyV48_(d.name)!==key)throw new Error('Profil diferit în răspuns');const receivedAtV493=Date.now();d.receivedAtMs=receivedAtV493;d.anchorLocalMs=receivedAtV493;d.requestRoundTripMs=Math.max(0,receivedAtV493-requestStartedAtV493);d.serverClockOffsetMs=Number.isFinite(Number(d.serverNowMs))?Number(d.serverNowMs)-((requestStartedAtV493+receivedAtV493)/2):0;if(d.canonicalTimestamp!==true)throw new Error('Snapshot fără timestamp canonic');
       const currentCached=await loadDashboardPersistentV483_(name),pending=queueForEmployeeV48_(name);
       d.normHours=Number(d.normHours)>0?Number(d.normHours):clientNormHoursV481_(name,d.activity,(getSessionContextV481_(name)||currentDetailsV481_()).department);
       d.day=d.day||localDayKeyV483_(new Date());
       // Serverul înlocuiește cache-ul numai când toate REQUEST_ID-urile locale
       // sunt deja vizibile în cronologia lui. Nu combinăm totalurile numeric.
+      const serverCanonicalV497_={
+        pauseMs:Math.max(0,Number(d.pauseMs||0)),
+        pauseCount:Math.max(0,Number(d.pauseCount||0)),
+        paidPauseMs:Math.max(0,Number(d.paidPauseMs||0)),
+        firstStart:d.firstStart||null,
+        pauseSource:String(d.pauseSource||'')
+      };
       d=reconcileDashboardV489_(d,currentCached,pending);
+      // Pauza și ora de început sunt câmpuri canonice ale registrului server-side.
+      // Nu permitem niciunui snapshot local vechi să le înlocuiască după un răspuns valid.
+      d.pauseMs=Math.max(serverCanonicalV497_.pauseMs,Math.max(0,Number(d.pauseMs||0)));
+      d.pauseCount=Math.max(serverCanonicalV497_.pauseCount,Math.max(0,Number(d.pauseCount||0)));
+      d.paidPauseMs=Math.max(serverCanonicalV497_.paidPauseMs,Math.max(0,Number(d.paidPauseMs||0)));
+      d.firstStart=serverCanonicalV497_.firstStart||d.firstStart||null;
+      d.pauseSource=serverCanonicalV497_.pauseSource||d.pauseSource||'';
       dashboardLastFetchByNameV482_.set(key,Date.now());saveDashboardV481_(d);
       if(d.state){saveCanonicalStateV48_(name,d.state);saveLocalStateV48_(name,d.state);}
       if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=d;setProjectedStateV48_(name);renderDashboardV481_();}
       return d;
-    }catch(e){if(e&&e.code==='BACKEND_CONTRACT_V496'){console.error('[PONTAJ V4.9.6]',e);try{showToast('Backendul Apps Script nu este V4.9.6. Înlocuiește Code.gs și publică New version.','warn');}catch(_){}const empty=dashboardEmptyV481_(name);empty.backendError=String(e.message||e);if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=empty;renderDashboardV481_();}return empty;}const fallback=await loadDashboardPersistentV483_(name);if(stateKeyV48_(activeEmployeeV481_())===key&&fallback){dashboardBaseV481_=fallback;renderDashboardV481_();}return fallback||((dashboardBaseV481_&&stateKeyV48_(dashboardBaseV481_.name)===key)?dashboardBaseV481_:dashboardEmptyV481_(name));}
+    }catch(e){if(e&&e.code==='BACKEND_CONTRACT_V497'){console.error('[PONTAJ V4.9.7]',e);try{showToast('Backendul Apps Script nu este V4.9.7. Înlocuiește Code.gs și publică New version.','warn');}catch(_){}const empty=dashboardEmptyV481_(name);empty.backendError=String(e.message||e);if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=empty;renderDashboardV481_();}return empty;}const fallback=await loadDashboardPersistentV483_(name);if(stateKeyV48_(activeEmployeeV481_())===key&&fallback){dashboardBaseV481_=fallback;renderDashboardV481_();}return fallback||((dashboardBaseV481_&&stateKeyV48_(dashboardBaseV481_.name)===key)?dashboardBaseV481_:dashboardEmptyV481_(name));}
     finally{dashboardFetchPromisesV482_.delete(key);}})();dashboardFetchPromisesV482_.set(key,promise);return promise;
   }
 

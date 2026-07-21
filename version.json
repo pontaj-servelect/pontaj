@@ -1,26 +1,17 @@
 {
-  "version": "4.9.6",
-  "build": "offline-first-v4.9.6-live-ledger-manual-override-20260721-1",
+  "version": "4.9.7",
+  "build": "offline-first-v4.9.7-compact-dashboard-authority-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
-    "live-dashboard-requires-v4.9.6-backend-contract",
-    "session-aware-pause-ledger",
-    "notes-client-timestamp-marker-authority",
-    "manual-backdate-from-visible-first-timestamp",
+    "compact-dashboard-response",
+    "dashboard-timeout-increased-to-30-seconds",
+    "server-pause-fields-always-authoritative",
+    "manual-start-backdate-always-authoritative",
     "fresh-dashboard-cache-namespace",
-    "canonical-valid-pause-count",
-    "paid-break-cap-30-minutes",
-    "device-independent-duration-anchor",
-    "background-handoff-preserved",
-    "strict-consecutive-transition-validation"
-  ],
-  "notes": [
-    "Vlad Taran sample rows resolve to 00:10:12 and 3 pauses.",
-    "Changing the visible first Timestamp to a value earlier than CLIENT_TS is treated as an intentional administrative backdate.",
-    "The frontend refuses an older Apps Script dashboard contract instead of silently showing stale zero values."
+    "offline-queue-preserved-during-cache-reset"
   ],
   "date": "2026-07-21",
-  "name": "SERVELECT Pontaj Enterprise 4.9.6",
-  "logic": "live-ledger-manual-override-v4.9.6"
+  "name": "SERVELECT Pontaj Enterprise 4.9.7",
+  "logic": "compact-dashboard-authority-v4.9.7"
 }
