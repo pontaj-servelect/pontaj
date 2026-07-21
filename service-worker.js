@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1';
+const BUILD='offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[

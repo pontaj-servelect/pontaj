@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -837,7 +837,8 @@
     .robot-pet-mobile-overlay-v411[data-state=working] .robot-pet-mobile-caption-v411{color:#087f7a}.robot-pet-mobile-overlay-v411[data-state=paused] .robot-pet-mobile-caption-v411{color:#3472a8}.robot-pet-mobile-overlay-v411[data-state=extra] .robot-pet-mobile-caption-v411{color:#6843c4}.robot-pet-mobile-overlay-v411[data-state=offline] .robot-pet-mobile-caption-v411{color:#667582}.robot-pet-mobile-overlay-v411[data-state=success] .robot-pet-mobile-caption-v411{color:#16865e}
     body.robot-pet-mobile-open-v411{overflow:hidden!important;background:#fff!important}
     @media(min-width:821px){
-      body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411{display:grid;right:18px;bottom:18px;width:76px;height:76px;border-radius:22px}
+      body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411{display:grid;right:18px;bottom:18px;width:76px;height:76px;border-radius:22px;cursor:default;pointer-events:none;opacity:1}
+      body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411:focus{outline:none!important;box-shadow:0 16px 32px rgba(20,45,80,.15)}
       body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411 .tl-robot{--tl-size:60px}
       body.robot-pet-desktop-docked-v413 #servelectPetPanelV499{display:none!important}
     }
@@ -1434,7 +1435,7 @@ const ServelectAudio = (() => {
     </div>
   </div>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2546,7 +2547,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.10';
-  const PONTAJ_BUILD = 'offline-first-v4.9.13-desktop-idle-robot-dock-20260721-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2613,9 +2614,15 @@ function withProjectMarker_(notes, project){
     document.body.classList.toggle('robot-pet-desktop-docked-v413',desktopDocked);
     if(panel)panel.hidden=hidePet||mobile||desktopDocked;
     const showDock=(mobile||desktopDocked)&&!hidePet&&splashDone&&!overlayOpen;
-    if(dock)dock.hidden=!showDock;
+    if(dock){
+      dock.hidden=!showDock;
+      dock.disabled=desktopDocked;
+      dock.tabIndex=desktopDocked?-1:0;
+      dock.setAttribute('aria-disabled',desktopDocked?'true':'false');
+      dock.setAttribute('aria-label',desktopDocked?'Asistent SERVELECT decorativ':'Deschide asistentul SERVELECT');
+    }
   }
-  function bindRobotPetMobileUiV411_(){if(robotPetMobileUiBoundV411_)return;robotPetMobileUiBoundV411_=true;const dock=document.getElementById('servelectPetMobileDockV411');const closeBtn=document.getElementById('servelectPetMobileCloseV411');const overlay=document.getElementById('servelectPetMobileOverlayV411');if(dock)dock.addEventListener('click',()=>openRobotPetMobileOverlayV411_());if(closeBtn)closeBtn.addEventListener('click',()=>closeRobotPetMobileOverlayV411_());window.addEventListener('resize',updateRobotPetMobileVisibilityV411_);window.addEventListener('orientationchange',updateRobotPetMobileVisibilityV411_);document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeRobotPetMobileOverlayV411_();});}
+  function bindRobotPetMobileUiV411_(){if(robotPetMobileUiBoundV411_)return;robotPetMobileUiBoundV411_=true;const dock=document.getElementById('servelectPetMobileDockV411');const closeBtn=document.getElementById('servelectPetMobileCloseV411');const overlay=document.getElementById('servelectPetMobileOverlayV411');if(dock)dock.addEventListener('click',()=>{if(!isRobotPetMobileViewportV411_())return;openRobotPetMobileOverlayV411_();});if(closeBtn)closeBtn.addEventListener('click',()=>closeRobotPetMobileOverlayV411_());window.addEventListener('resize',updateRobotPetMobileVisibilityV411_);window.addEventListener('orientationchange',updateRobotPetMobileVisibilityV411_);document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeRobotPetMobileOverlayV411_();});}
   function initRobotPetV499_(){
     const host=document.getElementById('servelectPetV499');
     const mobileDockHost=document.getElementById('servelectPetMobileDockHostV411');
