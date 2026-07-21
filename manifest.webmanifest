@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj Enterprise 4.8.9",
-  "short_name": "Pontaj 4.8.9",
-  "description": "Pontaj SERVELECT offline-first cu profil live, normă din CSV, cache IndexedDB și restaurare sigură pe mobil.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.0",
+  "short_name": "Pontaj 4.9.0",
+  "description": "Pontaj SERVELECT offline-first cu validare stricta, timp canonic intre dispozitive si sincronizare sigura.",
   "id": "./index.html",
-  "start_url": "./index.html?v=offline-first-v4.8.9-enterprise-desktop-dashboard-20260721-1",
+  "start_url": "./index.html?v=offline-first-v4.9.0-strict-transition-server-clock-background-sync-20260721-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

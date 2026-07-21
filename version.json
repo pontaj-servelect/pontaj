@@ -1,19 +1,19 @@
 {
-  "version": "4.8.9",
-  "build": "offline-first-v4.8.9-canonical-time-cross-device-20260721-1",
+  "version": "4.9.0",
+  "build": "offline-first-v4.9.0-strict-transition-server-clock-background-sync-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-dashboard-live-three-menu-mobile-preserved",
+  "ui": "enterprise-desktop-collapsible-sidebar-status-text-cleanup-mobile-preserved",
   "fixes": [
+    "strict-consecutive-transition-validation",
+    "cross-device-server-clock-offset",
     "canonical-client-timestamp-priority",
-    "exact-millisecond-dashboard-totals",
-    "cross-device-server-authority",
-    "no-math-max-cache-merge",
-    "fresh-dashboard-cache-v4.8.9",
-    "refresh-dashboard-after-ack",
-    "admin-login-page",
-    "enterprise-desktop-layout",
-    "mobile-interface-preserved"
+    "background-sync-do-not-abort-on-hide",
+    "foreground-resume-sync",
+    "pause-extra-overtime-canonical-refresh",
+    "collapsible-desktop-sidebar",
+    "remove-visible-sync-and-active-status-copy",
+    "telegram-client-timestamp-priority"
   ],
-  "notes": "Timestamp canonic din browser, timp identic intre dispozitive, cache dashboard reconciliat, login Admin.",
+  "notes": "Validare stricta intre actiuni, timp live bazat pe ceasul serverului, sincronizare foreground/background best-effort si meniu desktop compactabil.",
   "date": "2026-07-21"
 }
