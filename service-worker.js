@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1';
+const BUILD='offline-first-v4.9.12-robot-pet-mobile-root-overlay-fix-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
