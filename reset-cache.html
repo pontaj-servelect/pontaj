@@ -11,8 +11,23 @@
     try{
       Object.keys(localStorage).filter(k=>k.startsWith('pontaj/dashboard/')||k.startsWith('pontaj/history/')).forEach(k=>localStorage.removeItem(k));
     }catch(_){}
-    msg.className='ok';msg.textContent='Cache actualizat. Se deschide V4.9.7…';
-    setTimeout(()=>location.replace('./index.html?v=offline-first-v4.9.7-compact-dashboard-authority-20260721-1'),350);
+    // Ștergem numai snapshoturile UI din store-ul meta. Coada offline
+    // activeActions și jurnalul terminalJournal NU sunt atinse.
+    try{
+      await new Promise(resolve=>{
+        const req=indexedDB.open('servelect-pontaj-v48');
+        req.onerror=()=>resolve();
+        req.onsuccess=()=>{
+          const db=req.result;
+          if(!db.objectStoreNames.contains('meta')){db.close();resolve();return;}
+          const tx=db.transaction('meta','readwrite'),store=tx.objectStore('meta'),cursor=store.openCursor();
+          cursor.onsuccess=()=>{const cur=cursor.result;if(!cur)return;const key=String(cur.key||'');if(key.startsWith('ui/dashboard/')||key.startsWith('ui/history/'))cur.delete();cur.continue();};
+          tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>{try{db.close();}catch(_){}resolve();};tx.onabort=tx.onerror;
+        };
+      });
+    }catch(_){}
+    msg.className='ok';msg.textContent='Cache actualizat. Se deschide V4.9.8…';
+    setTimeout(()=>location.replace('./index.html?v=offline-first-v4.9.8-dashboard-jsonp-authority-20260721-1'),350);
   }catch(e){msg.className='err';msg.textContent='Nu am putut reseta cache-ul: '+String(e&&e.message?e.message:e);}
 })();
 </script></body></html>

@@ -1,17 +1,17 @@
 {
-  "version": "4.9.7",
-  "build": "offline-first-v4.9.7-compact-dashboard-authority-20260721-1",
+  "version": "4.9.8",
+  "build": "offline-first-v4.9.8-dashboard-jsonp-authority-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
-    "compact-dashboard-response",
-    "dashboard-timeout-increased-to-30-seconds",
-    "server-pause-fields-always-authoritative",
-    "manual-start-backdate-always-authoritative",
-    "fresh-dashboard-cache-namespace",
-    "offline-queue-preserved-during-cache-reset"
+    "dashboard-fetch-and-jsonp-parallel-transport",
+    "state-active-history-jsonp-fallback",
+    "server-pause-fields-authoritative",
+    "unknown-pause-never-rendered-as-zero",
+    "dashboard-indexeddb-cache-reset",
+    "offline-action-queue-preserved"
   ],
   "date": "2026-07-21",
-  "name": "SERVELECT Pontaj Enterprise 4.9.7",
-  "logic": "compact-dashboard-authority-v4.9.7"
+  "name": "SERVELECT Pontaj Enterprise 4.9.8",
+  "logic": "dashboard-jsonp-authority-v4.9.8"
 }

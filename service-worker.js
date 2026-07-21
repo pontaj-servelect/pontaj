@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.7-compact-dashboard-authority-20260721-1';
+const BUILD='offline-first-v4.9.8-dashboard-jsonp-authority-20260721-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
