@@ -1,14 +1,19 @@
 {
-  "version": "4.8.8",
-  "build": "offline-first-v4.8.8-enterprise-desktop-dashboard-20260721-1",
+  "version": "4.8.9",
+  "build": "offline-first-v4.8.9-canonical-time-cross-device-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-dashboard-live-three-menu-mobile-preserved",
   "fixes": [
+    "canonical-client-timestamp-priority",
+    "exact-millisecond-dashboard-totals",
+    "cross-device-server-authority",
+    "no-math-max-cache-merge",
+    "fresh-dashboard-cache-v4.8.9",
+    "refresh-dashboard-after-ack",
+    "admin-login-page",
     "enterprise-desktop-layout",
-    "sidebar-dashboard-admin-settings-only",
-    "inline-seven-day-history",
-    "removed-desktop-audit-validation-panels",
     "mobile-interface-preserved"
   ],
-  "notes": "Redesign desktop inspirat din referinta: Dashboard Live, Admin si Setari; fara panouri Validari/Conformitate si Stare sincronizare/Audit."
+  "notes": "Timestamp canonic din browser, timp identic intre dispozitive, cache dashboard reconciliat, login Admin.",
+  "date": "2026-07-21"
 }

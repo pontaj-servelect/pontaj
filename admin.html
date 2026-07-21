@@ -1027,8 +1027,28 @@
    
     
       </style>
+
+<style id="adminLoginV489Style">
+  #adminLoginV489{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(37,99,235,.16),transparent 36%),linear-gradient(145deg,#f4f8ff,#eef4f7 60%,#f8fbff);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  #adminLoginV489.open{display:flex}#adminLoginV489 .login-card{width:min(440px,100%);background:#fff;border:1px solid #dbe5f2;border-radius:24px;padding:30px;box-shadow:0 24px 70px rgba(15,42,77,.18)}
+  #adminLoginV489 .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.login-mark-v489{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#2563eb,#10b981);display:grid;place-items:center;color:white;font-weight:900;font-size:21px}
+  #adminLoginV489 h1{margin:0;color:#0b2547;font-size:25px}.login-sub-v489{margin:4px 0 0;color:#65758b;font-size:14px}.login-field-v489{display:grid;gap:7px;margin-top:16px}.login-field-v489 label{font-weight:750;color:#243b5a;font-size:13px}.login-field-v489 input{width:100%;box-sizing:border-box;border:1px solid #cfdbea;border-radius:12px;padding:13px 14px;font:inherit;outline:none}.login-field-v489 input:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.11)}
+  #adminLoginSubmitV489{width:100%;border:0;border-radius:13px;padding:14px;margin-top:20px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:800;font-size:15px;cursor:pointer}#adminLoginSubmitV489:disabled{opacity:.6;cursor:wait}
+  #adminLoginErrorV489{min-height:20px;margin-top:12px;color:#c62828;font-size:13px;font-weight:650}.login-back-v489{display:block;text-align:center;margin-top:12px;color:#52657d;text-decoration:none;font-size:13px}
+</style>
 </head>
 <body>
+<div id="adminLoginV489" aria-hidden="true">
+  <form class="login-card" id="adminLoginFormV489" autocomplete="on">
+    <div class="login-brand"><div class="login-mark-v489">S</div><div><h1>Autentificare Admin</h1><p class="login-sub-v489">SERVELECT Pontaj & Management</p></div></div>
+    <div class="login-field-v489"><label for="adminUserV489">Utilizator</label><input id="adminUserV489" name="username" autocomplete="username" required></div>
+    <div class="login-field-v489"><label for="adminPassV489">Parola</label><input id="adminPassV489" name="password" type="password" autocomplete="current-password" required></div>
+    <button id="adminLoginSubmitV489" type="submit">Autentificare</button>
+    <div id="adminLoginErrorV489" role="alert"></div>
+    <a class="login-back-v489" href="index.html">Inapoi la pontaj</a>
+  </form>
+</div>
+
   <div class="shell">
       <nav class="nav card">
           <a class="brand" href="index.html" aria-label="Spre pontaj">
@@ -1655,6 +1675,27 @@
   function clearAdminSession(){
     try{ localStorage.removeItem(ADMIN_LS_KEY); }catch{}
   }
+  function validAdminSessionV489_(session){return !!(session&&session.user&&(!session.expiresAt||Number(session.expiresAt)>Date.now()));}
+  async function sha256V489_(value){
+    const data=new TextEncoder().encode(String(value||''));
+    const hash=await crypto.subtle.digest('SHA-256',data);
+    return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  async function loadAdminAccountsV489_(){
+    const r=await fetch('admin-auth.json?v='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('Nu pot incarca configuratia de autentificare.');
+    const data=await r.json(),list=Array.isArray(data&&data.admins)?data.admins:[];
+    if(!list.length)throw new Error('Configuratia admin este goala.');return list;
+  }
+  function showAdminLoginV489_(){
+    const layer=document.getElementById('adminLoginV489');if(layer){layer.classList.add('open');layer.setAttribute('aria-hidden','false');}
+    const app=document.querySelector('.admin-app')||document.querySelector('.app-shell')||document.querySelector('body > .wrap');if(app)app.style.display='none';
+    const form=document.getElementById('adminLoginFormV489');if(!form||form.dataset.bound)return;form.dataset.bound='1';
+    form.addEventListener('submit',async function(ev){ev.preventDefault();const btn=document.getElementById('adminLoginSubmitV489'),err=document.getElementById('adminLoginErrorV489');btn.disabled=true;err.textContent='';
+      try{const user=document.getElementById('adminUserV489').value.trim(),pass=document.getElementById('adminPassV489').value;if(!user||!pass)throw new Error('Completeaza utilizatorul si parola.');const hashes=await Promise.all([sha256V489_(user),sha256V489_(pass)]),accounts=await loadAdminAccountsV489_(),rec=accounts.find(a=>String(a.usernameHash||'').toLowerCase()===hashes[0]&&String(a.passwordHash||'').toLowerCase()===hashes[1]);if(!rec)throw new Error('Utilizator sau parola incorecta.');const session={user:rec.label||user,id:rec.id||rec.usernameHash,userHash:rec.usernameHash,role:rec.role||'admin',dept:rec.dept||null,loginAt:Date.now(),expiresAt:Date.now()+12*60*60*1000};localStorage.setItem(ADMIN_LS_KEY,JSON.stringify(session));location.reload();}
+      catch(e){err.textContent=String(e&&e.message||e);}finally{btn.disabled=false;}
+    });setTimeout(()=>{const u=document.getElementById('adminUserV489');if(u)u.focus();},50);
+  }
 
   async function loadConfig(){
     if (GLOBAL_CFG) return GLOBAL_CFG;
@@ -1664,8 +1705,8 @@
     return GLOBAL_CFG;
   }
 
-  const ADMIN_BUILD_V485='4.8.7';
-  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.7';
+  const ADMIN_BUILD_V485='4.8.9';
+  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.9';
 
   function adminReadCacheV484(){
     try{
@@ -1789,7 +1830,7 @@
     }catch(err){
       const cached=allowCache!==false?adminReadCacheV484():null;
       if(cached)return {data:cached.data,stale:true,savedAt:cached.savedAt,error:String(err&&err.message||err)};
-      throw new Error('Nu pot incarca datele administrative. Frontendul este V4.8.7, dar endpointul Apps Script nu raspunde cu contractul adminEvents JSON/JSONP. Inlocuieste Code.gs, editeaza deploymentul existent si publica New version (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
+      throw new Error('Nu pot incarca datele administrative. Frontendul este V4.8.9, dar endpointul Apps Script nu raspunde cu contractul adminEvents JSON/JSONP. Inlocuieste Code.gs, editeaza deploymentul existent si publica New version (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
     }
   }
 
@@ -1920,7 +1961,9 @@ function applyNormSettingsFromConfig(cfg){
     return !!(set && set.has(name));
   }
 
-  const session = getAdminSession();
+  const sessionRaw = getAdminSession();
+  const session = validAdminSessionV489_(sessionRaw) ? sessionRaw : null;
+  if(sessionRaw&&!session)clearAdminSession();
   ADMIN_SESSION = session;
 
   const adminLabelEl           = document.getElementById('adminLabel');
@@ -2027,8 +2070,7 @@ if (filterChipsEl && !filterChipsEl.dataset.boundX){
 }
   
   if (!session){
-    alert('Nu ești autentificat ca admin. Te redirecționez la pagina principală.');
-    window.location.href = 'index.html';
+    showAdminLoginV489_();
     return;
   }
 
@@ -2081,7 +2123,7 @@ if (filterChipsEl && !filterChipsEl.dataset.boundX){
   if (logoutBtn){
     logoutBtn.addEventListener('click', function(){
       clearAdminSession();
-      window.location.href = 'index.html';
+      window.location.reload();
     });
   }
 function showError(err){
