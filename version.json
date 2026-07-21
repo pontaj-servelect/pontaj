@@ -1,26 +1,26 @@
 {
-  "version": "4.9.5",
-  "build": "offline-first-v4.9.5-pause-display-authority-20260721-1",
+  "version": "4.9.6",
+  "build": "offline-first-v4.9.6-live-ledger-manual-override-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
+    "live-dashboard-requires-v4.9.6-backend-contract",
+    "session-aware-pause-ledger",
+    "notes-client-timestamp-marker-authority",
+    "manual-backdate-from-visible-first-timestamp",
+    "fresh-dashboard-cache-namespace",
     "canonical-valid-pause-count",
-    "optimistic-offline-pause-count",
     "paid-break-cap-30-minutes",
-    "no-break-requires-full-norm",
-    "overtime-after-counted-norm-only",
     "device-independent-duration-anchor",
-    "active-dashboard-refresh-maximum-5-seconds",
-    "mobile-focus-mode-preserved",
     "background-handoff-preserved",
     "strict-consecutive-transition-validation"
   ],
   "notes": [
-    "Dashboard pause totals are read directly from the canonical PAUSE→UNPAUSE ledger.",
-    "Canonical server pause totals are not hidden by stale local dashboard cache.",
-    "Pending actions from another day no longer block the current-day server snapshot."
+    "Vlad Taran sample rows resolve to 00:10:12 and 3 pauses.",
+    "Changing the visible first Timestamp to a value earlier than CLIENT_TS is treated as an intentional administrative backdate.",
+    "The frontend refuses an older Apps Script dashboard contract instead of silently showing stale zero values."
   ],
   "date": "2026-07-21",
-  "name": "SERVELECT Pontaj Enterprise 4.9.5",
-  "logic": "pause-display-authority-v4.9.5"
+  "name": "SERVELECT Pontaj Enterprise 4.9.6",
+  "logic": "live-ledger-manual-override-v4.9.6"
 }
