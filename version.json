@@ -1,6 +1,6 @@
 {
-  "version": "4.9.3",
-  "build": "offline-first-v4.9.3-pause-count-norm-device-clock-20260721-1",
+  "version": "4.9.4",
+  "build": "offline-first-v4.9.4-pause-ledger-reconstruction-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "enterprise-desktop-collapsible-sidebar-mobile-focus-mode",
   "fixes": [
@@ -16,5 +16,7 @@
     "strict-consecutive-transition-validation"
   ],
   "notes": "Pauzele valide sunt numărate din cronologia canonică. Norma de 8h creditează maximum 30m pauză; fără pauză sunt necesare 8h lucrate. Telefonul și desktopul ancorează durata la momentul local al recepției snapshotului, eliminând diferențele produse de cold-start-ul Apps Script.",
-  "date": "2026-07-21"
+  "date": "2026-07-21",
+  "name": "SERVELECT Pontaj Enterprise 4.9.4",
+  "logic": "accepted-pause-unpause-ledger-v4.9.4"
 }
