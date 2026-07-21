@@ -1,7 +1,12 @@
 {
-  "version": "4.8.4",
-  "build": "offline-first-v4.8.4-admin-fetch-background-resume-sync-20260721-1",
+  "version": "4.8.5",
+  "build": "offline-first-v4.8.5-admin-json-jsonp-contract-fix-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "professional-circle-profile-switch-live-resume-idb-cache-mobile",
-  "fixes": ["admin-fetch-jsonp-fallback", "resume-sync-watchdog", "service-worker-background-sync"]
+  "fixes": [
+    "admin-fetch-jsonp-fallback",
+    "resume-sync-watchdog",
+    "service-worker-background-sync"
+  ],
+  "notes": "Admin endpoint single-serialization JSON/JSONP contract fix; resilient endpoint candidate selection; foreground/background offline sync retained."
 }

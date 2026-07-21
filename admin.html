@@ -1664,7 +1664,8 @@
     return GLOBAL_CFG;
   }
 
-  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.4';
+  const ADMIN_BUILD_V485='4.8.5';
+  const ADMIN_EVENTS_CACHE_KEY_V484 = 'pontaj/adminEvents/cache/v4.8.5';
 
   function adminReadCacheV484(){
     try{
@@ -1700,6 +1701,7 @@
       const u=new URL(url, location.href);
       u.searchParams.set('callback',callback);
       u.searchParams.set('_jsonp',String(Date.now()));
+      u.searchParams.set('format','jsonp');
       script.src=u.toString();script.async=true;
       document.head.appendChild(script);
     });
@@ -1733,13 +1735,13 @@
     const url=base+'?fn=adminEvents&v='+Date.now();
     try{
       const data=await fetchJsonResilientV484(url,{cache:'no-store'});
-      if(!data||!data.ok||!Array.isArray(data.events))throw new Error('adminEvents nu a intors events[].');
+      if(!data||!data.ok||!Array.isArray(data.events))throw new Error((data&&data.error)||'adminEvents nu a intors events[].');
       adminWriteCacheV484(data);
       return {data:data,stale:false};
     }catch(err){
       const cached=allowCache!==false?adminReadCacheV484():null;
       if(cached)return {data:cached.data,stale:true,savedAt:cached.savedAt,error:String(err&&err.message||err)};
-      throw new Error('Nu pot incarca datele administrative. Verifica internetul si redeploy-ul Apps Script (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
+      throw new Error('Nu pot incarca datele administrative. Frontendul este V4.8.5, dar endpointul Apps Script nu raspunde cu contractul adminEvents JSON/JSONP. Inlocuieste Code.gs, editeaza deploymentul existent si publica New version (Execute as: Me, Who has access: Anyone). Detaliu: '+String(err&&err.message||err));
     }
   }
 
@@ -4002,9 +4004,30 @@ function renderAdminPresence(adminsAll, presence){
 
 function adminEndpointBase(){
   const cfg = window.CFG || {};
-  // IMPORTANT: adminEventsEndpoint trebuie să fie baza WebApp-ului (fără ?fn=...)
-  const raw = cfg.adminEventsEndpoint || cfg.webappUrl || cfg.scriptUrl || '';
+  // IMPORTANT: adminEventsEndpoint trebuie sa fie baza WebApp-ului (fara ?fn=...)
+  const raw = cfg.adminEventsEndpoint || cfg.webappUrl || cfg.scriptUrl || cfg.stateEndpoint || cfg.guardEndpoint || '';
   return String(raw || '').replace(/\?.*$/, '').trim();
+}
+
+function adminEndpointCandidatesV485(){
+  const cfg=window.CFG||{};
+  const raw=[cfg.adminEventsEndpoint,cfg.webappUrl,cfg.scriptUrl,cfg.stateEndpoint,cfg.guardEndpoint,cfg.leaveEndpoint];
+  const seen=new Set(), out=[];
+  raw.forEach(value=>{
+    const url=String(value||'').replace(/\?.*$/,'').trim();
+    if(url && !seen.has(url)){seen.add(url);out.push(url);}
+  });
+  return out;
+}
+
+async function loadAdminEventsFromCandidatesV485(allowCache){
+  const candidates=adminEndpointCandidatesV485();
+  if(!candidates.length)throw new Error('Lipseste URL-ul Web App Apps Script in config.json.');
+  const errors=[];
+  for(const base of candidates){
+    try{return await loadAdminEventsV484(base,allowCache);}catch(err){errors.push(base+' -> '+String(err&&err.message||err));}
+  }
+  throw new Error(errors.join(' | '));
 }
 
   
@@ -4555,7 +4578,7 @@ async function init(){
 
       
       const base = adminEndpointBase();
-      const adminLoadV484 = await loadAdminEventsV484(base, true);
+      const adminLoadV484 = await loadAdminEventsFromCandidatesV485(true);
       const data = adminLoadV484.data;
       if (adminLoadV484.stale && loadingEl){
         loadingEl.textContent='Conexiune indisponibila temporar — sunt afisate ultimele date memorate.';
@@ -4686,7 +4709,7 @@ if (saved){
 
   // refetch admin events cu retry, fallback JSONP si cache local
   const base = adminEndpointBase();
-  const adminLoadV484 = await loadAdminEventsV484(base, true);
+  const adminLoadV484 = await loadAdminEventsFromCandidatesV485(true);
   const data = adminLoadV484.data;
 
   window.__pontajAdminMeta = data.meta || null;

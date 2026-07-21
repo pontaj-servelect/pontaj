@@ -75,5 +75,7 @@
       "action": "Acțiune"
     }
   },
-  "projectsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/projects.csv"
+  "projectsCsv": "https://raw.githubusercontent.com/pontaj-servelect/pontaj/main/projects.csv",
+  "adminEventsProtocol": "json-or-jsonp-v4.8.5",
+  "adminEventsFn": "adminEvents"
 }
