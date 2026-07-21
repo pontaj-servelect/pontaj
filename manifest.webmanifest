@@ -3,7 +3,7 @@
   "short_name": "Pontaj 4.9.10",
   "description": "Pontaj SERVELECT offline-first cu dashboard JSON/JSONP, pauze canonice și timp aliniat între dispozitive.",
   "id": "./index.html",
-  "start_url": "./index.html?v=offline-first-v4.9.10-robot-pet-audited-ui-20260721-1",
+  "start_url": "./index.html?v=offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

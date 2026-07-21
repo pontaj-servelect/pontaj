@@ -1,8 +1,8 @@
 {
-  "version": "4.9.10",
-  "build": "offline-first-v4.9.10-robot-pet-audited-ui-20260721-1",
+  "version": "4.9.11",
+  "build": "offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-context-aware-compact-panel-robot-pet-audited-mobile-focus-mode",
+  "ui": "enterprise-desktop-robot-pet-vector-mobile-overlay",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",

@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.10-robot-pet-audited-ui-20260721-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.10-robot-pet-audited-ui-20260721-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.10-robot-pet-audited-ui-20260721-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -615,7 +615,7 @@
       body.pontaj-active-v48 .nav{grid-column:1/-1}
       body.pontaj-active-v48 .active-dashboard-v48{grid-column:1;grid-row:2;min-width:0;margin-top:18px}
       body.pontaj-active-v48 .hero{display:block!important;grid-column:2;grid-row:2;min-width:0;margin-top:18px;position:sticky;top:14px;align-self:start}
-      body.pontaj-active-v48 .hero .panel{padding:18px 16px;border-radius:22px;max-height:calc(100vh - 32px);overflow:auto}
+      body.pontaj-active-v48 .hero .panel{padding:18px 16px;border-radius:22px;max-height:calc(100vh - 32px);overflow:auto;display:flex;flex-direction:column}
       body.pontaj-active-v48 .hero .rail,body.pontaj-active-v48 #actionCenterV51,body.pontaj-active-v48 #leavePanel,body.pontaj-active-v48 #invoireBox{display:none!important}
       body.pontaj-active-v48 .hero .grid.cols-3,body.pontaj-active-v48 .hero .grid.cols-2{grid-template-columns:1fr!important;gap:10px}
       body.pontaj-active-v48 .details-mode-banner-v481{display:block}
@@ -650,7 +650,7 @@
       body.pontaj-active-v48 .hero{grid-column:3!important;grid-row:2!important;margin:0!important;display:block!important;position:sticky!important;top:88px!important;align-self:start!important;min-width:0}
       body:not(.pontaj-active-v48) .hero{grid-column:2/-1!important;grid-row:2!important;margin:0!important;display:block!important;max-width:1100px;width:100%;justify-self:center}
       body:not(.pontaj-active-v48) .hero .rail{display:none!important}
-      body:not(.pontaj-active-v48) .hero .panel{padding:24px;border-radius:16px}
+      body:not(.pontaj-active-v48) .hero .panel{padding:24px;border-radius:16px;display:flex;flex-direction:column}
       .active-dashboard-v48{width:100%;max-width:none!important}
       .active-head-v48{border-radius:15px!important;padding:17px 20px!important;background:#fff!important;border:1px solid var(--desktop-line)!important;box-shadow:0 6px 22px rgba(20,45,80,.045)!important}
       .active-name-v48{font-size:20px!important;color:#102b50!important}.active-norm-line-v48{font-size:11px!important}.active-state-pill-v48{border-radius:999px!important;background:#ecfbf1!important;color:#158c42!important;border:1px solid #ccefd7!important;box-shadow:none!important}.active-history-v49{border-radius:10px!important;padding:9px 13px!important;font-size:10px!important}
@@ -813,13 +813,29 @@
     .activity-step-v499 .selection-readiness-v481{display:block!important;margin:7px 0 0!important;padding:7px 8px!important;border-radius:10px!important;box-shadow:none!important;background:#f8fbff!important}
     .activity-step-v499 .selection-readiness-title-v481{font-size:9px!important}.activity-step-v499 .selection-readiness-state-v481{padding:4px 7px!important;font-size:8px!important}
     .activity-step-v499 .selection-chips-v481{display:flex!important;gap:4px!important;margin-top:5px!important}.activity-step-v499 .selection-chip-v481{padding:4px 6px!important;border-radius:7px!important;font-size:8px!important}.activity-step-v499 .selection-chip-v481:not(.missing){display:none}
-    .robot-pet-panel-v499{position:relative;display:grid;justify-items:center;margin:7px 0 -2px;padding:2px 8px 0;border-radius:16px;overflow:hidden;background:radial-gradient(210px 130px at 50% 53%,rgba(59,214,204,.09),transparent 72%)}
+    .robot-pet-panel-v499{position:relative;display:grid;justify-items:center;align-content:end;margin-top:auto;padding:10px 0 0;border-top:1px solid #edf3f8;overflow:visible;background:none}
     .robot-pet-panel-v499[hidden]{display:none!important}
-    .robot-pet-canvas-v499{--tl-size:min(235px,76vw);cursor:pointer;border-radius:18px;outline:none}
+    .robot-pet-canvas-v499{--tl-size:min(256px,100%);width:100%;display:grid;place-items:center;cursor:pointer;border-radius:18px;outline:none}
     .robot-pet-canvas-v499:focus-visible{box-shadow:0 0 0 3px rgba(23,105,232,.22),0 0 0 1px #1769e8}
     .robot-pet-fallback-v499{display:block;width:100%;height:auto;border-radius:20px}
-    .robot-pet-caption-v499{position:relative;margin:-15px 0 5px;padding:5px 10px;border:1px solid #dce8ef;border-radius:999px;background:rgba(255,255,255,.92);color:#52677d;font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.01em;box-shadow:0 5px 15px rgba(20,45,80,.06);z-index:2}
+    .robot-pet-caption-v499{position:relative;margin:-10px 0 4px;padding:5px 10px;border:1px solid #dce8ef;border-radius:999px;background:rgba(255,255,255,.95);color:#52677d;font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.01em;box-shadow:0 5px 15px rgba(20,45,80,.06);z-index:2}
     .robot-pet-panel-v499[data-state=working] .robot-pet-caption-v499{color:#087f7a}.robot-pet-panel-v499[data-state=paused] .robot-pet-caption-v499{color:#3472a8}.robot-pet-panel-v499[data-state=extra] .robot-pet-caption-v499{color:#6843c4}.robot-pet-panel-v499[data-state=offline] .robot-pet-caption-v499{color:#667582}.robot-pet-panel-v499[data-state=success] .robot-pet-caption-v499{color:#16865e}
+    .robot-pet-mobile-dock-v411{display:none;position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:11050;width:74px;height:74px;padding:0;border:1px solid #dbe7f1;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 18px 36px rgba(20,45,80,.14);cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .robot-pet-mobile-dock-v411[hidden]{display:none!important}
+    .robot-pet-mobile-dock-v411:focus-visible{outline:3px solid rgba(23,105,232,.22);outline-offset:3px}
+    .robot-pet-mobile-dock-host-v411{display:grid;place-items:center;width:100%;height:100%;pointer-events:none}
+    .robot-pet-mobile-dock-v411 .tl-robot{--tl-size:58px}
+    .robot-pet-mobile-overlay-v411{position:fixed;inset:0;z-index:12050;display:flex;align-items:center;justify-content:center;background:#fff;padding:max(14px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(18px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+    .robot-pet-mobile-overlay-v411[hidden]{display:none!important}
+    .robot-pet-mobile-stage-v411{width:100%;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+    .robot-pet-mobile-close-v411{position:absolute;left:50%;top:max(16px,calc(env(safe-area-inset-top,0px) + 8px));transform:translateX(-50%);width:48px;height:48px;display:grid;place-items:center;padding:0;border:1px solid #dce5ef;border-radius:50%;background:#fff;color:#17375f;box-shadow:0 10px 28px rgba(22,53,91,.12);font:400 31px/1 Arial,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .robot-pet-mobile-close-v411:active{transform:translateX(-50%) scale(.96)}
+    .robot-pet-mobile-close-v411:focus-visible{outline:3px solid rgba(8,108,240,.28);outline-offset:4px}
+    .robot-pet-mobile-overlay-host-v411{display:grid;place-items:center;width:100%}
+    .robot-pet-mobile-overlay-host-v411 .tl-robot{--tl-size:min(80vw,350px)}
+    .robot-pet-mobile-caption-v411{margin:0;padding:8px 14px;border:1px solid #dce8ef;border-radius:999px;background:#fff;color:#52677d;font-size:12px;font-weight:800;line-height:1.25;text-align:center;box-shadow:0 8px 20px rgba(20,45,80,.08)}
+    .robot-pet-mobile-overlay-v411[data-state=working] .robot-pet-mobile-caption-v411{color:#087f7a}.robot-pet-mobile-overlay-v411[data-state=paused] .robot-pet-mobile-caption-v411{color:#3472a8}.robot-pet-mobile-overlay-v411[data-state=extra] .robot-pet-mobile-caption-v411{color:#6843c4}.robot-pet-mobile-overlay-v411[data-state=offline] .robot-pet-mobile-caption-v411{color:#667582}.robot-pet-mobile-overlay-v411[data-state=success] .robot-pet-mobile-caption-v411{color:#16865e}
+    body.robot-pet-mobile-open-v411{overflow:hidden!important;background:#fff!important}
     @media(min-width:821px){
       .hero .grid.cols-2.activity-context-grid-v499,
       body.pontaj-active-v48 .hero .grid.cols-2.activity-context-grid-v499{grid-template-columns:repeat(2,minmax(0,1fr))!important}
@@ -829,13 +845,15 @@
       body.pontaj-active-v48 .hero .panel::-webkit-scrollbar{width:7px}body.pontaj-active-v48 .hero .panel::-webkit-scrollbar-thumb{background:#c7d5e5;border-radius:999px}
       body.pontaj-active-v48 .hero .panel>header{margin-bottom:5px!important}body.pontaj-active-v48 .hero .panel .sub{margin-bottom:8px!important}
       body.pontaj-active-v48 .robot-pet-canvas-v499{--tl-size:min(205px,100%)}
-      body.pontaj-active-v48 .robot-pet-panel-v499{margin-top:3px;padding-top:0}
+      body.pontaj-active-v48 .robot-pet-panel-v499{margin-top:auto;padding-top:8px}
     }
     @media(max-width:820px){
       .activity-step-v499{padding:10px;border-radius:14px}.activity-step-head-v499{margin-bottom:8px}.activity-step-number-v499{width:25px;height:25px}
       .activity-step-title-v499{font-size:12px}.activity-step-hint-v499{font-size:8.5px}
       .activity-step-v499 select,.activity-step-v499 input[type=text]{min-height:46px!important;font-size:16px!important;padding:11px!important}
-      .robot-pet-canvas-v499{--tl-size:min(178px,62vw)}.robot-pet-caption-v499{margin-top:-12px;font-size:8px}.robot-pet-panel-v499{margin-top:4px}
+      .robot-pet-canvas-v499{--tl-size:min(178px,62vw)}.robot-pet-caption-v499{margin-top:-8px;font-size:8px}.robot-pet-panel-v499{margin-top:4px;border-top:none;padding-top:0}
+      #servelectPetPanelV499{display:none!important}
+      .robot-pet-mobile-dock-v411{display:grid}
     }
     @media(max-width:820px) and (max-height:620px){.robot-pet-caption-v499{display:none}.robot-pet-canvas-v499{--tl-size:min(150px,52vw)}.robot-pet-panel-v499{margin-bottom:-10px}}
     @media(prefers-reduced-motion:reduce){.robot-pet-canvas-v499{scroll-behavior:auto}.robot-pet-caption-v499{transition:none}}
@@ -1098,6 +1116,17 @@
           </div>
           <p id="servelectPetCaptionV499" class="robot-pet-caption-v499" role="status" aria-live="polite">Sunt aici.</p>
         </section>
+
+        <button id="servelectPetMobileDockV411" class="robot-pet-mobile-dock-v411" type="button" hidden aria-label="Deschide asistentul SERVELECT">
+          <span id="servelectPetMobileDockHostV411" class="robot-pet-mobile-dock-host-v411" aria-hidden="true"></span>
+        </button>
+        <div id="servelectPetMobileOverlayV411" class="robot-pet-mobile-overlay-v411" data-state="idle" hidden aria-modal="true" role="dialog" aria-label="Asistentul SERVELECT">
+          <button id="servelectPetMobileCloseV411" class="robot-pet-mobile-close-v411" type="button" aria-label="Închide asistentul">×</button>
+          <div class="robot-pet-mobile-stage-v411">
+            <div id="servelectPetMobileOverlayHostV411" class="robot-pet-mobile-overlay-host-v411"></div>
+            <p id="servelectPetMobileCaptionV411" class="robot-pet-mobile-caption-v411" role="status" aria-live="polite">Sunt aici.</p>
+          </div>
+        </div>
 
         <!-- Invoire panel -->
         <div id="invoireBox" class="invoire-box">
@@ -1394,7 +1423,7 @@ const ServelectAudio = (() => {
 })();
   </script>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.10-robot-pet-audited-ui-20260721-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -1849,8 +1878,12 @@ function withProjectMarker_(notes, project){
 
   function syncInvoireUI(){
     const show = isInvoireActivity();
+    const hidePet = show || isLeaveActivity();
     const petPanel = document.getElementById('servelectPetPanelV499');
-    if (petPanel) petPanel.hidden = show || isLeaveActivity();
+    const petDock = document.getElementById('servelectPetMobileDockV411');
+    if (petPanel) petPanel.hidden = hidePet;
+    if (petDock) petDock.hidden = hidePet || !isRobotPetMobileViewportV411_();
+    if (hidePet) closeRobotPetMobileOverlayV411_();
 
     if (invoireBox) {
       invoireBox.style.display = show ? 'block' : 'none';
@@ -2507,7 +2540,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.10';
-  const PONTAJ_BUILD = 'offline-first-v4.9.10-robot-pet-audited-ui-20260721-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.11-robot-pet-vector-mobile-overlay-ui-20260721-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2554,23 +2587,42 @@ function withProjectMarker_(notes, project){
   /* Robotul reflectă exclusiv starea canonică deja calculată de aplicație. */
   const ROBOT_CAPTIONS_V499={idle:'Sunt aici.',working:'Lucrez împreună cu tine.',paused:'Pauză activă.',extra:'EXTRA activ.',syncing:'Sincronizez…',offline:'Salvat offline.',success:'Sincronizat cu succes.'};
   let servelectRobotPetV499_=null;
+  let servelectRobotPetMobileDockV411_=null;
+  let servelectRobotPetMobileOverlayV411_=null;
+  let robotPetMobileUiBoundV411_=false;
   let robotSuccessUntilV499_=0;
   let robotSuccessTimerV499_=null;
+  function isRobotPetMobileViewportV411_(){return !!(window.matchMedia&&window.matchMedia('(max-width: 820px)').matches);}
+  function robotPetInstancesV411_(){return [servelectRobotPetV499_,servelectRobotPetMobileDockV411_,servelectRobotPetMobileOverlayV411_].filter(Boolean);}
+  function mountRobotPetHostV411_(host,options){if(!host||!window.ServelectRobotPet)return null;try{return window.ServelectRobotPet.mount(host,Object.assign({state:'idle',eyeTracking:true,mobileTapReact:true,respectReducedMotion:true},options||{}));}catch{return null;}}
+  function closeRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411');if(!overlay)return;overlay.hidden=true;document.body.classList.remove('robot-pet-mobile-open-v411');}
+  function openRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411');if(!overlay||overlay.hidden===false)return;overlay.hidden=false;document.body.classList.add('robot-pet-mobile-open-v411');syncRobotStateV499_();}
+  function updateRobotPetMobileVisibilityV411_(){const dock=document.getElementById('servelectPetMobileDockV411');const show=isRobotPetMobileViewportV411_()&&!isInvoireActivity()&&!isLeaveActivity();if(dock)dock.hidden=!show;if(!show)closeRobotPetMobileOverlayV411_();}
+  function bindRobotPetMobileUiV411_(){if(robotPetMobileUiBoundV411_)return;robotPetMobileUiBoundV411_=true;const dock=document.getElementById('servelectPetMobileDockV411');const closeBtn=document.getElementById('servelectPetMobileCloseV411');const overlay=document.getElementById('servelectPetMobileOverlayV411');if(dock)dock.addEventListener('click',()=>openRobotPetMobileOverlayV411_());if(closeBtn)closeBtn.addEventListener('click',()=>closeRobotPetMobileOverlayV411_());if(overlay)overlay.addEventListener('click',(e)=>{if(e.target===overlay)closeRobotPetMobileOverlayV411_();});window.addEventListener('resize',updateRobotPetMobileVisibilityV411_);window.addEventListener('orientationchange',updateRobotPetMobileVisibilityV411_);document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeRobotPetMobileOverlayV411_();});}
   function initRobotPetV499_(){
     const host=document.getElementById('servelectPetV499');
-    if(!host||!window.ServelectRobotPet)return null;
-    if(servelectRobotPetV499_)servelectRobotPetV499_.destroy();
-    servelectRobotPetV499_=window.ServelectRobotPet.mount(host,{state:'idle',eyeTracking:true,mobileTapReact:true,respectReducedMotion:true});
+    const mobileDockHost=document.getElementById('servelectPetMobileDockHostV411');
+    const mobileOverlayHost=document.getElementById('servelectPetMobileOverlayHostV411');
+    if(!window.ServelectRobotPet||(!host&&!mobileDockHost&&!mobileOverlayHost))return null;
+    [servelectRobotPetV499_,servelectRobotPetMobileDockV411_,servelectRobotPetMobileOverlayV411_].forEach(instance=>{if(instance&&instance.destroy)instance.destroy();});
+    servelectRobotPetV499_=mountRobotPetHostV411_(host,{state:'idle',eyeTracking:true,mobileTapReact:true});
+    servelectRobotPetMobileDockV411_=mountRobotPetHostV411_(mobileDockHost,{state:'idle',eyeTracking:false,mobileTapReact:true});
+    servelectRobotPetMobileOverlayV411_=mountRobotPetHostV411_(mobileOverlayHost,{state:'idle',eyeTracking:true,mobileTapReact:true});
+    bindRobotPetMobileUiV411_();
+    updateRobotPetMobileVisibilityV411_();
     window.setRobotState=(state,caption)=>setRobotStateV499_(state,caption);
-    window.addEventListener('beforeunload',()=>{if(servelectRobotPetV499_)servelectRobotPetV499_.destroy();},{once:true});
+    window.addEventListener('beforeunload',()=>{robotPetInstancesV411_().forEach(instance=>{if(instance&&instance.destroy)instance.destroy();});},{once:true});
     syncRobotStateV499_();
-    return servelectRobotPetV499_;
+    return servelectRobotPetV499_||servelectRobotPetMobileDockV411_||servelectRobotPetMobileOverlayV411_;
   }
   function setRobotStateV499_(state,customCaption){
-    const next=ROBOT_CAPTIONS_V499[state]?state:'idle',panel=document.getElementById('servelectPetPanelV499'),caption=document.getElementById('servelectPetCaptionV499');
+    const next=ROBOT_CAPTIONS_V499[state]?state:'idle',panel=document.getElementById('servelectPetPanelV499'),caption=document.getElementById('servelectPetCaptionV499'),overlay=document.getElementById('servelectPetMobileOverlayV411'),mobileCaption=document.getElementById('servelectPetMobileCaptionV411');
     if(panel)panel.dataset.state=next;
+    if(overlay)overlay.dataset.state=next;
     if(caption)caption.textContent=customCaption||ROBOT_CAPTIONS_V499[next];
-    if(servelectRobotPetV499_)servelectRobotPetV499_.setState(next);
+    if(mobileCaption)mobileCaption.textContent=customCaption||ROBOT_CAPTIONS_V499[next];
+    robotPetInstancesV411_().forEach(instance=>{if(instance&&instance.setState)instance.setState(next);});
+    updateRobotPetMobileVisibilityV411_();
     return next;
   }
   function canonicalRobotStateV499_(){
