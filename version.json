@@ -1,13 +1,14 @@
 {
-  "version": "4.8.7",
-  "build": "offline-first-v4.8.7-admin-jsonp-cold-start-fix-20260721-1",
+  "version": "4.8.8",
+  "build": "offline-first-v4.8.8-enterprise-desktop-dashboard-20260721-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "professional-circle-profile-switch-live-resume-idb-cache-mobile",
+  "ui": "enterprise-desktop-dashboard-live-three-menu-mobile-preserved",
   "fixes": [
-    "admin-jsonp-120-second-cold-start-window",
-    "admin-fetch-jsonp-parallel-first-success",
-    "late-jsonp-callback-noop-safety",
-    "service-worker-cache-refresh"
+    "enterprise-desktop-layout",
+    "sidebar-dashboard-admin-settings-only",
+    "inline-seven-day-history",
+    "removed-desktop-audit-validation-panels",
+    "mobile-interface-preserved"
   ],
-  "notes": "Remediaza timeoutul JSONP de 25 secunde si eroarea callback is not defined cand Apps Script raspunde tarziu."
+  "notes": "Redesign desktop inspirat din referinta: Dashboard Live, Admin si Setari; fara panouri Validari/Conformitate si Stare sincronizare/Audit."
 }

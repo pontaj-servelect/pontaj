@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.8.6-admin-json-jsonp-contract-fix-20260721-1" />
-  <meta name="pontaj-build" content="offline-first-v4.8.6-admin-json-jsonp-contract-fix-20260721-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.8.8-enterprise-desktop-dashboard-20260721-1" />
+  <meta name="pontaj-build" content="offline-first-v4.8.8-enterprise-desktop-dashboard-20260721-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -628,6 +628,41 @@
       body.pontaj-active-v48 .active-progress-layout-v48{grid-template-columns:1fr}
       body.pontaj-active-v48 .active-side-v48{display:grid;grid-template-columns:1fr 1fr}
     }
+
+
+    /* ================= ENTERPRISE DESKTOP REDESIGN V4.8.8 ================= */
+    .desktop-sidebar-v488,.desktop-top-title-v488,.desktop-settings-view-v488,.desktop-history-v488{display:none}
+    @media(min-width:821px){
+      :root{--desktop-blue:#1769e8;--desktop-green:#25b95b;--desktop-line:#e3eaf3;--desktop-ink:#102b50;--desktop-muted:#718198}
+      body{background:#f5f8fc!important;color:var(--desktop-ink)}
+      .shell{max-width:none!important;width:100%;min-height:100vh;margin:0!important;padding:0 22px 28px 0!important;display:grid!important;grid-template-columns:250px minmax(0,1fr) 350px!important;grid-template-rows:auto auto!important;gap:18px!important;align-items:start!important}
+      .desktop-sidebar-v488{display:flex;grid-column:1;grid-row:1/4;position:sticky;top:0;height:100vh;flex-direction:column;background:#fff;border-right:1px solid #e3e9f1;padding:24px 16px 18px;z-index:20}
+      .desktop-sidebar-brand-v488{display:flex;align-items:center;gap:11px;text-decoration:none;color:#0d2b53;padding:0 10px 22px;border-bottom:1px solid #edf1f6}
+      .desktop-sidebar-brand-v488 img{width:39px;height:39px;object-fit:contain}.desktop-sidebar-brand-v488 span{display:flex;flex-direction:column}.desktop-sidebar-brand-v488 strong{font-size:18px;letter-spacing:.01em}.desktop-sidebar-brand-v488 small{font-size:10px;color:#77869b;margin-top:2px;font-weight:650}
+      .desktop-sidebar-nav-v488{display:grid;gap:8px;margin-top:22px}.desktop-sidebar-item-v488{appearance:none;width:100%;min-height:48px;display:flex;align-items:center;gap:13px;padding:11px 14px;border:0;border-radius:12px;background:transparent;color:#4c607b;text-decoration:none;font:750 13px/1 Montserrat,system-ui;cursor:pointer;text-align:left;transition:.18s ease}
+      .desktop-sidebar-item-v488 svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}.desktop-sidebar-item-v488.active,.desktop-sidebar-item-v488:hover{background:#eaf3ff;color:#1268e4}.desktop-sidebar-item-v488.active{box-shadow:inset 3px 0 #1769e8}
+      .desktop-sidebar-foot-v488{margin-top:auto;padding:14px 12px;border-radius:12px;background:#f6fbf7;color:#3f7651;font-size:10px;font-weight:750;display:flex;align-items:center;gap:8px}.desktop-sidebar-foot-dot-v488{width:8px;height:8px;border-radius:50%;background:#25b95b;box-shadow:0 0 0 4px rgba(37,185,91,.12)}
+      .nav{grid-column:2/-1!important;grid-row:1!important;margin:0!important;min-height:70px;border-radius:0!important;border:0!important;border-bottom:1px solid #e3e9f1!important;background:rgba(255,255,255,.96)!important;box-shadow:none!important;padding:12px 18px!important;position:sticky;top:0;z-index:15}
+      .desktop-top-title-v488{display:flex;align-items:center;gap:11px;color:#102b50}.desktop-top-title-v488>span:last-child{display:flex;flex-direction:column}.desktop-top-title-v488 strong{font-size:16px}.desktop-top-title-v488 small{font-size:10px;color:#7a889b;margin-top:2px}.desktop-top-icon-v488{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:#e9f3ff;color:#1769e8;font-size:18px}
+      .nav>.brand{display:none!important}.nav .chip-menu{display:none!important}.nav .sync-chip{margin-left:auto;box-shadow:none;background:#f2fbf5;border-color:#cfeeda;color:#188a42;min-height:36px}.nav .sync-dot{background:#24b65b}
+      body.pontaj-active-v48 .active-dashboard-v48{grid-column:2!important;grid-row:2!important;margin:0!important;min-width:0;display:block}
+      body.pontaj-active-v48 .hero{grid-column:3!important;grid-row:2!important;margin:0!important;display:block!important;position:sticky!important;top:88px!important;align-self:start!important;min-width:0}
+      body:not(.pontaj-active-v48) .hero{grid-column:2/-1!important;grid-row:2!important;margin:0!important;display:block!important;max-width:1100px;width:100%;justify-self:center}
+      body:not(.pontaj-active-v48) .hero .rail{display:none!important}
+      body:not(.pontaj-active-v48) .hero .panel{padding:24px;border-radius:16px}
+      .active-dashboard-v48{width:100%;max-width:none!important}
+      .active-head-v48{border-radius:15px!important;padding:17px 20px!important;background:#fff!important;border:1px solid var(--desktop-line)!important;box-shadow:0 6px 22px rgba(20,45,80,.045)!important}
+      .active-name-v48{font-size:20px!important;color:#102b50!important}.active-norm-line-v48{font-size:11px!important}.active-state-pill-v48{border-radius:999px!important;background:#ecfbf1!important;color:#158c42!important;border:1px solid #ccefd7!important;box-shadow:none!important}.active-history-v49{border-radius:10px!important;padding:9px 13px!important;font-size:10px!important}
+      .active-progress-card-v48{margin-top:14px!important;border-radius:15px!important;padding:22px!important;background:#fff!important;border:1px solid var(--desktop-line)!important;box-shadow:0 6px 22px rgba(20,45,80,.045)!important}
+      body.pontaj-active-v48 .active-progress-layout-v48{grid-template-columns:minmax(0,1.35fr) minmax(210px,.65fr)!important;gap:22px!important}.main-ring-v48{width:min(100%,490px)!important}.worked-time-v48{font-size:54px!important;color:#102b50!important}.ring-progress-v48{stroke:url(#normGradientV48)!important}.overtime-card-v48,.extra-card-v48{border-radius:14px!important;box-shadow:none!important;border:1px solid #e0e9f4!important}.overtime-card-v48{background:#f2fbf5!important}.extra-card-v48{background:#f4f7ff!important}
+      .active-controls-v48{margin-top:13px!important;gap:10px!important}.active-control-v48{border-radius:12px!important;min-height:60px!important;box-shadow:none!important}.active-finish-v48{background:#fff1f2!important;color:#d93045!important;border:1px solid #f4bdc4!important}.active-pause-v48{background:#fff8ec!important;color:#d87900!important;border:1px solid #f5d59c!important}.active-unpause-v48{background:#eef8ff!important;color:#1769e8!important;border:1px solid #bdd7fa!important}.active-extra-finish-v48{background:#f5efff!important;color:#7c3fd1!important;border:1px solid #d8c3f8!important}
+      .day-summary-v48{margin-top:13px!important;border-radius:15px!important;border:1px solid var(--desktop-line)!important;box-shadow:none!important;background:#fff!important}.day-summary-grid-v48{grid-template-columns:repeat(4,1fr)!important}.day-summary-value-v48{font-size:22px!important}.active-details-brief-v481,.active-dashboard-note-v48{display:none!important}
+      .hero .panel{border-radius:15px!important;border:1px solid var(--desktop-line)!important;box-shadow:0 6px 22px rgba(20,45,80,.045)!important;background:#fff!important;max-height:calc(100vh - 106px)!important;padding:18px!important}.hero .panel>header{margin:0 0 8px!important}.hero .panel>header h2{font-size:16px!important;color:#102b50}.hero .panel .sub{font-size:10px!important;line-height:1.55!important;margin-bottom:13px!important}.details-mode-banner-v481{display:none!important}.selection-readiness-v481{display:none!important}.hero label{font-size:10px!important;font-weight:750;color:#6e7d91}.hero select,.hero input[type=text],.hero input[type=email],.hero input[type=date],.hero input[type=time]{min-height:42px!important;padding:10px!important;border-radius:9px!important;font-size:12px!important;background:#fbfdff!important}.hero .grid.cols-3,.hero .grid.cols-2{grid-template-columns:1fr!important;gap:9px!important}.hero .rail{display:none!important}
+      .desktop-history-v488{display:block;margin-top:13px;padding:16px 17px;border-radius:15px;background:#fff;border:1px solid var(--desktop-line)}.desktop-history-head-v488{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.desktop-history-head-v488>div{display:flex;flex-direction:column}.desktop-history-head-v488 strong{font-size:14px}.desktop-history-head-v488 small{font-size:9px;color:#7d8a9c;margin-top:3px}.desktop-history-head-v488 button{border:0;background:transparent;color:#1769e8;font:800 10px Montserrat;cursor:pointer}.desktop-history-strip-v488{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.desktop-history-day-v488{min-width:0;padding:11px 7px;border:1px solid #e5ebf3;border-radius:11px;text-align:center;background:#fbfdff}.desktop-history-day-v488.today{border-color:#6aa7f8;box-shadow:0 0 0 2px rgba(23,105,232,.08)}.desktop-history-day-v488 b{display:block;font-size:10px;color:#53677f}.desktop-history-day-v488 span{display:block;margin-top:4px;font-size:9px;color:#8090a4}.desktop-history-day-v488 strong{display:block;margin-top:10px;font-size:14px;color:#102b50}.desktop-history-day-v488 em{display:block;margin-top:4px;font-style:normal;font-size:9px;font-weight:800;color:#20a753}.desktop-history-loading-v488{grid-column:1/-1;color:#75869c;font-size:11px;padding:12px;text-align:center}
+      .desktop-settings-view-v488{grid-column:2/-1;grid-row:2;min-height:calc(100vh - 110px);background:#fff;border:1px solid var(--desktop-line);border-radius:15px}
+      body.desktop-settings-open-v488 .active-dashboard-v48,body.desktop-settings-open-v488 .hero{display:none!important}body.desktop-settings-open-v488 .desktop-settings-view-v488{display:block!important}
+    }
+
 </style>
 </head>
 <body>
@@ -654,7 +689,26 @@
   <!-- ===== END SPLASH ===== -->
 
   <div class="shell">
+    <aside id="desktopSidebarV488" class="desktop-sidebar-v488" aria-label="Navigare desktop">
+      <a class="desktop-sidebar-brand-v488" href="index.html" aria-label="SERVELECT Pontaj">
+        <img src="favicon.png" alt="" />
+        <span><strong>SERVELECT</strong><small>Pontaj &amp; Management</small></span>
+      </a>
+      <nav class="desktop-sidebar-nav-v488">
+        <button id="desktopDashboardBtnV488" class="desktop-sidebar-item-v488 active" type="button" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>Dashboard Live</span>
+        </button>
+        <a class="desktop-sidebar-item-v488" href="admin.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM5 21v-2a7 7 0 0 1 14 0v2M18 8h3M19.5 6.5v3"/></svg><span>Admin</span>
+        </a>
+        <button id="desktopSettingsBtnV488" class="desktop-sidebar-item-v488" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .92V21h-4v-.68a1.7 1.7 0 0 0-1-.92 1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.92-1H3v-4h.68a1.7 1.7 0 0 0 .92-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06L7.06 4.2l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.92V3h4v.68a1.7 1.7 0 0 0 1 .92 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .92 1H21v4h-.68a1.7 1.7 0 0 0-.92 1Z"/></svg><span>Setări</span>
+        </button>
+      </nav>
+      <div class="desktop-sidebar-foot-v488"><span class="desktop-sidebar-foot-dot-v488"></span><span>Aplicație sincronizată</span></div>
+    </aside>
     <nav class="nav card">
+      <div class="desktop-top-title-v488"><span class="desktop-top-icon-v488">▣</span><span><strong>Pontaj live</strong><small>Monitorizare în timp real</small></span></div>
       <a class="brand" href="#" aria-label="Spre început">
         <img src="favicon.png" alt="Siglă SERVELECT" />
         <div>
@@ -664,7 +718,7 @@
 
       <div class="sync-chip" id="offlineQueueStatus" title="Acțiunile sunt salvate imediat pe dispozitiv și confirmate ulterior în Google Sheet">
         <span class="sync-dot" aria-hidden="true"></span>
-        <span id="offlineQueueStatusText">V4.8.6 • Se verifică memoria locală…</span>
+        <span id="offlineQueueStatusText">V4.8.8 • Se verifică memoria locală…</span>
       </div>
 
       <!-- CHIP CONFIG + HAMBURGER + ADMIN LOGIN -->
@@ -723,7 +777,7 @@
         <div class="active-head-right-v49">
           <div class="active-head-status-v49">
             <div id="activeStatePillV48" class="active-state-pill-v48">Activ · În lucru</div>
-            <div id="activeSyncV48" class="active-sync-line-v48">V4.8.6 · sincronizat</div>
+            <div id="activeSyncV48" class="active-sync-line-v48">V4.8.8 · sincronizat</div>
           </div>
           <button id="activeHistoryV49" class="active-history-v49" type="button">Istoric</button>
         </div>
@@ -765,6 +819,10 @@
         <div class="day-summary-item-v48 summary-pause-v48"><div class="day-summary-icon-v48">☕</div><div class="day-summary-label-v48">Pauză totală</div><div id="summaryPauseV48" class="day-summary-value-v48">00:00</div><div id="summaryPauseCountV48" class="day-summary-sub-v48">0 pauze</div></div>
         <div class="day-summary-item-v48 summary-start-v48"><div class="day-summary-icon-v48">▣</div><div class="day-summary-label-v48">Început</div><div id="summaryStartV48" class="day-summary-value-v48">—</div><div class="day-summary-sub-v48">Astăzi</div></div>
       </div></section>
+      <section id="desktopHistoryV488" class="desktop-history-v488" aria-label="Istoric ultimele 7 zile">
+        <div class="desktop-history-head-v488"><div><strong>Istoric 7 zile</strong><small>Ultimele pontaje confirmate</small></div><button id="desktopHistoryOpenV488" type="button">Vezi istoricul</button></div>
+        <div id="desktopHistoryStripV488" class="desktop-history-strip-v488"><div class="desktop-history-loading-v488">Se încarcă…</div></div>
+      </section>
       <div id="activeDetailsBriefV481" class="active-details-brief-v481"></div>
       <div class="active-dashboard-note-v48">Cronometrele continuă offline, iar la revenirea aplicației profilul este reconciliat automat cu starea live din server.</div>
     </section>
@@ -961,6 +1019,7 @@
         <div class="footer">© <span id="year"></span> SERVELECT. Toate drepturile rezervate.</div>
       </aside>
     </section>
+    <section id="desktopSettingsViewV488" class="desktop-settings-view-v488" hidden aria-label="Setări"></section>
   </div>
 
 
@@ -2198,8 +2257,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.8.6';
-  const PONTAJ_BUILD = 'offline-first-v4.8.6-admin-json-jsonp-contract-fix-20260721-1';
+  const PONTAJ_VERSION = '4.8.8';
+  const PONTAJ_BUILD = 'offline-first-v4.8.8-enterprise-desktop-dashboard-20260721-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2602,7 +2661,7 @@ function withProjectMarker_(notes, project){
         try{const ack=await submitDirectActionV48_(item);await finalizeAckV48_(item,ack);if(flushProgressV48_)flushProgressV48_.completed++;}
         catch(e){const resumedRecently=navigator.onLine!==false&&(Date.now()-lastSyncWakeV484_<12000),wait=resumedRecently?0:backoffMsV48_(attempts);await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent.'});requestSyncV48_(wait);registerBackgroundSyncV484_();break;}
       }
-    }catch(e){console.warn('Sincronizarea V4.8.6 a întâmpinat o eroare temporară.');}
+    }catch(e){console.warn('Sincronizarea V4.8.8 a întâmpinat o eroare temporară.');}
     finally{flushProgressV48_=null;offlineFlushRunningV48_=false;try{await releaseLeaseV48_();}catch{}await refreshQueueMemoryV48_().catch(()=>{});updateOfflineBadgeV48_();}
   }
   async function registerBackgroundSyncV484_(){
@@ -2657,14 +2716,14 @@ function withProjectMarker_(notes, project){
   }
   function updateOfflineBadgeV48_(forcedError){
     const el=document.getElementById('offlineQueueStatus'),txt=document.getElementById('offlineQueueStatusText');if(!el||!txt)return;const q=sortedActiveV48_(),total=q.length,failed=q.filter(x=>x.status==='failed-retryable').length,sending=q.filter(x=>x.status==='sending').length,retired=terminalSummaryV48_.retired+terminalSummaryV48_.rejected,online=navigator.onLine!==false;el.classList.remove('pending','offline','error');
-    if(forcedError){el.classList.add('error');txt.textContent='V4.8.6 • Eroare temporară — se reîncearcă';}
-    else if(!online&&total){el.classList.add('offline');txt.textContent=`V4.8.6 • Offline — ${total} acțiuni salvate`;}
-    else if(sending||offlineFlushRunningV48_){el.classList.add('pending');const p=flushProgressV48_||{completed:0,total};txt.textContent=`V4.8.6 • Se sincronizează — ${Math.min(p.completed,p.total)}/${p.total}`;}
-    else if(failed){el.classList.add('error');txt.textContent=`V4.8.6 • Eroare temporară — ${failed} • se reîncearcă`;}
-    else if(total){el.classList.add('pending');txt.textContent=`V4.8.6 • Se sincronizează — 0/${total}`;}
-    else if(!online){el.classList.add('offline');txt.textContent='V4.8.6 • Offline — sincronizat local';}
-    else if(retired)txt.textContent=`V4.8.6 • Online — sincronizat • Acțiuni retrase — ${retired}`;
-    else txt.textContent='V4.8.6 • Online — sincronizat';
+    if(forcedError){el.classList.add('error');txt.textContent='V4.8.8 • Eroare temporară — se reîncearcă';}
+    else if(!online&&total){el.classList.add('offline');txt.textContent=`V4.8.8 • Offline — ${total} acțiuni salvate`;}
+    else if(sending||offlineFlushRunningV48_){el.classList.add('pending');const p=flushProgressV48_||{completed:0,total};txt.textContent=`V4.8.8 • Se sincronizează — ${Math.min(p.completed,p.total)}/${p.total}`;}
+    else if(failed){el.classList.add('error');txt.textContent=`V4.8.8 • Eroare temporară — ${failed} • se reîncearcă`;}
+    else if(total){el.classList.add('pending');txt.textContent=`V4.8.8 • Se sincronizează — 0/${total}`;}
+    else if(!online){el.classList.add('offline');txt.textContent='V4.8.8 • Offline — sincronizat local';}
+    else if(retired)txt.textContent=`V4.8.8 • Online — sincronizat • Acțiuni retrase — ${retired}`;
+    else txt.textContent='V4.8.8 • Online — sincronizat';
   }
 
   async function renderSyncDiagnosticsV48_(){
@@ -2703,7 +2762,7 @@ function withProjectMarker_(notes, project){
   async function initOfflineV48_(){
     const badge=document.getElementById('offlineQueueStatus');if(badge)badge.title='Build '+PONTAJ_BUILD+' • IndexedDB autoritar • apasă pentru diagnostic';
     const localStorageOkV483_=localStorageAvailableV48_();
-    if(!localStorageOkV483_){if(badge)badge.classList.add('pending');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.8.6 • Mod sigur IndexedDB';}
+    if(!localStorageOkV483_){if(badge)badge.classList.add('pending');const t=document.getElementById('offlineQueueStatusText');if(t)t.textContent='V4.8.8 • Mod sigur IndexedDB';}
     else migrateStateStorageV48_();
     await openIdbV48_().then(db=>db.close());await hydrateStateMapsV483_();await migrateLegacyQueuesV48_();await refreshQueueMemoryV48_();offlineReadyV48_=true;
     try{if('BroadcastChannel'in window){syncChannelV48_=new BroadcastChannel('servelect-pontaj-sync-v48');syncChannelV48_.onmessage=async ev=>{if(ev.data&&ev.data.source!==TAB_OWNER_V48){await refreshQueueMemoryV48_();if(empSel.value)setProjectedStateV48_(empSel.value);requestSyncV48_(0);}};}}catch{}
@@ -2964,7 +3023,7 @@ function withProjectMarker_(notes, project){
   function fmtNormV481_(hours){const m=Math.max(0,Math.round(Number(hours||0)*60));return m?Math.floor(m/60)+'h'+(m%60?' '+String(m%60).padStart(2,'0')+'m':''):'Fără normă';}
   function textV481_(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
   function ringV481_(id,circ,ratio){const e=document.getElementById(id);if(e)e.style.strokeDashoffset=String(circ*(1-Math.max(0,Math.min(1,Number(ratio)||0))));}
-  function renderDashboardV481_(){const dash=document.getElementById('activeDashboardV48');if(!dash)return;const name=activeEmployeeV481_(),st=name?dashboardStateV481_(name):blankState(),normal=!!(st.normal&&st.normal.running),paused=normal&&!!st.normal.paused,extra=!!(st.extra&&st.extra.running),active=normal||extra;document.body.classList.toggle('pontaj-active-v48',active);dash.hidden=!active;updateDetailsLockV481_();if(!active){if(dashboardTimerV481_){clearInterval(dashboardTimerV481_);dashboardTimerV481_=null;}return;}const live=dashboardLiveV481_(Date.now()),base=live.base;textV481_('activeEmployeeNameV48',name||'Angajat');textV481_('activeNormV48',base.isWeekend?'Weekend · fără normă':fmtNormV481_(base.normHours));const pill=document.getElementById('activeStatePillV48');if(pill){pill.className='active-state-pill-v48'+(extra?' extra':paused?' paused':'');pill.textContent=extra?'Extra · Activ':paused?'În pauză':'Activ · În lucru';}textV481_('workedTimeV48',fmtClockV481_(live.workMs,true));textV481_('pauseTimeV48',fmtClockV481_(live.pauseMs,false));textV481_('countedTimeV48',fmtClockV481_(live.countedMs,false));textV481_('overtimeTimeV48','+'+fmtClockV481_(live.overtimeMs,false));textV481_('extraTimeV48',fmtClockV481_(live.extraMs,false));ringV481_('normRingProgressV48',NORM_RING_CIRC_V481,live.normMs?live.countedMs/live.normMs:(live.workMs?1:0));ringV481_('extraRingProgressV48',EXTRA_RING_CIRC_V481,extra?((live.extraMs%14400000)/14400000):0);const ec=document.getElementById('extraCardV48');if(ec)ec.classList.toggle('active',extra);textV481_('extraCaptionV48',extra?'Sesiune EXTRA activă':'Timp EXTRA separat');const nc=document.getElementById('normalControlsV48'),xc=document.getElementById('extraControlsV48');if(nc)nc.hidden=!normal||extra;if(xc)xc.hidden=!extra;const pb=document.getElementById('activePauseV48'),ub=document.getElementById('activeUnpauseV48');if(pb)pb.hidden=paused;if(ub)ub.hidden=!paused;textV481_('summaryWorkV48',fmtClockV481_(live.workMs,false));textV481_('summaryNormV48','din '+fmtNormV481_(base.normHours));textV481_('summaryOvertimeV48','+'+fmtClockV481_(live.overtimeMs,false));textV481_('summaryPauseV48',fmtClockV481_(live.pauseMs,false));const pc=Number(base.pauseCount||0);textV481_('summaryPauseCountV48',pc+' '+(pc===1?'pauză':'pauze'));const sd=new Date(base.firstStart||st.lastNormalStart||st.lastExtraStart||'');textV481_('summaryStartV48',isNaN(sd)?'—':sd.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}));textV481_('dashboardUpdatedV48',navigator.onLine===false?'Actualizare locală':'Actualizat acum');const sync=document.getElementById('offlineQueueStatusText');textV481_('activeSyncV48',sync?sync.textContent:'V4.8.6');renderActiveDetailsBriefV481_();if(!dashboardTimerV481_)dashboardTimerV481_=setInterval(renderDashboardV481_,1000);}
+  function renderDashboardV481_(){const dash=document.getElementById('activeDashboardV48');if(!dash)return;const name=activeEmployeeV481_(),st=name?dashboardStateV481_(name):blankState(),normal=!!(st.normal&&st.normal.running),paused=normal&&!!st.normal.paused,extra=!!(st.extra&&st.extra.running),active=normal||extra;document.body.classList.toggle('pontaj-active-v48',active);dash.hidden=!active;updateDetailsLockV481_();if(!active){if(dashboardTimerV481_){clearInterval(dashboardTimerV481_);dashboardTimerV481_=null;}return;}const live=dashboardLiveV481_(Date.now()),base=live.base;textV481_('activeEmployeeNameV48',name||'Angajat');textV481_('activeNormV48',base.isWeekend?'Weekend · fără normă':fmtNormV481_(base.normHours));const pill=document.getElementById('activeStatePillV48');if(pill){pill.className='active-state-pill-v48'+(extra?' extra':paused?' paused':'');pill.textContent=extra?'Extra · Activ':paused?'În pauză':'Activ · În lucru';}textV481_('workedTimeV48',fmtClockV481_(live.workMs,true));textV481_('pauseTimeV48',fmtClockV481_(live.pauseMs,false));textV481_('countedTimeV48',fmtClockV481_(live.countedMs,false));textV481_('overtimeTimeV48','+'+fmtClockV481_(live.overtimeMs,false));textV481_('extraTimeV48',fmtClockV481_(live.extraMs,false));ringV481_('normRingProgressV48',NORM_RING_CIRC_V481,live.normMs?live.countedMs/live.normMs:(live.workMs?1:0));ringV481_('extraRingProgressV48',EXTRA_RING_CIRC_V481,extra?((live.extraMs%14400000)/14400000):0);const ec=document.getElementById('extraCardV48');if(ec)ec.classList.toggle('active',extra);textV481_('extraCaptionV48',extra?'Sesiune EXTRA activă':'Timp EXTRA separat');const nc=document.getElementById('normalControlsV48'),xc=document.getElementById('extraControlsV48');if(nc)nc.hidden=!normal||extra;if(xc)xc.hidden=!extra;const pb=document.getElementById('activePauseV48'),ub=document.getElementById('activeUnpauseV48');if(pb)pb.hidden=paused;if(ub)ub.hidden=!paused;textV481_('summaryWorkV48',fmtClockV481_(live.workMs,false));textV481_('summaryNormV48','din '+fmtNormV481_(base.normHours));textV481_('summaryOvertimeV48','+'+fmtClockV481_(live.overtimeMs,false));textV481_('summaryPauseV48',fmtClockV481_(live.pauseMs,false));const pc=Number(base.pauseCount||0);textV481_('summaryPauseCountV48',pc+' '+(pc===1?'pauză':'pauze'));const sd=new Date(base.firstStart||st.lastNormalStart||st.lastExtraStart||'');textV481_('summaryStartV48',isNaN(sd)?'—':sd.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}));textV481_('dashboardUpdatedV48',navigator.onLine===false?'Actualizare locală':'Actualizat acum');const sync=document.getElementById('offlineQueueStatusText');textV481_('activeSyncV48',sync?sync.textContent:'V4.8.8');renderActiveDetailsBriefV481_();refreshDesktopHistoryV488_(name,false);if(!dashboardTimerV481_)dashboardTimerV481_=setInterval(renderDashboardV481_,1000);}
   async function refreshDashboardV481_(name,force){
     name=String(name||activeEmployeeV481_()).trim();if(!name)return null;
     const key=stateKeyV48_(name),persisted=await loadDashboardPersistentV483_(name);
@@ -3039,7 +3098,34 @@ function withProjectMarker_(notes, project){
 
   console.log('Servelect Pontaj build', PONTAJ_BUILD);
 
+
+  let desktopHistoryLastNameV488_='';
+  let desktopHistoryLastAtV488_=0;
+  function setDesktopViewV488_(view){
+    const settings=view==='settings';
+    document.body.classList.toggle('desktop-settings-open-v488',settings);
+    const d=document.getElementById('desktopDashboardBtnV488'),st=document.getElementById('desktopSettingsBtnV488');
+    if(d){d.classList.toggle('active',!settings);d.setAttribute('aria-current',settings?'false':'page');}
+    if(st){st.classList.toggle('active',settings);st.setAttribute('aria-current',settings?'page':'false');}
+  }
+  function renderDesktopHistoryV488_(data){
+    const host=document.getElementById('desktopHistoryStripV488');if(!host)return;
+    const items=Array.isArray(data&&data.items)?data.items.slice(-7):[];
+    if(!items.length){host.innerHTML='<div class="desktop-history-loading-v488">Nu există pontaje confirmate în ultimele 7 zile.</div>';return;}
+    const wd=['Du','Lu','Ma','Mi','Jo','Vi','Sâ'],today=new Date().toISOString().slice(0,10);
+    host.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),label=isNaN(d)?'—':wd[d.getDay()],date=isNaN(d)?String(it.date||''):String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.',work=fmtClockV481_(Number(it.workMs||0),false),diff=Number(it.diffMs||0),diffText=(diff>0?'+':diff<0?'−':'')+fmtClockV481_(Math.abs(diff),false);return '<article class="desktop-history-day-v488 '+(String(it.date||'')===today?'today':'')+'"><b>'+escapeHtmlV481_(label)+'</b><span>'+escapeHtmlV481_(date)+'</span><strong>'+escapeHtmlV481_(work)+'</strong><em>'+escapeHtmlV481_(diffText)+'</em></article>';}).join('');
+  }
+  async function refreshDesktopHistoryV488_(name,force){
+    if(window.innerWidth<821)return;name=String(name||activeEmployeeV481_()||'').trim();if(!name)return;
+    const now=Date.now();if(!force&&desktopHistoryLastNameV488_===name&&now-desktopHistoryLastAtV488_<60000)return;
+    desktopHistoryLastNameV488_=name;desktopHistoryLastAtV488_=now;
+    try{renderDesktopHistoryV488_(await fetchHistoryV481_(name));}catch(e){const host=document.getElementById('desktopHistoryStripV488');if(host)host.innerHTML='<div class="desktop-history-loading-v488">'+escapeHtmlV481_(e&&e.message||e)+'</div>';}
+  }
+
   (async function init(){
+    const desktopDashboardBtnV488=document.getElementById('desktopDashboardBtnV488');if(desktopDashboardBtnV488)desktopDashboardBtnV488.addEventListener('click',()=>setDesktopViewV488_('dashboard'));
+    const desktopSettingsBtnV488=document.getElementById('desktopSettingsBtnV488');if(desktopSettingsBtnV488)desktopSettingsBtnV488.addEventListener('click',()=>setDesktopViewV488_('settings'));
+    const desktopHistoryOpenV488=document.getElementById('desktopHistoryOpenV488');if(desktopHistoryOpenV488)desktopHistoryOpenV488.addEventListener('click',openHistoryV481_);
     await autoMigrateUiCacheV48_();
     checkRemoteBuildV48_(true);
     try {
