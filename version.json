@@ -1,6 +1,6 @@
 {
-  "version": "4.9.24",
-  "build": "offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1",
+  "version": "4.9.25",
+  "build": "offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -55,21 +55,27 @@
     "servio-continuation-log-appended-to-same-row",
     "servio-response-read-hash-versioning",
     "servio-admin-response-onedit-timestamp",
-    "servio-jsonp-notification-polling"
+    "servio-jsonp-notification-polling",
+    "servio-post-routes-bypass-midnight-auto-split-lock",
+    "servio-request-v4925-authoritative-write-route",
+    "servio-pending-local-queue-auto-retry-preserved",
+    "servio-post-body-route-cannot-be-overwritten-by-stale-payload"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.24",
-  "logic": "servio-fast-batch-notifications-v4.9.24; servio-doGet-autosplit-bypass-v4.9.24; apps-script-jsonp-first-transport-v4.9.21; servio-feedback-workflow-v4.9.22",
+  "name": "SERVELECT Pontaj Enterprise 4.9.25",
+  "logic": "servio-fast-write-endpoint-v4.9.25; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-first-transport-v4.9.21; servio-feedback-workflow-v4.9.22",
   "notes": [
-    "Răspunsurile administratorului sunt detectate direct din sheet chiar dacă onEdit nu a rulat.",
-    "Antetele Servio sunt recunoscute tolerant, inclusiv fără diacritice.",
-    "Robotul desktop devine interactiv când există notificări necitite.",
-    "Erorile de deployment Servio sunt afișate vizibil, nu ignorate."
+    "Cererile Servio nu mai așteaptă lock-ul operației de separare automată la miezul nopții.",
+    "Cererile deja păstrate local de V4.9.24 se retrimit automat după instalarea V4.9.25.",
+    "Notificările, răspunsurile admin, feedbackul și logica pontajului rămân neschimbate."
   ],
   "changes": [
     "Servio notifications use a read-only batch endpoint with no cell-by-cell reads or schema writes.",
     "Servio, health and version routes bypass the auto-midnight split lock in doGet.",
     "Frontend calls servioNotificationsV4924 first and detects JSONP pages that load without invoking the callback.",
-    "Existing responses already present in Cereri Servio remain notifications without rewriting them."
+    "Existing responses already present in Cereri Servio remain notifications without rewriting them.",
+    "Servio request, mark-read and feedback POST routes are identified before any midnight auto-split work.",
+    "New assistantRequestV4925 route returns version and autoSplitBypassed diagnostics.",
+    "Requests queued by V4.9.24 remain compatible and are retried through the repaired endpoint."
   ]
 }
