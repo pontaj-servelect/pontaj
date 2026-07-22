@@ -1,8 +1,8 @@
 {
-  "version": "4.9.14",
-  "build": "offline-first-v4.9.14-desktop-passive-robot-dock-20260721-1",
+  "version": "4.9.16",
+  "build": "offline-first-v4.9.16-canonical-timestamp-history-current-day-fix-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-passive-idle-robot-dock-mobile-interactive-overlay",
+  "ui": "enterprise-desktop-robot-pet-canonical-timestamp-history-fix",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -15,9 +15,14 @@
     "robot-pet-production-assets-cleanup",
     "inactive-wide-form-grid-restored",
     "robot-transient-state-routing-corrected",
-    "optimized-local-fallback-asset"
+    "optimized-local-fallback-asset",
+    "legacy-manual-row-system-timestamp-authority",
+    "current-day-history-capped-at-server-now",
+    "synthetic-midnight-metadata-regeneration",
+    "synthetic-row-gps-device-cleared",
+    "dashboard-history-v4916-contract"
   ],
-  "date": "2026-07-21",
-  "name": "SERVELECT Pontaj Enterprise 4.9.10",
-  "logic": "dashboard-jsonp-authority-v4.9.8"
+  "date": "2026-07-22",
+  "name": "SERVELECT Pontaj Enterprise 4.9.16",
+  "logic": "canonical-row-time-v4.9.16"
 }
