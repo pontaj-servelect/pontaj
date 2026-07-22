@@ -1,6 +1,6 @@
 {
-  "version": "4.9.31",
-  "build": "offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1",
+  "version": "4.9.28",
+  "build": "offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -65,33 +65,23 @@
     "servio-stable-assistantRequestV4919-post-alias",
     "servio-request-success-only-after-server-confirmation",
     "servio-resolved-admin-replies-hidden-from-menu",
+    "servio-v4919-stable-text-plain-post-restored",
     "servio-request-creation-separated-from-jsonp-notification-transport",
-    "servio-hidden-form-cross-origin-post",
-    "servio-request-success-only-after-sheet-status-confirmation",
-    "servio-request-route-assistantRequestV4929",
-    "servio-existing-request-status-check-before-resubmit",
-    "apps-script-endpoint-last-known-good-cache-fallback"
+    "servio-request-route-assistantRequestV4919-authoritative-again",
+    "servio-script-lock-semantics-restored-from-working-build"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.31",
-  "logic": "servio-grid-capacity-v4.9.31; servio-direct-jsonp-write-v4.9.30; v4.9.19-text-plain-post-fallback; hidden-form-status-last-fallback; header-mapped-sheet-write; request-id-deduplication; servio-resolved-hide-v4.9.26",
+  "name": "SERVELECT Pontaj Enterprise 4.9.28",
+  "logic": "servio-stable-text-plain-post-v4.9.19-restored; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-notification-read",
   "notes": [
-    "Cereri Servio extinde explicit grila fizică de la 26 la minimum 28 de coloane înainte de a crea sau migra antetele A–AB.",
-    "Cererea Servio este trimisă prioritar prin ruta JSONP directă servioSubmitV4930, care execută scrierea și întoarce ACK-ul real de la Apps Script.",
-    "POST-ul text/plain din V4.9.19 este păstrat ca fallback, urmat de formular POST ascuns și verificare după RequestId.",
-    "Rândul este construit după numele antetelor din Cereri Servio; retrimiterile sunt deduplicate strict după RequestId."
+    "Crearea cererilor Servio folosește din nou exact transportul POST text/plain din V4.9.19, versiunea în care cererile ajungeau în Cereri Servio.",
+    "Notificările, răspunsurile administratorului, feedbackul și ascunderea răspunsurilor rezolvate rămân din fluxul V4.9.24-V4.9.27.",
+    "JSONP nu mai este folosit pentru crearea cererilor și nu mai există riscul depășirii lungimii URL-ului cu mesajul, browserul și URL-ul aplicației."
   ],
   "changes": [
-    "Primary Servio creation now uses direct JSONP write route servioSubmitV4930 and receives the real Apps Script ACK.",
-    "Restored the exact V4.9.19 text/plain POST as the first fallback; hidden-form plus RequestId status confirmation remains the last fallback.",
-    "Cereri Servio rows are written by canonical header names instead of fixed column numbers, preserving later notification/feedback columns.",
-    "Backend validation and write errors are shown to the user instead of being silently reported as an offline queued request.",
-    "All older Servio request aliases remain accepted and are routed through the V4.9.30 header-mapped writer."
-  ],
-  "features": [
-    "servio-request-route-servioSubmitV4930",
-    "servio-post-fallback-assistantRequestV4930",
-    "servio-header-mapped-write-v4.9.30",
-    "servio-server-errors-visible-not-queued"
+    "Restored the proven V4.9.19 text/plain POST request transport.",
+    "Restored assistantRequestV4919 as the canonical request creation route.",
+    "Kept the fast batch notification endpoint and resolved-item filtering.",
+    "Kept Servio POST routes ahead of midnight auto-split processing."
   ]
 }
