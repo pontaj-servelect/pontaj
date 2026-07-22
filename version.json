@@ -1,8 +1,8 @@
 {
-  "version": "4.9.16",
-  "build": "offline-first-v4.9.16-canonical-timestamp-history-current-day-fix-20260722-1",
+  "version": "4.9.17",
+  "build": "offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-robot-pet-canonical-timestamp-history-fix",
+  "ui": "enterprise-desktop-active-leave-invoire-cards-strict-timestamp",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -20,9 +20,16 @@
     "current-day-history-capped-at-server-now",
     "synthetic-midnight-metadata-regeneration",
     "synthetic-row-gps-device-cleared",
-    "dashboard-history-v4916-contract"
+    "dashboard-history-v4916-contract",
+    "first-timestamp-column-authoritative-for-all-events",
+    "global-duration-rebuild-migration",
+    "vasile-ceclan-34h-duration-regression-fix",
+    "active-session-invoire-form-enabled",
+    "active-session-leave-form-enabled",
+    "active-controls-remain-available-during-special-forms",
+    "dashboard-history-v4917-contract"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.16",
-  "logic": "canonical-row-time-v4.9.16"
+  "name": "SERVELECT Pontaj Enterprise 4.9.17",
+  "logic": "system-timestamp-primary-v4.9.17"
 }
