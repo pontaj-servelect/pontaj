@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.21-apps-script-jsonp-first-cors-fix-20260722-1';
+const BUILD='offline-first-v4.9.22-servio-admin-replies-notifications-feedback-20260722-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
