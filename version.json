@@ -1,8 +1,8 @@
 {
-  "version": "4.9.20",
-  "build": "offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
+  "version": "4.9.21",
+  "build": "offline-first-v4.9.21-apps-script-jsonp-first-cors-fix-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "servio-desktop-top-left-anchor",
+  "ui": "servio-desktop-top-left-anchor-jsonp-first-cors-fix",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -41,9 +41,13 @@
     "servio-thinking-animation-and-web-audio-sound",
     "servio-request-sheet-with-request-id-deduplication",
     "servio-offline-request-queue",
-    "servio-greeting-romanian-grammar"
+    "servio-greeting-romanian-grammar",
+    "apps-script-read-transport-jsonp-first",
+    "cors-preflight-causing-cache-control-header-removed",
+    "simple-get-fetch-fallback-without-custom-headers",
+    "state-active-dashboard-history-cors-console-regression-fixed"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.19",
-  "logic": "servio-admin-request-sheet-v4.9.19"
+  "name": "SERVELECT Pontaj Enterprise 4.9.21",
+  "logic": "servio-admin-request-sheet-v4.9.19; apps-script-jsonp-first-transport-v4.9.21"
 }
