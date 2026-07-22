@@ -1,6 +1,6 @@
 {
-  "version": "4.9.29",
-  "build": "offline-first-v4.9.29-servio-verified-form-post-20260722-1",
+  "version": "4.9.28",
+  "build": "offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -65,24 +65,23 @@
     "servio-stable-assistantRequestV4919-post-alias",
     "servio-request-success-only-after-server-confirmation",
     "servio-resolved-admin-replies-hidden-from-menu",
+    "servio-v4919-stable-text-plain-post-restored",
     "servio-request-creation-separated-from-jsonp-notification-transport",
-    "servio-hidden-form-cross-origin-post",
-    "servio-request-success-only-after-sheet-status-confirmation",
-    "servio-request-route-assistantRequestV4929",
-    "servio-existing-request-status-check-before-resubmit",
-    "apps-script-endpoint-last-known-good-cache-fallback"
+    "servio-request-route-assistantRequestV4919-authoritative-again",
+    "servio-script-lock-semantics-restored-from-working-build"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.29",
-  "logic": "servio-hidden-form-post-verified-by-jsonp-status-v4.9.29; request-id-deduplication; separate-servio-document-lock; servio-resolved-hide-v4.9.26",
+  "name": "SERVELECT Pontaj Enterprise 4.9.28",
+  "logic": "servio-stable-text-plain-post-v4.9.19-restored; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-notification-read",
   "notes": [
-    "Cererea Servio este trimisă prin formular POST ascuns către Apps Script, fără dependență de CORS sau de citirea redirectului cross-origin.",
-    "Interfața afișează succes numai după ce ruta JSONP de status găsește același RequestId în sheetul Cereri Servio.",
-    "Retrimiterile sunt idempotente: backendul deduplică strict după RequestId."
+    "Crearea cererilor Servio folosește din nou exact transportul POST text/plain din V4.9.19, versiunea în care cererile ajungeau în Cereri Servio.",
+    "Notificările, răspunsurile administratorului, feedbackul și ascunderea răspunsurilor rezolvate rămân din fluxul V4.9.24-V4.9.27.",
+    "JSONP nu mai este folosit pentru crearea cererilor și nu mai există riscul depășirii lungimii URL-ului cu mesajul, browserul și URL-ul aplicației."
   ],
   "changes": [
-    "Replaced direct fetch POST with hidden form POST plus JSONP sheet confirmation.",
-    "Added assistantRequestV4929 while preserving all older Servio aliases.",
-    "Cached the last valid Apps Script endpoint as a fallback when config.json has a transient load failure."
+    "Restored the proven V4.9.19 text/plain POST request transport.",
+    "Restored assistantRequestV4919 as the canonical request creation route.",
+    "Kept the fast batch notification endpoint and resolved-item filtering.",
+    "Kept Servio POST routes ahead of midnight auto-split processing."
   ]
 }
