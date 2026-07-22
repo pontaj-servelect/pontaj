@@ -1,6 +1,6 @@
 {
-  "version": "4.9.27",
-  "build": "offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1",
+  "version": "4.9.28",
+  "build": "offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -64,20 +64,24 @@
     "servio-no-cors-post-fallback",
     "servio-stable-assistantRequestV4919-post-alias",
     "servio-request-success-only-after-server-confirmation",
-    "servio-resolved-admin-replies-hidden-from-menu"
+    "servio-resolved-admin-replies-hidden-from-menu",
+    "servio-v4919-stable-text-plain-post-restored",
+    "servio-request-creation-separated-from-jsonp-notification-transport",
+    "servio-request-route-assistantRequestV4919-authoritative-again",
+    "servio-script-lock-semantics-restored-from-working-build"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.27",
-  "logic": "servio-direct-jsonp-write-v4.9.27; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-transport",
+  "name": "SERVELECT Pontaj Enterprise 4.9.28",
+  "logic": "servio-stable-text-plain-post-v4.9.19-restored; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-notification-read",
   "notes": [
-    "Trimiterea cererilor Servio folosește direct ruta JSONP servioSubmitV4927, același transport care funcționează pentru notificări.",
-    "Dacă JSONP nu poate fi folosit, aplicația încearcă POST no-cors și apoi formularul ascuns, păstrând același RequestId.",
-    "Aplicația confirmă succesul numai după ce serverul a salvat cererea; răspunsurile rezolvate rămân ascunse."
+    "Crearea cererilor Servio folosește din nou exact transportul POST text/plain din V4.9.19, versiunea în care cererile ajungeau în Cereri Servio.",
+    "Notificările, răspunsurile administratorului, feedbackul și ascunderea răspunsurilor rezolvate rămân din fluxul V4.9.24-V4.9.27.",
+    "JSONP nu mai este folosit pentru crearea cererilor și nu mai există riscul depășirii lungimii URL-ului cu mesajul, browserul și URL-ul aplicației."
   ],
   "changes": [
-    "Added idempotent JSONP write routes for Servio request, mark-read and feedback operations.",
-    "Replaced hidden-form-only request submission with direct JSONP write and no-cors POST fallback.",
-    "Kept legacy assistantRequestV4919 as the stable POST fallback alias.",
-    "Resolved administrator replies are excluded from notifications and from the Servio menu."
+    "Restored the proven V4.9.19 text/plain POST request transport.",
+    "Restored assistantRequestV4919 as the canonical request creation route.",
+    "Kept the fast batch notification endpoint and resolved-item filtering.",
+    "Kept Servio POST routes ahead of midnight auto-split processing."
   ]
 }

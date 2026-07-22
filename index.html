@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1541,7 +1541,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2665,7 +2665,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.25';
-  const PONTAJ_BUILD = 'offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2927,7 +2927,7 @@ function withProjectMarker_(notes, project){
           lastError=new Error(String(candidate&&candidate.error||`Ruta ${fn} nu este disponibilă.`));
         }catch(err){lastError=err;}
       }
-      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.27. '+String(lastError&&lastError.message||''));
+      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.28. '+String(lastError&&lastError.message||''));
       servioNotificationLastErrorV4923_='';
       if(String(empSel&&empSel.value||'').trim()!==name)return data;
       data.items=Array.isArray(data.items)?data.items.filter(item=>item&&item.resolved!==true):[];
@@ -2977,7 +2977,7 @@ function withProjectMarker_(notes, project){
   function buildServioPayloadV4919_(){
     const cfg=SERVIO_TYPES_V4919[servioSelectedTypeV4919_],el=servioElementsV4919_(),name=String(empSel&&empSel.value||'').trim(),department=String(deptSel&&deptSel.value||'').trim(),message=String(el.text&&el.text.value||'').trim();
     if(!cfg)throw new Error('Alege tipul cererii.');if(!name)throw new Error('Selectează mai întâi angajatul în secțiunea Context.');if(message.length<5)throw new Error('Descrierea trebuie să aibă cel puțin 5 caractere.');
-    return{fn:'servioSubmitV4927',requestId:randomNonce(),requestTypeKey:servioSelectedTypeV4919_,requestType:cfg.label,name,department,message,clientTimestamp:new Date().toISOString(),pontajState:servioPontajStateV4919_(),build:PONTAJ_BUILD,device:navigator.userAgent||'',online:navigator.onLine!==false,appUrl:location.href};
+    return{fn:'assistantRequestV4919',requestId:randomNonce(),requestTypeKey:servioSelectedTypeV4919_,requestType:cfg.label,name,department,message,clientTimestamp:new Date().toISOString(),pontajState:servioPontajStateV4919_(),build:PONTAJ_BUILD,device:navigator.userAgent||'',online:navigator.onLine!==false,appUrl:location.href};
   }
   function readServioQueueV4919_(){try{const q=JSON.parse(localStorage.getItem(SERVIO_QUEUE_KEY_V4919)||'[]');return Array.isArray(q)?q:[];}catch{return[];}}
   function writeServioQueueV4919_(q){try{localStorage.setItem(SERVIO_QUEUE_KEY_V4919,JSON.stringify((q||[]).slice(-50)));}catch{}}
@@ -3077,19 +3077,23 @@ function withProjectMarker_(notes, project){
     return out;
   }
 
+  // V4.9.28: transportul de creare a cererii este restaurat 1:1 din V4.9.19,
+  // versiunea în care cererile ajungeau în sheetul Cereri Servio. Content-Type
+  // text/plain și Accept sunt headere CORS-safelisted și nu declanșează preflight.
+  async function postServioRequestStableV4928_(payload){
+    const endpoint=baseEndpoint();if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))throw new Error('Endpointul Apps Script nu este configurat.');
+    const body=Object.assign({},payload||{},{fn:'assistantRequestV4919'});
+    const response=await fetchWithTimeoutV48_(endpoint+'?fn=assistantRequestV4919',{method:'POST',cache:'no-store',redirect:'follow',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8','Accept':'application/json'},body:JSON.stringify(body)},25000);
+    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error('Răspuns nevalid de la server.');}
+    if(!response.ok||!data||data.ok!==true)throw new Error(String(data&&data.error||'Cererea nu a putut fi salvată.'));
+    return data;
+  }
+
   async function postServioEndpointV4922_(fn,payload){
     const body=Object.assign({},payload||{});
 
     if(fn==='servioSubmitV4927'||fn==='assistantRequestV4927'||fn==='assistantRequestV4926'||fn==='assistantRequestV4925'||fn==='assistantRequestV4919'){
-      try{
-        return await servioDirectJsonpWriteV4927_('servioSubmitV4927',body);
-      }catch(directError){
-        try{await servioNoCorsPostV4927_('assistantRequestV4919',body);}catch(_){submitServioHiddenFormV4926_('assistantRequestV4919',body);}
-        try{return await waitServioRequestStoredV4926_(body);}catch(confirmError){
-          const message=String(directError&&directError.message||directError)+'; confirmare: '+String(confirmError&&confirmError.message||confirmError);
-          throw new Error('Cererea nu a ajuns în sheetul Cereri Servio. '+message);
-        }
-      }
+      return postServioRequestStableV4928_(body);
     }
 
     if(fn==='servioMarkReadV4922'){
@@ -3114,7 +3118,7 @@ function withProjectMarker_(notes, project){
     }
     throw new Error('Operația Servio nu este recunoscută.');
   }
-  function postServioRequestV4919_(payload){return postServioEndpointV4922_('servioSubmitV4927',payload);}
+  function postServioRequestV4919_(payload){return postServioRequestStableV4928_(payload);}
   async function flushServioQueueV4919_(){
     if(navigator.onLine===false)return;const q=readServioQueueV4919_();if(!q.length)return;const keep=[];
     for(const item of q){try{await postServioRequestV4919_(item);}catch{keep.push(item);}}
