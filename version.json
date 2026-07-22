@@ -1,6 +1,6 @@
 {
-  "version": "4.9.26",
-  "build": "offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1",
+  "version": "4.9.27",
+  "build": "offline-first-v4.9.27-servio-direct-jsonp-write-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -59,23 +59,25 @@
     "servio-post-routes-bypass-midnight-auto-split-lock",
     "servio-request-v4925-authoritative-write-route",
     "servio-pending-local-queue-auto-retry-preserved",
-    "servio-post-body-route-cannot-be-overwritten-by-stale-payload"
+    "servio-post-body-route-cannot-be-overwritten-by-stale-payload",
+    "servio-direct-jsonp-write-authoritative-route",
+    "servio-no-cors-post-fallback",
+    "servio-stable-assistantRequestV4919-post-alias",
+    "servio-request-success-only-after-server-confirmation",
+    "servio-resolved-admin-replies-hidden-from-menu"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.26",
-  "logic": "servio-fast-write-endpoint-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-first-transport-v4.9.21; servio-feedback-workflow-v4.9.22",
+  "name": "SERVELECT Pontaj Enterprise 4.9.27",
+  "logic": "servio-direct-jsonp-write-v4.9.27; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-transport",
   "notes": [
-    "Cererile Servio nu mai așteaptă lock-ul operației de separare automată la miezul nopții.",
-    "Cererile deja păstrate local de V4.9.24 se retrimit automat după instalarea V4.9.26.",
-    "Notificările, răspunsurile admin, feedbackul și logica pontajului rămân neschimbate."
+    "Trimiterea cererilor Servio folosește direct ruta JSONP servioSubmitV4927, același transport care funcționează pentru notificări.",
+    "Dacă JSONP nu poate fi folosit, aplicația încearcă POST no-cors și apoi formularul ascuns, păstrând același RequestId.",
+    "Aplicația confirmă succesul numai după ce serverul a salvat cererea; răspunsurile rezolvate rămân ascunse."
   ],
   "changes": [
-    "Servio notifications use a read-only batch endpoint with no cell-by-cell reads or schema writes.",
-    "Servio, health and version routes bypass the auto-midnight split lock in doGet.",
-    "Frontend calls servioNotificationsV4924 first and detects JSONP pages that load without invoking the callback.",
-    "Existing responses already present in Cereri Servio remain notifications without rewriting them.",
-    "Servio request, mark-read and feedback POST routes are identified before any midnight auto-split work.",
-    "New assistantRequestV4925 route returns version and autoSplitBypassed diagnostics.",
-    "Requests queued by V4.9.24 remain compatible and are retried through the repaired endpoint."
+    "Added idempotent JSONP write routes for Servio request, mark-read and feedback operations.",
+    "Replaced hidden-form-only request submission with direct JSONP write and no-cors POST fallback.",
+    "Kept legacy assistantRequestV4919 as the stable POST fallback alias.",
+    "Resolved administrator replies are excluded from notifications and from the Servio menu."
   ]
 }
