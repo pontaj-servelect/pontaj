@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1541,7 +1541,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2665,7 +2665,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.25';
-  const PONTAJ_BUILD = 'offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2809,7 +2809,7 @@ function withProjectMarker_(notes, project){
     other_request:{label:'Altă solicitare',hint:'Descrie solicitarea și rezultatul dorit.',placeholder:'Scrie aici solicitarea…'}
   };
   const SERVIO_QUEUE_KEY_V4919='pontaj/servioRequests/v4.9.19';
-  const SERVIO_NOTIFICATIONS_CACHE_V4922='pontaj/servioNotifications/v4.9.25/';
+  const SERVIO_NOTIFICATIONS_CACHE_V4922='pontaj/servioNotifications/v4.9.26/';
   let servioSelectedTypeV4919_='';
   let servioThinkingTimerV4919_=null;
   let servioSubmittingV4919_=false;
@@ -2917,7 +2917,7 @@ function withProjectMarker_(notes, project){
     if(cached&&servioNotificationsV4922_.name!==name){servioNotificationsV4922_=cached;renderServioNotificationBadgeV4922_(cached,false);}
     if(navigator.onLine===false)return cached||servioNotificationsV4922_;
     servioNotificationsLoadingV4922_=(async()=>{
-      const fns=['servioNotificationsV4924','servioNotificationsV4923','servioNotificationsV4922'];
+      const fns=['servioNotificationsV4926','servioNotificationsV4924','servioNotificationsV4923','servioNotificationsV4922'];
       let data=null,lastError=null;
       for(const fn of fns){
         try{
@@ -2927,9 +2927,11 @@ function withProjectMarker_(notes, project){
           lastError=new Error(String(candidate&&candidate.error||`Ruta ${fn} nu este disponibilă.`));
         }catch(err){lastError=err;}
       }
-      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.25. '+String(lastError&&lastError.message||''));
+      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.26. '+String(lastError&&lastError.message||''));
       servioNotificationLastErrorV4923_='';
       if(String(empSel&&empSel.value||'').trim()!==name)return data;
+      data.items=Array.isArray(data.items)?data.items.filter(item=>item&&item.resolved!==true):[];
+      data.totalCount=data.items.length;data.unreadCount=data.items.filter(item=>item.unread).length;
       servioNotificationsV4922_=data;writeServioNotificationCacheV4922_(data);renderServioNotificationBadgeV4922_(data,announce!==false);
       return data;
     })().catch(err=>{servioNotificationLastErrorV4923_=String(err&&err.message||err);if(cached){servioNotificationsV4922_=cached;renderServioNotificationBadgeV4922_(cached,false);return cached;}throw err;}).finally(()=>{servioNotificationsLoadingV4922_=null;});
@@ -2941,9 +2943,10 @@ function withProjectMarker_(notes, project){
     if(el.message)el.message.textContent='Bună, eu sunt Servio. Cu ce te pot ajuta?';
     if(el.options){
       el.options.innerHTML='';
-      if(Number(servioNotificationsV4922_.totalCount||0)>0){
+      const activeServioItemsV4926=Array.isArray(servioNotificationsV4922_.items)?servioNotificationsV4922_.items.filter(item=>item&&item.resolved!==true):[];
+      if(activeServioItemsV4926.length>0){
         const inbox=document.createElement('button');inbox.type='button';inbox.className='servio-option-v4919';
-        const unread=Number(servioNotificationsV4922_.unreadCount||0);inbox.textContent=unread>0?(unread===1?'Ai o notificare necitită':`Ai ${unread} notificări necitite`):'Răspunsurile mele de la administrator';
+        const unread=activeServioItemsV4926.filter(item=>item.unread).length;inbox.textContent=unread>0?(unread===1?'Ai o notificare necitită':`Ai ${unread} notificări necitite`):'Răspunsurile mele de la administrator';
         inbox.addEventListener('click',()=>renderServioInboxV4922_());el.options.appendChild(inbox);
       }
       Object.keys(SERVIO_TYPES_V4919).forEach(key=>{const b=document.createElement('button');b.type='button';b.className='servio-option-v4919';b.textContent=SERVIO_TYPES_V4919[key].label;b.addEventListener('click',()=>selectServioTypeV4919_(key));el.options.appendChild(b);});el.options.hidden=false;
@@ -2974,17 +2977,103 @@ function withProjectMarker_(notes, project){
   function buildServioPayloadV4919_(){
     const cfg=SERVIO_TYPES_V4919[servioSelectedTypeV4919_],el=servioElementsV4919_(),name=String(empSel&&empSel.value||'').trim(),department=String(deptSel&&deptSel.value||'').trim(),message=String(el.text&&el.text.value||'').trim();
     if(!cfg)throw new Error('Alege tipul cererii.');if(!name)throw new Error('Selectează mai întâi angajatul în secțiunea Context.');if(message.length<5)throw new Error('Descrierea trebuie să aibă cel puțin 5 caractere.');
-    return{fn:'assistantRequestV4925',requestId:randomNonce(),requestTypeKey:servioSelectedTypeV4919_,requestType:cfg.label,name,department,message,clientTimestamp:new Date().toISOString(),pontajState:servioPontajStateV4919_(),build:PONTAJ_BUILD,device:navigator.userAgent||'',online:navigator.onLine!==false,appUrl:location.href};
+    return{fn:'assistantRequestV4926',requestId:randomNonce(),requestTypeKey:servioSelectedTypeV4919_,requestType:cfg.label,name,department,message,clientTimestamp:new Date().toISOString(),pontajState:servioPontajStateV4919_(),build:PONTAJ_BUILD,device:navigator.userAgent||'',online:navigator.onLine!==false,appUrl:location.href};
   }
   function readServioQueueV4919_(){try{const q=JSON.parse(localStorage.getItem(SERVIO_QUEUE_KEY_V4919)||'[]');return Array.isArray(q)?q:[];}catch{return[];}}
   function writeServioQueueV4919_(q){try{localStorage.setItem(SERVIO_QUEUE_KEY_V4919,JSON.stringify((q||[]).slice(-50)));}catch{}}
   function queueServioRequestV4919_(payload){const q=readServioQueueV4919_();if(!q.some(x=>x&&x.requestId===payload.requestId))q.push(payload);writeServioQueueV4919_(q);}
-  async function postServioEndpointV4922_(fn,payload){
-    const endpoint=baseEndpoint();if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))throw new Error('Endpointul Apps Script nu este configurat.');
-    const body=Object.assign({},payload||{},{fn}),response=await fetchWithTimeoutV48_(endpoint+'?fn='+encodeURIComponent(fn),{method:'POST',cache:'no-store',redirect:'follow',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)},25000);
-    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error('Răspuns nevalid de la server.');}if(!response.ok||!data||data.ok!==true)throw new Error(String(data&&data.error||'Operația Servio nu a putut fi salvată.'));return data;
+  function servioSleepV4926_(ms){return new Promise(resolve=>setTimeout(resolve,Math.max(0,Number(ms||0))));}
+
+  function servioJsonpV4926_(fn,params,timeoutMs){
+    const endpoint=baseEndpoint();
+    if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))return Promise.reject(new Error('Endpointul Apps Script nu este configurat.'));
+    return new Promise((resolve,reject)=>{
+      const callback='__servioJsonpV4926_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const script=document.createElement('script');
+      const timeout=Math.max(4000,Number(timeoutMs||8000));
+      let settled=false;
+      const cleanup=()=>{try{if(script.parentNode)script.parentNode.removeChild(script);}catch{}try{delete window[callback];}catch{window[callback]=undefined;}};
+      const done=(ok,value)=>{if(settled)return;settled=true;clearTimeout(timer);cleanup();ok?resolve(value):reject(value instanceof Error?value:new Error(String(value||'Eroare Servio.')));};
+      window[callback]=data=>done(true,data);
+      script.onerror=()=>done(false,new Error('Nu se poate confirma operația Servio.'));
+      const u=new URL(endpoint,location.href);
+      u.searchParams.set('fn',fn);
+      Object.entries(params||{}).forEach(([k,v])=>{if(v!==undefined&&v!==null)u.searchParams.set(k,String(v));});
+      u.searchParams.set('callback',callback);
+      u.searchParams.set('format','jsonp');
+      u.searchParams.set('_',String(Date.now()));
+      script.src=u.toString();script.async=true;
+      const timer=setTimeout(()=>done(false,new Error('Confirmarea Servio a expirat.')),timeout);
+      document.head.appendChild(script);
+    });
   }
-  function postServioRequestV4919_(payload){return postServioEndpointV4922_('assistantRequestV4925',payload);}
+
+  function submitServioHiddenFormV4926_(fn,payload){
+    const endpoint=baseEndpoint();
+    if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))throw new Error('Endpointul Apps Script nu este configurat.');
+    const token='servioPostV4926_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const iframe=document.createElement('iframe');
+    iframe.name=token;iframe.hidden=true;iframe.setAttribute('aria-hidden','true');
+    const form=document.createElement('form');
+    form.method='POST';form.action=endpoint+'?fn='+encodeURIComponent(fn);form.target=token;form.hidden=true;
+    const fnInput=document.createElement('input');fnInput.type='hidden';fnInput.name='fn';fnInput.value=fn;form.appendChild(fnInput);
+    const payloadInput=document.createElement('input');payloadInput.type='hidden';payloadInput.name='payloadJson';
+    const clean=Object.assign({},payload||{},{fn});Object.keys(clean).forEach(k=>{if(k.startsWith('__'))delete clean[k];});
+    payloadInput.value=JSON.stringify(clean);form.appendChild(payloadInput);
+    document.body.appendChild(iframe);document.body.appendChild(form);
+    try{form.submit();}catch(err){form.remove();iframe.remove();throw err;}
+    setTimeout(()=>{try{form.remove();iframe.remove();}catch{}},45000);
+  }
+
+  async function waitServioRequestStoredV4926_(payload){
+    let lastError=null;
+    for(let attempt=0;attempt<8;attempt++){
+      await servioSleepV4926_(attempt===0?550:850);
+      try{
+        const out=await servioJsonpV4926_('servioRequestStatusV4926',{requestId:payload.requestId,name:payload.name},7000);
+        if(out&&out.ok===true&&out.found===true)return Object.assign({ok:true},out);
+        lastError=new Error(String(out&&out.error||'Cererea nu este încă vizibilă în Cereri Servio.'));
+      }catch(err){lastError=err;}
+      if(attempt===3)submitServioHiddenFormV4926_('assistantRequestV4926',payload);
+    }
+    throw lastError||new Error('Cererea nu a putut fi confirmată în Cereri Servio.');
+  }
+
+  async function waitServioItemV4926_(payload,predicate){
+    let lastError=null;
+    for(let attempt=0;attempt<7;attempt++){
+      await servioSleepV4926_(attempt===0?500:800);
+      try{
+        const out=await servioJsonpV4926_('servioItemStatusV4926',{name:payload.name,requestNumber:payload.requestNumber},7000);
+        if(out&&out.ok===true&&out.found===true&&out.item&&predicate(out.item))return {ok:true,item:out.item,version:out.version,route:out.route};
+        lastError=new Error(String(out&&out.error||'Actualizarea Servio nu este încă vizibilă.'));
+      }catch(err){lastError=err;}
+      if(attempt===3)submitServioHiddenFormV4926_(payload.fn||'servioFeedbackV4922',payload);
+    }
+    throw lastError||new Error('Actualizarea Servio nu a putut fi confirmată.');
+  }
+
+  async function postServioEndpointV4922_(fn,payload){
+    const body=Object.assign({},payload||{},{fn});
+    submitServioHiddenFormV4926_(fn,body);
+
+    if(fn==='assistantRequestV4926'||fn==='assistantRequestV4925'||fn==='assistantRequestV4919'){
+      return waitServioRequestStoredV4926_(body);
+    }
+    if(fn==='servioMarkReadV4922'){
+      return waitServioItemV4926_(body,item=>item.unread===false);
+    }
+    if(fn==='servioFeedbackV4922'&&String(body.action)==='resolved'){
+      const wanted=Math.max(1,Math.min(5,Number(body.rating||0)));
+      return waitServioItemV4926_(body,item=>item.resolved===true&&Number(item.rating||0)===wanted);
+    }
+    if(fn==='servioFeedbackV4922'&&String(body.action)==='unresolved'){
+      const before=Math.max(0,Number(body.previousContinuationCount||0));
+      return waitServioItemV4926_(body,item=>item.resolved===false&&Number(item.continuationCount||0)>before);
+    }
+    throw new Error('Operația Servio nu este recunoscută.');
+  }
+  function postServioRequestV4919_(payload){return postServioEndpointV4922_('assistantRequestV4926',payload);}
   async function flushServioQueueV4919_(){
     if(navigator.onLine===false)return;const q=readServioQueueV4919_();if(!q.length)return;const keep=[];
     for(const item of q){try{await postServioRequestV4919_(item);}catch{keep.push(item);}}
@@ -3008,7 +3097,7 @@ function withProjectMarker_(notes, project){
   function renderServioInboxV4922_(opts){
     opts=opts||{};const el=servioElementsV4919_();if(!el.inbox)return;
     if(el.options)el.options.hidden=true;if(el.form)el.form.hidden=true;if(el.result)el.result.hidden=true;if(el.thinking)el.thinking.hidden=true;if(el.detail)el.detail.hidden=true;if(el.feedback)el.feedback.hidden=true;
-    const data=servioNotificationsV4922_,unread=Number(data.unreadCount||0),items=Array.isArray(data.items)?data.items:[];
+    const data=servioNotificationsV4922_,items=Array.isArray(data.items)?data.items.filter(item=>item&&item.resolved!==true):[],unread=items.filter(item=>item.unread).length;
     if(el.message)el.message.textContent=unread>0?(unread===1?'Ai o notificare necitită.':`Ai ${unread} notificări necitite.`):'Aici găsești răspunsurile administratorului.';
     const cards=items.length?items.map(item=>`<button type="button" class="servio-notification-card-v4922 ${item.unread?'is-unread':''}" data-servio-request="${servioEscapeV4922_(item.requestNumber)}"><span class="servio-notification-head-v4922"><strong>${servioEscapeV4922_(item.requestType||'Cerere Servio')}</strong>${item.unread?'<span class="servio-unread-dot-v4922">Nou</span>':''}</span><span class="servio-notification-meta-v4922">${servioEscapeV4922_(item.requestNumber)} · ${servioEscapeV4922_(servioDateV4922_(item.responseAt))}</span><span class="servio-notification-preview-v4922">${servioEscapeV4922_(item.adminResponse)}</span></button>`).join(''):'<div class="servio-empty-v4922">Nu există încă răspunsuri de la administrator.</div>';
     el.inbox.innerHTML=`<div class="servio-inbox-toolbar-v4922"><span class="servio-inbox-title-v4922">Notificări Servio</span><button type="button" class="servio-inbox-refresh-v4922" data-servio-refresh>Actualizează</button></div>${cards}<button type="button" class="servio-inline-back-v4922" data-servio-menu>Înapoi la meniul principal</button>`;
@@ -3055,15 +3144,26 @@ function withProjectMarker_(notes, project){
     positionServioDialogDesktopV4920_();
   }
 
+  function removeResolvedServioItemV4926_(requestNumber){
+    const items=Array.isArray(servioNotificationsV4922_.items)?servioNotificationsV4922_.items:[];
+    servioNotificationsV4922_.items=items.filter(x=>String(x&&x.requestNumber||'')!==String(requestNumber||'')&&x&&x.resolved!==true);
+    servioNotificationsV4922_.totalCount=servioNotificationsV4922_.items.length;
+    servioNotificationsV4922_.unreadCount=servioNotificationsV4922_.items.filter(x=>x&&x.unread).length;
+    servioSelectedNotificationV4922_=null;
+    writeServioNotificationCacheV4922_(servioNotificationsV4922_);
+    renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);
+  }
+
   async function submitServioResolvedV4922_(item,button){
     const el=servioElementsV4919_(),error=el.feedback&&el.feedback.querySelector('[data-servio-feedback-error]');if(error)error.textContent='';
     if(servioSelectedRatingV4922_<1){if(error)error.textContent='Selectează cel puțin o stea.';return;}
     button.disabled=true;try{
       const out=await postServioEndpointV4922_('servioFeedbackV4922',{name:String(empSel&&empSel.value||'').trim(),requestNumber:item.requestNumber,action:'resolved',rating:servioSelectedRatingV4922_});
-      if(item.unread)servioNotificationsV4922_.unreadCount=Math.max(0,Number(servioNotificationsV4922_.unreadCount||0)-1);
-      Object.assign(item,out.item||{resolved:true,rating:servioSelectedRatingV4922_,employeeFeedbackStatus:'Problema s-a rezolvat',unread:false});writeServioNotificationCacheV4922_(servioNotificationsV4922_);renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);
-      el.feedback.innerHTML=`<div class="servio-result-v4919"><strong>Mulțumim pentru evaluare.</strong>Problema a fost marcată ca rezolvată și înregistrată în Cereri Servio.</div><button type="button" class="servio-inline-back-v4922" data-servio-inbox>Înapoi la notificări</button>`;
-      const back=el.feedback.querySelector('[data-servio-inbox]');if(back)back.addEventListener('click',()=>renderServioInboxV4922_());flashRobotSuccessV499_();playServioRobotSoundV4919_();
+      Object.assign(item,out.item||{resolved:true,rating:servioSelectedRatingV4922_,employeeFeedbackStatus:'Problema s-a rezolvat',unread:false});
+      removeResolvedServioItemV4926_(item.requestNumber);
+      el.feedback.innerHTML=`<div class="servio-result-v4919"><strong>Mulțumim pentru evaluare.</strong>Problema a fost marcată ca rezolvată. Acest răspuns nu va mai apărea în Servio.</div>`;
+      flashRobotSuccessV499_();playServioRobotSoundV4919_();
+      setTimeout(()=>{if(el.feedback)el.feedback.hidden=true;renderServioMenuV4919_();positionServioDialogDesktopV4920_();},1100);
     }catch(err){button.disabled=false;if(error)error.textContent=String(err&&err.message||err);}positionServioDialogDesktopV4920_();
   }
 
@@ -3081,9 +3181,11 @@ function withProjectMarker_(notes, project){
     const el=servioElementsV4919_(),textarea=document.getElementById('servioContinuationTextV4922'),error=el.feedback&&el.feedback.querySelector('[data-servio-feedback-error]'),message=String(textarea&&textarea.value||'').trim();
     if(error)error.textContent='';if(message.length<5){if(error)error.textContent='Descrie în minimum 5 caractere ce nu s-a rezolvat.';return;}
     button.disabled=true;try{
-      const out=await postServioEndpointV4922_('servioFeedbackV4922',{name:String(empSel&&empSel.value||'').trim(),requestNumber:item.requestNumber,action:'unresolved',continuationMessage:message});
-      if(item.unread)servioNotificationsV4922_.unreadCount=Math.max(0,Number(servioNotificationsV4922_.unreadCount||0)-1);
-      Object.assign(item,out.item||{employeeFeedbackStatus:'Problema nu s-a rezolvat',resolved:false,unread:false});writeServioNotificationCacheV4922_(servioNotificationsV4922_);renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);
+      const out=await postServioEndpointV4922_('servioFeedbackV4922',{name:String(empSel&&empSel.value||'').trim(),requestNumber:item.requestNumber,action:'unresolved',continuationMessage:message,previousContinuationCount:Number(item.continuationCount||0)});
+      Object.assign(item,out.item||{employeeFeedbackStatus:'Problema nu s-a rezolvat',resolved:false,unread:false});
+      servioNotificationsV4922_.totalCount=(servioNotificationsV4922_.items||[]).filter(x=>x&&x.resolved!==true).length;
+      servioNotificationsV4922_.unreadCount=(servioNotificationsV4922_.items||[]).filter(x=>x&&x.resolved!==true&&x.unread).length;
+      writeServioNotificationCacheV4922_(servioNotificationsV4922_);renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);
       el.feedback.innerHTML=`<div class="servio-result-v4919"><strong>Continuarea a fost trimisă.</strong>Administratorul va vedea mesajul în același rând al cererii.</div><button type="button" class="servio-inline-back-v4922" data-servio-inbox>Înapoi la notificări</button>`;
       const back=el.feedback.querySelector('[data-servio-inbox]');if(back)back.addEventListener('click',()=>renderServioInboxV4922_());flashRobotSuccessV499_();playServioRobotSoundV4919_();
     }catch(err){button.disabled=false;if(error)error.textContent=String(err&&err.message||err);}positionServioDialogDesktopV4920_();

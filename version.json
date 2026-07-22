@@ -1,6 +1,6 @@
 {
-  "version": "4.9.25",
-  "build": "offline-first-v4.9.25-servio-fast-write-endpoint-20260722-1",
+  "version": "4.9.26",
+  "build": "offline-first-v4.9.26-servio-reliable-form-write-resolved-hide-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -62,11 +62,11 @@
     "servio-post-body-route-cannot-be-overwritten-by-stale-payload"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.25",
-  "logic": "servio-fast-write-endpoint-v4.9.25; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-first-transport-v4.9.21; servio-feedback-workflow-v4.9.22",
+  "name": "SERVELECT Pontaj Enterprise 4.9.26",
+  "logic": "servio-fast-write-endpoint-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-first-transport-v4.9.21; servio-feedback-workflow-v4.9.22",
   "notes": [
     "Cererile Servio nu mai așteaptă lock-ul operației de separare automată la miezul nopții.",
-    "Cererile deja păstrate local de V4.9.24 se retrimit automat după instalarea V4.9.25.",
+    "Cererile deja păstrate local de V4.9.24 se retrimit automat după instalarea V4.9.26.",
     "Notificările, răspunsurile admin, feedbackul și logica pontajului rămân neschimbate."
   ],
   "changes": [
