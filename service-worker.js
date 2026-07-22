@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1';
+const BUILD='offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[

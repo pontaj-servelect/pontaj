@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1541,7 +1541,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2504,7 +2504,7 @@ function withProjectMarker_(notes, project){
     if (btnInvoire) btnInvoire.disabled = !!disabled;
   }
 
-  const LAST_APPS_SCRIPT_ENDPOINT_KEY_V4929='pontaj:lastAppsScriptEndpoint:v4.9.30';
+  const LAST_APPS_SCRIPT_ENDPOINT_KEY_V4929='pontaj:lastAppsScriptEndpoint:v4.9.31';
   function baseEndpoint(){
     const fromCfg=String((window.CFG&&(CFG.syncEndpoint||CFG.stateEndpoint||CFG.guardEndpoint))||'').replace(/\?.*$/,'').trim();
     if(/^https:\/\/script\.google\.com\/macros\/s\//i.test(fromCfg)){
@@ -2672,7 +2672,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.25';
-  const PONTAJ_BUILD = 'offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2934,7 +2934,7 @@ function withProjectMarker_(notes, project){
           lastError=new Error(String(candidate&&candidate.error||`Ruta ${fn} nu este disponibilă.`));
         }catch(err){lastError=err;}
       }
-      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.30. '+String(lastError&&lastError.message||''));
+      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.31. '+String(lastError&&lastError.message||''));
       servioNotificationLastErrorV4923_='';
       if(String(empSel&&empSel.value||'').trim()!==name)return data;
       data.items=Array.isArray(data.items)?data.items.filter(item=>item&&item.resolved!==true):[];

@@ -1,6 +1,6 @@
 {
-  "version": "4.9.30",
-  "build": "offline-first-v4.9.30-servio-direct-jsonp-write-20260722-1",
+  "version": "4.9.31",
+  "build": "offline-first-v4.9.31-servio-grid-28-capacity-fix-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -73,9 +73,10 @@
     "apps-script-endpoint-last-known-good-cache-fallback"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.30",
-  "logic": "servio-direct-jsonp-write-v4.9.30; v4.9.19-text-plain-post-fallback; hidden-form-status-last-fallback; header-mapped-sheet-write; request-id-deduplication; servio-resolved-hide-v4.9.26",
+  "name": "SERVELECT Pontaj Enterprise 4.9.31",
+  "logic": "servio-grid-capacity-v4.9.31; servio-direct-jsonp-write-v4.9.30; v4.9.19-text-plain-post-fallback; hidden-form-status-last-fallback; header-mapped-sheet-write; request-id-deduplication; servio-resolved-hide-v4.9.26",
   "notes": [
+    "Cereri Servio extinde explicit grila fizică de la 26 la minimum 28 de coloane înainte de a crea sau migra antetele A–AB.",
     "Cererea Servio este trimisă prioritar prin ruta JSONP directă servioSubmitV4930, care execută scrierea și întoarce ACK-ul real de la Apps Script.",
     "POST-ul text/plain din V4.9.19 este păstrat ca fallback, urmat de formular POST ascuns și verificare după RequestId.",
     "Rândul este construit după numele antetelor din Cereri Servio; retrimiterile sunt deduplicate strict după RequestId."
