@@ -1,8 +1,8 @@
 {
-  "version": "4.9.19",
-  "build": "offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1",
+  "version": "4.9.20",
+  "build": "offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-servio-admin-requests-conversation",
+  "ui": "servio-desktop-top-left-anchor",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",

@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -854,7 +854,7 @@
     body.robot-pet-mobile-open-v411{overflow:hidden!important;background:#fff!important}
 
     /* SERVIO V4.9.19 — dialog cu cereri către administrator */
-    .servio-dialog-v4919{position:fixed;right:24px;bottom:112px;z-index:12080;width:min(420px,calc(100vw - 32px));max-height:min(650px,calc(100dvh - 140px));display:flex;flex-direction:column;border:1px solid #dbe7f1;border-radius:24px;background:rgba(255,255,255,.985);box-shadow:0 24px 70px rgba(20,45,80,.22);overflow:hidden;color:#17375f}
+    .servio-dialog-v4919{position:fixed;left:16px;top:16px;right:auto;bottom:auto;z-index:12080;width:min(420px,calc(100vw - 32px));max-height:min(650px,calc(100dvh - 32px));display:flex;flex-direction:column;border:1px solid #dbe7f1;border-radius:24px;background:rgba(255,255,255,.985);box-shadow:0 24px 70px rgba(20,45,80,.22);overflow:hidden;color:#17375f;transform-origin:100% 100%}
     .servio-dialog-v4919[hidden]{display:none!important}
     .servio-dialog-head-v4919{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid #e6eef5;background:linear-gradient(135deg,#f7fbff,#eefcfb)}
     .servio-dialog-avatar-v4919{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#17375f;color:#fff;font-size:13px;font-weight:900;letter-spacing:.03em;box-shadow:0 7px 18px rgba(23,55,95,.18)}
@@ -878,7 +878,7 @@
     .servio-result-v4919{margin-top:12px;padding:13px;border:1px solid #cfe9df;border-radius:15px;background:#f1fbf7;color:#21644d;font-size:12px;font-weight:750;line-height:1.45}.servio-result-v4919[hidden]{display:none!important}.servio-result-v4919 strong{display:block;margin-bottom:4px;font-size:13px}.servio-result-v4919.is-queued{border-color:#eadcae;background:#fff9e7;color:#765c13}.servio-result-v4919.is-error{border-color:#f0c8cd;background:#fff4f5;color:#9a2634}
     body.servio-dialog-open-v4919 .robot-pet-panel-v499 .tl-robot{filter:drop-shadow(0 12px 22px rgba(35,116,125,.13))}
     @media(max-width:820px){
-      .servio-dialog-v4919{left:50%;right:auto;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px));transform:translateX(-50%);width:min(520px,calc(100vw - 24px));max-height:54dvh;border-radius:22px;z-index:12090}
+      .servio-dialog-v4919{left:50%;right:auto;top:auto;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px));transform:translateX(-50%);width:min(520px,calc(100vw - 24px));max-height:54dvh;border-radius:22px;z-index:12090}
       body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-stage-v411{justify-content:flex-start;padding-top:max(72px,calc(env(safe-area-inset-top,0px) + 60px));box-sizing:border-box}
       body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-overlay-host-v411 .tl-robot{--tl-size:min(48vw,210px)}
       body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-caption-v411{display:none}
@@ -1519,7 +1519,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2631,7 +2631,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.19';
-  const PONTAJ_BUILD = 'offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2776,6 +2776,36 @@ function withProjectMarker_(notes, project){
   let servioThinkingTimerV4919_=null;
   let servioSubmittingV4919_=false;
   let servioAudioContextV4919_=null;
+  let servioDialogResizeObserverV4920_=null;
+  let servioDialogPositionRafV4920_=0;
+
+  function clearServioDesktopPositionV4920_(){
+    const dialog=document.getElementById('servioDialogV4919');if(!dialog)return;
+    dialog.style.removeProperty('left');dialog.style.removeProperty('top');dialog.style.removeProperty('right');dialog.style.removeProperty('bottom');
+    dialog.style.removeProperty('--servio-tail-left');dialog.style.removeProperty('--servio-tail-top');
+  }
+  function servioDesktopAnchorV4920_(){
+    const host=document.getElementById('servelectPetV499');
+    if(!host||host.offsetParent===null)return null;
+    return host.querySelector('.tl-robot')||host;
+  }
+  function positionServioDialogDesktopV4920_(){
+    cancelAnimationFrame(servioDialogPositionRafV4920_);
+    servioDialogPositionRafV4920_=requestAnimationFrame(()=>{
+      const dialog=document.getElementById('servioDialogV4919');
+      if(!dialog||dialog.hidden)return;
+      if(isRobotPetMobileViewportV411_()){clearServioDesktopPositionV4920_();return;}
+      const anchor=servioDesktopAnchorV4920_();if(!anchor)return;
+      const ar=anchor.getBoundingClientRect(),dr=dialog.getBoundingClientRect();
+      const margin=16,gap=14;
+      // Colțul dreapta-jos al ferestrei se termină în zona stânga-sus a robotului.
+      let left=ar.left-dr.width-gap;
+      let top=ar.top-dr.height-gap;
+      left=Math.max(margin,Math.min(left,window.innerWidth-dr.width-margin));
+      top=Math.max(margin,Math.min(top,window.innerHeight-dr.height-margin));
+      dialog.style.left=Math.round(left)+'px';dialog.style.top=Math.round(top)+'px';dialog.style.right='auto';dialog.style.bottom='auto';
+    });
+  }
 
   function playServioRobotSoundV4919_(){
     try{
@@ -2799,18 +2829,19 @@ function withProjectMarker_(notes, project){
   function openServioAssistantV4919_(opts){
     const el=servioElementsV4919_();if(!el.dialog)return;
     el.dialog.hidden=false;document.body.classList.add('servio-dialog-open-v4919');renderServioMenuV4919_();
-    setTimeout(()=>{const first=el.options&&el.options.querySelector('button');try{first&&first.focus({preventScroll:true});}catch{}},60);
+    positionServioDialogDesktopV4920_();
+    setTimeout(()=>{positionServioDialogDesktopV4920_();const first=el.options&&el.options.querySelector('button');try{first&&first.focus({preventScroll:true});}catch{}},60);
   }
   function closeServioAssistantV4919_(opts){
     const el=servioElementsV4919_();clearTimeout(servioThinkingTimerV4919_);servioThinkingTimerV4919_=null;servioSubmittingV4919_=false;
-    if(el.dialog)el.dialog.hidden=true;document.body.classList.remove('servio-dialog-open-v4919');restoreServioRobotV4919_();
+    if(el.dialog)el.dialog.hidden=true;clearServioDesktopPositionV4920_();document.body.classList.remove('servio-dialog-open-v4919');restoreServioRobotV4919_();
   }
   function selectServioTypeV4919_(key){
     const cfg=SERVIO_TYPES_V4919[key],el=servioElementsV4919_();if(!cfg||!el.dialog)return;
-    servioSelectedTypeV4919_=key;if(el.options)el.options.hidden=true;if(el.form)el.form.hidden=true;if(el.result)el.result.hidden=true;if(el.thinking){el.thinking.hidden=false;if(el.thinkingText)el.thinkingText.textContent='Servio se gândește…';}
+    servioSelectedTypeV4919_=key;if(el.options)el.options.hidden=true;if(el.form)el.form.hidden=true;if(el.result)el.result.hidden=true;if(el.thinking){el.thinking.hidden=false;if(el.thinkingText)el.thinkingText.textContent='Servio se gândește…';}positionServioDialogDesktopV4920_();
     playServioRobotSoundV4919_();pulseServioRobotV4919_('soft');
     clearTimeout(servioThinkingTimerV4919_);servioThinkingTimerV4919_=setTimeout(()=>{
-      if(el.thinking)el.thinking.hidden=true;if(el.type)el.type.textContent=cfg.label;if(el.hint)el.hint.textContent=cfg.hint;if(el.text){el.text.value='';el.text.placeholder=cfg.placeholder;}if(el.count)el.count.textContent='0/3000';if(el.error)el.error.textContent='';if(el.form)el.form.hidden=false;restoreServioRobotV4919_();setTimeout(()=>{try{el.text&&el.text.focus({preventScroll:true});}catch{}},40);
+      if(el.thinking)el.thinking.hidden=true;if(el.type)el.type.textContent=cfg.label;if(el.hint)el.hint.textContent=cfg.hint;if(el.text){el.text.value='';el.text.placeholder=cfg.placeholder;}if(el.count)el.count.textContent='0/3000';if(el.error)el.error.textContent='';if(el.form)el.form.hidden=false;restoreServioRobotV4919_();positionServioDialogDesktopV4920_();setTimeout(()=>{positionServioDialogDesktopV4920_();try{el.text&&el.text.focus({preventScroll:true});}catch{}},40);
     },900);
   }
   function servioPontajStateV4919_(){const s=canonicalRobotStateV499_();return s==='working'?'Lucru activ':s==='paused'?'Pauză activă':s==='extra'?'EXTRA activ':s==='offline'?'Offline':s==='syncing'?'Sincronizare':'Fără pontaj activ';}
@@ -2841,14 +2872,16 @@ function withProjectMarker_(notes, project){
       if(navigator.onLine===false){queueServioRequestV4919_(payload);queued=true;}else{
         try{out=await postServioRequestV4919_(payload);}catch(err){if(err&&(/Endpointul|cel puțin|Selectează|Tipul/i.test(String(err.message||''))))throw err;queueServioRequestV4919_(payload);queued=true;}
       }
-      if(el.thinking)el.thinking.hidden=true;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919'+(queued?' is-queued':'');el.result.innerHTML=queued?'<strong>Cererea a fost salvată pe dispozitiv.</strong>Va fi trimisă automat administratorului când revine conexiunea.':`<strong>Cererea a fost trimisă.</strong>Număr cerere: ${String(out&&out.requestNumber||'înregistrată')}`;}
+      if(el.thinking)el.thinking.hidden=true;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919'+(queued?' is-queued':'');el.result.innerHTML=queued?'<strong>Cererea a fost salvată pe dispozitiv.</strong>Va fi trimisă automat administratorului când revine conexiunea.':`<strong>Cererea a fost trimisă.</strong>Număr cerere: ${String(out&&out.requestNumber||'înregistrată')}`;}positionServioDialogDesktopV4920_();
       flashRobotSuccessV499_();showToast(queued?'<b>Cerere Servio salvată offline</b>':'<b>Cerere Servio trimisă</b>','ok');
-    }catch(err){if(el.thinking)el.thinking.hidden=true;if(el.form)el.form.hidden=false;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919 is-error';el.result.innerHTML='<strong>Cererea nu a fost trimisă.</strong>'+String(err&&err.message||err);}restoreServioRobotV4919_();}
+    }catch(err){if(el.thinking)el.thinking.hidden=true;if(el.form)el.form.hidden=false;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919 is-error';el.result.innerHTML='<strong>Cererea nu a fost trimisă.</strong>'+String(err&&err.message||err);}restoreServioRobotV4919_();positionServioDialogDesktopV4920_();}
     finally{servioSubmittingV4919_=false;if(el.submit)el.submit.disabled=false;}
   }
   function initServioAssistantV4919_(){
     const el=servioElementsV4919_(),close=document.getElementById('servioCloseV4919'),back=document.getElementById('servioBackV4919');if(!el.dialog||el.dialog.dataset.boundV4919==='1')return;el.dialog.dataset.boundV4919='1';
-    if(close)close.addEventListener('click',()=>closeServioAssistantV4919_());if(back)back.addEventListener('click',renderServioMenuV4919_);if(el.form)el.form.addEventListener('submit',submitServioFormV4919_);if(el.text)el.text.addEventListener('input',()=>{if(el.count)el.count.textContent=`${el.text.value.length}/3000`;if(el.error)el.error.textContent='';});
+    if(close)close.addEventListener('click',()=>closeServioAssistantV4919_());if(back)back.addEventListener('click',()=>{renderServioMenuV4919_();positionServioDialogDesktopV4920_();});if(el.form)el.form.addEventListener('submit',submitServioFormV4919_);if(el.text)el.text.addEventListener('input',()=>{if(el.count)el.count.textContent=`${el.text.value.length}/3000`;if(el.error)el.error.textContent='';positionServioDialogDesktopV4920_();});
+    if(window.ResizeObserver){servioDialogResizeObserverV4920_=new ResizeObserver(()=>positionServioDialogDesktopV4920_());servioDialogResizeObserverV4920_.observe(el.dialog);}
+    window.addEventListener('resize',positionServioDialogDesktopV4920_);window.addEventListener('orientationchange',positionServioDialogDesktopV4920_);
     window.addEventListener('online',()=>flushServioQueueV4919_());setTimeout(()=>flushServioQueueV4919_(),1800);
   }
 

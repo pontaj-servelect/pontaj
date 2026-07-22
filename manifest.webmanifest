@@ -3,7 +3,7 @@
   "short_name": "Pontaj 4.9.19",
   "description": "Pontaj SERVELECT offline-first cu Servio și cereri către administrator.",
   "id": "./index.html",
-  "start_url": "./index.html?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1",
+  "start_url": "./index.html?v=offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",
