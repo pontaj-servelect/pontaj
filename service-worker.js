@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1';
+const BUILD='offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[

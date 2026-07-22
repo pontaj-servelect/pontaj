@@ -1,8 +1,8 @@
 {
-  "version": "4.9.28",
-  "build": "offline-first-v4.9.28-servio-stable-post-restore-notifications-20260722-1",
+  "version": "4.9.20",
+  "build": "offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "servio-admin-replies-notifications-feedback",
+  "ui": "servio-desktop-top-left-anchor",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -41,47 +41,9 @@
     "servio-thinking-animation-and-web-audio-sound",
     "servio-request-sheet-with-request-id-deduplication",
     "servio-offline-request-queue",
-    "servio-greeting-romanian-grammar",
-    "apps-script-read-transport-jsonp-first",
-    "cors-preflight-causing-cache-control-header-removed",
-    "simple-get-fetch-fallback-without-custom-headers",
-    "state-active-dashboard-history-cors-console-regression-fixed",
-    "servio-admin-reply-column-live-notification",
-    "servio-unread-reply-count-per-selected-employee",
-    "servio-request-and-admin-response-conversation-view",
-    "servio-resolved-or-unresolved-feedback",
-    "servio-five-star-gold-rating",
-    "servio-resolved-sheet-checkbox",
-    "servio-continuation-log-appended-to-same-row",
-    "servio-response-read-hash-versioning",
-    "servio-admin-response-onedit-timestamp",
-    "servio-jsonp-notification-polling",
-    "servio-post-routes-bypass-midnight-auto-split-lock",
-    "servio-request-v4925-authoritative-write-route",
-    "servio-pending-local-queue-auto-retry-preserved",
-    "servio-post-body-route-cannot-be-overwritten-by-stale-payload",
-    "servio-direct-jsonp-write-authoritative-route",
-    "servio-no-cors-post-fallback",
-    "servio-stable-assistantRequestV4919-post-alias",
-    "servio-request-success-only-after-server-confirmation",
-    "servio-resolved-admin-replies-hidden-from-menu",
-    "servio-v4919-stable-text-plain-post-restored",
-    "servio-request-creation-separated-from-jsonp-notification-transport",
-    "servio-request-route-assistantRequestV4919-authoritative-again",
-    "servio-script-lock-semantics-restored-from-working-build"
+    "servio-greeting-romanian-grammar"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.28",
-  "logic": "servio-stable-text-plain-post-v4.9.19-restored; servio-resolved-hide-v4.9.26; servio-fast-batch-notifications-v4.9.24; apps-script-jsonp-notification-read",
-  "notes": [
-    "Crearea cererilor Servio folosește din nou exact transportul POST text/plain din V4.9.19, versiunea în care cererile ajungeau în Cereri Servio.",
-    "Notificările, răspunsurile administratorului, feedbackul și ascunderea răspunsurilor rezolvate rămân din fluxul V4.9.24-V4.9.27.",
-    "JSONP nu mai este folosit pentru crearea cererilor și nu mai există riscul depășirii lungimii URL-ului cu mesajul, browserul și URL-ul aplicației."
-  ],
-  "changes": [
-    "Restored the proven V4.9.19 text/plain POST request transport.",
-    "Restored assistantRequestV4919 as the canonical request creation route.",
-    "Kept the fast batch notification endpoint and resolved-item filtering.",
-    "Kept Servio POST routes ahead of midnight auto-split processing."
-  ]
+  "name": "SERVELECT Pontaj Enterprise 4.9.19",
+  "logic": "servio-admin-request-sheet-v4.9.19"
 }
