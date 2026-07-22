@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -800,6 +800,24 @@
       .mobile-focus-overlay-v492 .extra-caption-v48{font-size:12px!important;margin-top:12px!important;min-height:0!important}
     }
 
+    /* ================= ACTIVE LEAVE / INVOIRE PANELS V4.9.17 ================= */
+    .auxiliary-request-panel-v4917{margin-top:10px!important;padding:11px!important;border:1px solid #dfe8f3!important;border-radius:13px!important;background:linear-gradient(145deg,#fbfdff,#fff)!important;box-shadow:0 4px 14px rgba(20,45,80,.035)!important}
+    .auxiliary-request-head-v4917{display:flex;align-items:center;gap:9px;margin:0 0 9px}
+    .auxiliary-request-number-v4917{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#1769e8;color:#fff;font-size:11px;font-weight:900;box-shadow:0 5px 12px rgba(23,105,232,.2)}
+    .auxiliary-request-copy-v4917{min-width:0}.auxiliary-request-title-v4917{margin:0;color:#102b50;font-size:12px;font-weight:900}.auxiliary-request-hint-v4917{margin:2px 0 0;color:#7b8a9e;font-size:8.5px;font-weight:650;line-height:1.3}
+    .auxiliary-request-panel-v4917>.kicker{margin-bottom:9px;padding:8px 9px;border-radius:10px;background:#f6f9fd;color:#65768c;font-size:9px;line-height:1.45}
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917{flex:0 0 auto}
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917 .grid{gap:8px!important}
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917 label{font-size:9px!important}
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917 input,
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917 select{min-height:40px!important;padding:9px!important;font-size:12px!important}
+    body.pontaj-active-v48 .auxiliary-request-panel-v4917 .btn{min-height:40px;padding:9px 11px;border-radius:9px;font-size:11px}
+    @media(max-width:820px){
+      .auxiliary-request-panel-v4917{padding:11px!important;border-radius:14px!important}
+      .auxiliary-request-panel-v4917 input,.auxiliary-request-panel-v4917 select{min-height:48px!important;font-size:16px!important}
+      .auxiliary-request-panel-v4917 .btn{min-height:48px!important;font-size:14px!important}
+    }
+
     /* ================= COMPACT ACTIVITY PANEL + ROBOT PET V4.9.10 ================= */
     .activity-steps-v499{display:grid;gap:9px}
     .activity-step-v499{position:relative;border:1px solid #dfe8f3;border-radius:13px;padding:10px 11px;background:linear-gradient(145deg,#fbfdff,#fff);box-shadow:0 4px 14px rgba(20,45,80,.035)}
@@ -818,16 +836,6 @@
     .robot-pet-fallback-v499{display:block;width:100%;height:auto;border-radius:20px}
     .robot-pet-caption-v499{position:relative;margin:-10px 0 4px;padding:5px 10px;border:1px solid #dce8ef;border-radius:999px;background:rgba(255,255,255,.95);color:#52677d;font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.01em;box-shadow:0 5px 15px rgba(20,45,80,.06);z-index:2}
     .robot-pet-panel-v499[data-state=working] .robot-pet-caption-v499{color:#087f7a}.robot-pet-panel-v499[data-state=paused] .robot-pet-caption-v499{color:#3472a8}.robot-pet-panel-v499[data-state=extra] .robot-pet-caption-v499{color:#6843c4}.robot-pet-panel-v499[data-state=offline] .robot-pet-caption-v499{color:#667582}.robot-pet-panel-v499[data-state=success] .robot-pet-caption-v499{color:#16865e}
-    .activity-steps-v499{order:1}
-    #invoireBox,#leavePanel{order:2;margin-top:10px!important;border:1px solid #dfe8f3!important;border-radius:13px!important;padding:11px!important;background:linear-gradient(145deg,#fbfdff,#fff)!important;box-shadow:0 4px 14px rgba(20,45,80,.035)!important}
-    #invoireBox .kicker,#leavePanel .kicker{margin-bottom:8px;font-size:9px;line-height:1.4;color:#6f8094}
-    #invoireBox label,#leavePanel label{font-size:9px!important;margin:2px 0 4px!important}
-    #invoireBox input,#leavePanel input{min-height:38px!important;padding:8px 9px!important;font-size:11px!important;border-radius:9px!important}
-    #invoireBox .btn,#leavePanel .btn{min-height:39px;padding:9px 11px;font-size:10px;border-radius:10px}
-    #invoireBox .status,#leavePanel .status{font-size:9px;line-height:1.35;margin-top:7px}
-    #invoireBox .invoire-mode-row{gap:8px;margin:5px 0 8px}
-    .robot-pet-panel-v499{order:3}
-    body.pontaj-active-v48 #invoireBox,body.pontaj-active-v48 #leavePanel{flex:0 0 auto}
     .robot-pet-mobile-dock-v411{display:none;position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px) + 10px);z-index:11050;width:68px;height:68px;padding:0;border:1px solid #dbe7f1;border-radius:20px;background:rgba(255,255,255,.97);box-shadow:0 16px 32px rgba(20,45,80,.15);cursor:pointer;-webkit-tap-highlight-color:transparent}
     .robot-pet-mobile-dock-v411[hidden]{display:none!important}
     .robot-pet-mobile-dock-v411:focus-visible{outline:3px solid rgba(23,105,232,.22);outline-offset:3px}
@@ -844,6 +852,40 @@
     .robot-pet-mobile-caption-v411{margin:0;padding:8px 14px;border:1px solid #dce8ef;border-radius:999px;background:#fff;color:#52677d;font-size:12px;font-weight:800;line-height:1.25;text-align:center;box-shadow:0 8px 20px rgba(20,45,80,.08)}
     .robot-pet-mobile-overlay-v411[data-state=working] .robot-pet-mobile-caption-v411{color:#087f7a}.robot-pet-mobile-overlay-v411[data-state=paused] .robot-pet-mobile-caption-v411{color:#3472a8}.robot-pet-mobile-overlay-v411[data-state=extra] .robot-pet-mobile-caption-v411{color:#6843c4}.robot-pet-mobile-overlay-v411[data-state=offline] .robot-pet-mobile-caption-v411{color:#667582}.robot-pet-mobile-overlay-v411[data-state=success] .robot-pet-mobile-caption-v411{color:#16865e}
     body.robot-pet-mobile-open-v411{overflow:hidden!important;background:#fff!important}
+
+    /* SERVIO V4.9.19 — dialog cu cereri către administrator */
+    .servio-dialog-v4919{position:fixed;right:24px;bottom:112px;z-index:12080;width:min(420px,calc(100vw - 32px));max-height:min(650px,calc(100dvh - 140px));display:flex;flex-direction:column;border:1px solid #dbe7f1;border-radius:24px;background:rgba(255,255,255,.985);box-shadow:0 24px 70px rgba(20,45,80,.22);overflow:hidden;color:#17375f}
+    .servio-dialog-v4919[hidden]{display:none!important}
+    .servio-dialog-head-v4919{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid #e6eef5;background:linear-gradient(135deg,#f7fbff,#eefcfb)}
+    .servio-dialog-avatar-v4919{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#17375f;color:#fff;font-size:13px;font-weight:900;letter-spacing:.03em;box-shadow:0 7px 18px rgba(23,55,95,.18)}
+    .servio-dialog-title-v4919{min-width:0;flex:1}.servio-dialog-title-v4919 strong{display:block;font-size:14px;line-height:1.2}.servio-dialog-title-v4919 span{display:block;margin-top:2px;color:#668096;font-size:10px;font-weight:700}
+    .servio-dialog-close-v4919{width:34px;height:34px;display:grid;place-items:center;border:1px solid #dce7ef;border-radius:11px;background:#fff;color:#17375f;font:400 24px/1 Arial,sans-serif;cursor:pointer}
+    .servio-dialog-close-v4919:focus-visible{outline:3px solid rgba(8,108,240,.22);outline-offset:2px}
+    .servio-dialog-body-v4919{overflow:auto;padding:14px;overscroll-behavior:contain}
+    .servio-message-v4919{max-width:92%;padding:11px 13px;border-radius:16px 16px 16px 5px;background:#eef7fb;color:#25465e;font-size:13px;font-weight:700;line-height:1.45;box-shadow:0 5px 15px rgba(21,57,84,.05)}
+    .servio-options-v4919{display:grid;gap:8px;margin-top:12px}
+    .servio-option-v4919{width:100%;padding:11px 12px;border:1px solid #d8e7ef;border-radius:14px;background:#fff;color:#17375f;text-align:left;font:800 12px/1.35 system-ui,-apple-system,Segoe UI,sans-serif;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+    .servio-option-v4919:hover{transform:translateY(-1px);border-color:#67c9c2;box-shadow:0 8px 18px rgba(24,101,105,.09)}
+    .servio-option-v4919:focus-visible{outline:3px solid rgba(8,108,240,.2);outline-offset:2px}
+    .servio-thinking-v4919{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;border:1px solid #dcebf0;border-radius:14px;background:#f8fcfd;color:#4c687c;font-size:12px;font-weight:800}
+    .servio-thinking-v4919[hidden]{display:none!important}
+    .servio-thinking-dots-v4919{display:flex;gap:4px}.servio-thinking-dots-v4919 i{width:7px;height:7px;border-radius:50%;background:#2eb7ae;animation:servioThinkV4919 1s infinite ease-in-out}.servio-thinking-dots-v4919 i:nth-child(2){animation-delay:.13s}.servio-thinking-dots-v4919 i:nth-child(3){animation-delay:.26s}
+    @keyframes servioThinkV4919{0%,65%,100%{transform:translateY(0);opacity:.42}32%{transform:translateY(-5px);opacity:1}}
+    .servio-form-v4919{display:grid;gap:10px;margin-top:12px}.servio-form-v4919[hidden]{display:none!important}
+    .servio-type-v4919{display:inline-flex;width:max-content;max-width:100%;padding:6px 9px;border-radius:999px;background:#e8f8f6;color:#087f7a;font-size:10px;font-weight:900;white-space:normal}
+    .servio-form-v4919 label{font-size:11px;font-weight:900;color:#38566c}.servio-form-v4919 textarea{width:100%;min-height:112px;resize:vertical;padding:11px 12px;border:1px solid #cfdde7;border-radius:14px;background:#fff;color:#17375f;font:600 13px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;box-sizing:border-box}.servio-form-v4919 textarea:focus{outline:none;border-color:#2eb7ae;box-shadow:0 0 0 3px rgba(46,183,174,.14)}
+    .servio-form-meta-v4919{display:flex;justify-content:space-between;gap:10px;color:#7a8d9b;font-size:9px;font-weight:700}.servio-form-error-v4919{min-height:16px;color:#bc2e3b;font-size:10px;font-weight:800}.servio-form-actions-v4919{display:flex;gap:8px}.servio-form-actions-v4919 button{min-height:42px;padding:9px 12px;border-radius:13px;font-size:11px;font-weight:900;cursor:pointer}.servio-back-v4919{border:1px solid #d5e1e9;background:#fff;color:#526b7c}.servio-submit-v4919{flex:1;border:1px solid #168f87;background:#159d94;color:#fff;box-shadow:0 8px 18px rgba(21,157,148,.18)}.servio-submit-v4919:disabled{opacity:.55;cursor:not-allowed}
+    .servio-result-v4919{margin-top:12px;padding:13px;border:1px solid #cfe9df;border-radius:15px;background:#f1fbf7;color:#21644d;font-size:12px;font-weight:750;line-height:1.45}.servio-result-v4919[hidden]{display:none!important}.servio-result-v4919 strong{display:block;margin-bottom:4px;font-size:13px}.servio-result-v4919.is-queued{border-color:#eadcae;background:#fff9e7;color:#765c13}.servio-result-v4919.is-error{border-color:#f0c8cd;background:#fff4f5;color:#9a2634}
+    body.servio-dialog-open-v4919 .robot-pet-panel-v499 .tl-robot{filter:drop-shadow(0 12px 22px rgba(35,116,125,.13))}
+    @media(max-width:820px){
+      .servio-dialog-v4919{left:50%;right:auto;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px));transform:translateX(-50%);width:min(520px,calc(100vw - 24px));max-height:54dvh;border-radius:22px;z-index:12090}
+      body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-stage-v411{justify-content:flex-start;padding-top:max(72px,calc(env(safe-area-inset-top,0px) + 60px));box-sizing:border-box}
+      body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-overlay-host-v411 .tl-robot{--tl-size:min(48vw,210px)}
+      body.servio-dialog-open-v4919.robot-pet-mobile-open-v411 .robot-pet-mobile-caption-v411{display:none}
+      .servio-dialog-body-v4919{padding:12px}.servio-option-v4919{padding:10px 11px}.servio-form-v4919 textarea{min-height:92px}
+    }
+    @media(max-width:420px){.servio-dialog-v4919{max-height:58dvh}.servio-dialog-head-v4919{padding:11px}.servio-message-v4919{font-size:12px}.servio-option-v4919{font-size:11px}}
+    @media(prefers-reduced-motion:reduce){.servio-thinking-dots-v4919 i{animation:none}.servio-option-v4919{transition:none}}
     @media(min-width:821px){
       body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411{display:grid;right:18px;bottom:18px;width:76px;height:76px;border-radius:22px;cursor:default;pointer-events:none;opacity:1}
       body.robot-pet-desktop-docked-v413 .robot-pet-mobile-dock-v411:focus{outline:none!important;box-shadow:0 16px 32px rgba(20,45,80,.15)}
@@ -871,9 +913,6 @@
       .robot-pet-canvas-v499{--tl-size:min(178px,62vw)}.robot-pet-caption-v499{margin-top:-8px;font-size:8px}.robot-pet-panel-v499{margin-top:4px;border-top:none;padding-top:0}
       #servelectPetPanelV499{display:none!important}
       .robot-pet-mobile-dock-v411{display:grid}
-      #invoireBox,#leavePanel{padding:12px!important;border-radius:14px!important}
-      #invoireBox input,#leavePanel input{min-height:46px!important;font-size:16px!important;padding:11px!important}
-      #invoireBox .btn,#leavePanel .btn{min-height:48px;font-size:13px}
     }
     @media(max-width:820px) and (max-height:620px){.robot-pet-caption-v499{display:none}.robot-pet-canvas-v499{--tl-size:min(150px,52vw)}.robot-pet-panel-v499{margin-bottom:-10px}}
     @media(prefers-reduced-motion:reduce){.robot-pet-canvas-v499{scroll-behavior:auto}.robot-pet-caption-v499{transition:none}}
@@ -1139,9 +1178,10 @@
 
 
         <!-- Invoire panel -->
-        <div id="invoireBox" class="invoire-box">
+        <div id="invoireBox" class="invoire-box auxiliary-request-panel-v4917" aria-labelledby="invoirePanelTitleV4917">
+          <div class="auxiliary-request-head-v4917"><span class="auxiliary-request-number-v4917" aria-hidden="true">4</span><div class="auxiliary-request-copy-v4917"><h3 id="invoirePanelTitleV4917" class="auxiliary-request-title-v4917">Învoire</h3><p class="auxiliary-request-hint-v4917">Poate fi trimisă și când pontajul normal sau EXTRA este activ.</p></div></div>
           <div class="kicker">
-            <b>Învoire</b> — selectează intervalul orar în format 24h. Se trimite separat cu butonul <b>Trimite învoirea</b>.
+            Selectează intervalul în format 24h și apasă <b>Trimite învoirea</b>. Sesiunea de pontaj activă continuă separat.
           </div>
 
           <div class="invoire-mode-row">
@@ -1183,8 +1223,9 @@
         </div>
 
         <!-- Leave panel -->
-        <div id="leavePanel" class="leave" style="display:none;margin-top:16px">
-          <div class="kicker"><b>Cerere concediu</b> — adaugă <b>zile individuale</b> de concediu, apoi completează emailul personal și (opțional) o notă. Se trimite automat la HR.</div>
+        <div id="leavePanel" class="leave auxiliary-request-panel-v4917" style="display:none" aria-labelledby="leavePanelTitleV4917">
+          <div class="auxiliary-request-head-v4917"><span class="auxiliary-request-number-v4917" aria-hidden="true">4</span><div class="auxiliary-request-copy-v4917"><h3 id="leavePanelTitleV4917" class="auxiliary-request-title-v4917">Cerere concediu</h3><p class="auxiliary-request-hint-v4917">Poate fi trimisă și când pontajul normal sau EXTRA este activ.</p></div></div>
+          <div class="kicker">Adaugă <b>zile individuale</b> sau un interval, completează emailul personal și trimite cererea către HR. Sesiunea activă nu este oprită.</div>
 
           <div class="grid cols-3" id="leaveDaysBlock">
             <div>
@@ -1446,7 +1487,39 @@ const ServelectAudio = (() => {
     </div>
   </div>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1"></script>
+
+  <section id="servioDialogV4919" class="servio-dialog-v4919" hidden role="dialog" aria-modal="false" aria-labelledby="servioTitleV4919">
+    <header class="servio-dialog-head-v4919">
+      <div class="servio-dialog-avatar-v4919" aria-hidden="true">S</div>
+      <div class="servio-dialog-title-v4919">
+        <strong id="servioTitleV4919">Servio</strong>
+        <span>Asistent pentru cereri către administrator</span>
+      </div>
+      <button id="servioCloseV4919" class="servio-dialog-close-v4919" type="button" aria-label="Închide conversația">×</button>
+    </header>
+    <div class="servio-dialog-body-v4919">
+      <div id="servioMessageV4919" class="servio-message-v4919">Bună, eu sunt Servio. Cu ce te pot ajuta?</div>
+      <div id="servioOptionsV4919" class="servio-options-v4919" aria-label="Tipul cererii"></div>
+      <div id="servioThinkingV4919" class="servio-thinking-v4919" hidden role="status" aria-live="polite">
+        <span class="servio-thinking-dots-v4919" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span id="servioThinkingTextV4919">Servio se gândește…</span>
+      </div>
+      <form id="servioFormV4919" class="servio-form-v4919" hidden novalidate>
+        <div id="servioTypeV4919" class="servio-type-v4919"></div>
+        <label for="servioTextV4919">Descrie cererea pentru administrator</label>
+        <textarea id="servioTextV4919" maxlength="3000" required></textarea>
+        <div class="servio-form-meta-v4919"><span id="servioHintV4919"></span><span id="servioCountV4919">0/3000</span></div>
+        <div id="servioErrorV4919" class="servio-form-error-v4919" role="alert"></div>
+        <div class="servio-form-actions-v4919">
+          <button id="servioBackV4919" class="servio-back-v4919" type="button">Înapoi</button>
+          <button id="servioSubmitV4919" class="servio-submit-v4919" type="submit">Trimite cererea</button>
+        </div>
+      </form>
+      <div id="servioResultV4919" class="servio-result-v4919" hidden role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <script src="robot-pet.js?v=offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2352,7 +2425,7 @@ function withProjectMarker_(notes, project){
     for(const base of candidates){
       try{const url=base+(base.includes('?')?'&':'?')+'v='+Date.now();const r=await fetch(url,{cache:'no-store'});if(!r.ok)continue;const list=parseProjectsCSV(await r.text());if(list.length){fillProjects(list);return;}}catch{}
     }
-    fillProjects([]);setStatus('Lista proiectelor nu este disponibilă. Poți continua fără proiect.','warn');
+    fillProjects([]);setStatus('Lista proiectelor nu este disponibilă. START rămâne blocat până la încărcarea ei.','warn');
   }
 
   function fillEmployeesFromDept(dept){
@@ -2391,7 +2464,7 @@ function withProjectMarker_(notes, project){
     if (!btnStart) return;
     const running=!!STATE.normal.running,paused=!!STATE.normal.paused,extraR=!!STATE.extra.running,hasSel=!!activeEmployeeV481_(),blockedByActivity=isTimeButtonsBlockedByActivity(),unknownState=hasSel&&!hasKnownStateV48_(activeEmployeeV481_()),ready=detailsReadyV481_();
     btnStart.style.display=running||extraR?'none':'';btnFinish.style.display=running?'':'none';btnPause.style.display=running&&!paused?'':'none';btnUnpause.style.display=running&&paused?'':'none';btnExtraStart.style.display=running||extraR?'none':'';btnExtraFinish.style.display=extraR?'':'none';
-    btnStart.disabled=blockedByActivity||!hasSel||!ready||unknownState||running||extraR;btnExtraStart.disabled=blockedByActivity||!hasSel||!ready||unknownState||paused||extraR||running;btnFinish.disabled=!hasSel||unknownState||!running||extraR;btnPause.disabled=!hasSel||unknownState||!running||paused||extraR;btnUnpause.disabled=!hasSel||unknownState||!running||!paused||extraR;btnExtraFinish.disabled=!hasSel||unknownState||!extraR;
+    btnStart.disabled=blockedByActivity||!hasSel||!ready||unknownState||running||extraR;btnExtraStart.disabled=blockedByActivity||!hasSel||!ready||unknownState||paused||extraR||running;btnFinish.disabled=blockedByActivity||!hasSel||unknownState||!running||extraR;btnPause.disabled=blockedByActivity||!hasSel||unknownState||!running||paused||extraR;btnUnpause.disabled=blockedByActivity||!hasSel||unknownState||!running||!paused||extraR;btnExtraFinish.disabled=blockedByActivity||!hasSel||unknownState||!extraR;
     if(btnInvoire)btnInvoire.disabled=!hasSel||!isInvoireActivity();
     updateSelectionSummaryV481_();renderDashboardV481_();
     updateDetailsLockV481_();
@@ -2557,8 +2630,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.17';
-  const PONTAJ_BUILD = 'offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1';
+  const PONTAJ_VERSION = '4.9.19';
+  const PONTAJ_BUILD = 'offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2613,8 +2686,8 @@ function withProjectMarker_(notes, project){
   function isRobotPetMobileViewportV411_(){return !!(window.matchMedia&&window.matchMedia('(max-width: 820px)').matches);}
   function robotPetInstancesV411_(){return [servelectRobotPetV499_,servelectRobotPetMobileDockV411_,servelectRobotPetMobileOverlayV411_].filter(Boolean);}
   function mountRobotPetHostV411_(host,options){if(!host||!window.ServelectRobotPet)return null;try{return window.ServelectRobotPet.mount(host,Object.assign({state:'idle',eyeTracking:true,mobileTapReact:true,respectReducedMotion:true},options||{}));}catch{return null;}}
-  function closeRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411'),dock=document.getElementById('servelectPetMobileDockV411');if(!overlay)return;const wasOpen=!overlay.hidden;overlay.hidden=true;document.body.classList.remove('robot-pet-mobile-open-v411');if(!wasOpen)return;updateRobotPetMobileVisibilityV411_();if(dock&&!dock.hidden){try{dock.focus({preventScroll:true});}catch{}}}
-  function openRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411'),dock=document.getElementById('servelectPetMobileDockV411'),closeBtn=document.getElementById('servelectPetMobileCloseV411');if(!overlay||overlay.hidden===false)return;if(dock)dock.hidden=true;overlay.hidden=false;document.body.classList.add('robot-pet-mobile-open-v411');syncRobotStateV499_();requestAnimationFrame(()=>{try{closeBtn&&closeBtn.focus({preventScroll:true});}catch{}});}
+  function closeRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411'),dock=document.getElementById('servelectPetMobileDockV411');if(!overlay)return;const wasOpen=!overlay.hidden;closeServioAssistantV4919_({silent:true});overlay.hidden=true;document.body.classList.remove('robot-pet-mobile-open-v411');if(!wasOpen)return;updateRobotPetMobileVisibilityV411_();if(dock&&!dock.hidden){try{dock.focus({preventScroll:true});}catch{}}}
+  function openRobotPetMobileOverlayV411_(){const overlay=document.getElementById('servelectPetMobileOverlayV411'),dock=document.getElementById('servelectPetMobileDockV411'),closeBtn=document.getElementById('servelectPetMobileCloseV411');if(!overlay||overlay.hidden===false)return;if(dock)dock.hidden=true;overlay.hidden=false;document.body.classList.add('robot-pet-mobile-open-v411');syncRobotStateV499_();requestAnimationFrame(()=>{openServioAssistantV4919_({source:'mobile'});try{closeBtn&&closeBtn.focus({preventScroll:true});}catch{}});}
   function isRobotPontajActiveV413_(){const name=typeof activeEmployeeV481_==='function'?activeEmployeeV481_():String(empSel&&empSel.value||''),st=name&&typeof dashboardStateV481_==='function'?dashboardStateV481_(name):(STATE||blankState());return !!(st&&((st.normal&&st.normal.running)||(st.extra&&st.extra.running)));}
   function updateRobotPetMobileVisibilityV411_(){
     const dock=document.getElementById('servelectPetMobileDockV411'),overlay=document.getElementById('servelectPetMobileOverlayV411'),panel=document.getElementById('servelectPetPanelV499'),splash=document.getElementById('splash');
@@ -2643,6 +2716,13 @@ function withProjectMarker_(notes, project){
     servelectRobotPetV499_=mountRobotPetHostV411_(host,{state:'idle',eyeTracking:true,mobileTapReact:true});
     servelectRobotPetMobileDockV411_=mountRobotPetHostV411_(mobileDockHost,{state:'idle',eyeTracking:false,mobileTapReact:true});
     servelectRobotPetMobileOverlayV411_=mountRobotPetHostV411_(mobileOverlayHost,{state:'idle',eyeTracking:true,mobileTapReact:true});
+    if(host&&!host.dataset.servioBoundV4919){
+      host.dataset.servioBoundV4919='1';
+      const openServio=e=>{if(e&&e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;if(e&&e.type==='keydown')e.preventDefault();if(!isRobotPetMobileViewportV411_())openServioAssistantV4919_({source:'desktop'});};
+      host.addEventListener('click',openServio);
+      host.addEventListener('keydown',openServio);
+    }
+    if(mobileOverlayHost&&!mobileOverlayHost.dataset.servioBoundV4919){mobileOverlayHost.dataset.servioBoundV4919='1';mobileOverlayHost.addEventListener('click',()=>openServioAssistantV4919_({source:'mobile'}));}
     bindRobotPetMobileUiV411_();
     updateRobotPetMobileVisibilityV411_();
     window.setRobotState=(state,caption)=>setRobotStateV499_(state,caption);
@@ -2681,6 +2761,95 @@ function withProjectMarker_(notes, project){
     clearTimeout(robotSuccessTimerV499_);
     syncRobotStateV499_();
     robotSuccessTimerV499_=setTimeout(()=>{robotSuccessUntilV499_=0;syncRobotStateV499_();},1270);
+  }
+
+
+  /*********************** SERVIO V4.9.19 ************************/
+  const SERVIO_TYPES_V4919={
+    wrong_action:{label:'Am apăsat o acțiune greșită',hint:'Spune ce ai apăsat și ce ar fi trebuit să se întâmple.',placeholder:'Exemplu: Am apăsat FINISH din greșeală la ora 14:20. Pontajul trebuia să rămână activ.'},
+    technical_problem:{label:'Problemă tehnică',hint:'Descrie eroarea, ecranul și momentul în care apare.',placeholder:'Exemplu: Butonul START rămâne blocat după ce selectez activitatea. Folosesc Safari pe iPhone.'},
+    admin_question:{label:'Întrebare pentru administrator',hint:'Scrie întrebarea cât mai clar.',placeholder:'Scrie aici întrebarea pentru administrator…'},
+    other_request:{label:'Altă solicitare',hint:'Descrie solicitarea și rezultatul dorit.',placeholder:'Scrie aici solicitarea…'}
+  };
+  const SERVIO_QUEUE_KEY_V4919='pontaj/servioRequests/v4.9.19';
+  let servioSelectedTypeV4919_='';
+  let servioThinkingTimerV4919_=null;
+  let servioSubmittingV4919_=false;
+  let servioAudioContextV4919_=null;
+
+  function playServioRobotSoundV4919_(){
+    try{
+      const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+      const ctx=servioAudioContextV4919_||(servioAudioContextV4919_=new AudioCtx());
+      if(ctx.state==='suspended')ctx.resume();
+      const now=ctx.currentTime,g=ctx.createGain();g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.055,now+.025);g.gain.exponentialRampToValueAtTime(.0001,now+.34);g.connect(ctx.destination);
+      const o1=ctx.createOscillator();o1.type='square';o1.frequency.setValueAtTime(430,now);o1.frequency.exponentialRampToValueAtTime(760,now+.13);o1.frequency.exponentialRampToValueAtTime(520,now+.30);o1.connect(g);o1.start(now);o1.stop(now+.35);
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.setValueAtTime(980,now+.08);o2.frequency.exponentialRampToValueAtTime(1320,now+.22);o2.connect(g);o2.start(now+.08);o2.stop(now+.31);
+    }catch(_){ }
+  }
+  function pulseServioRobotV4919_(type){robotPetInstancesV411_().forEach(instance=>{try{instance.pulse(type||'soft');instance.setState('syncing');}catch{}});}
+  function restoreServioRobotV4919_(){setTimeout(()=>syncRobotStateV499_(),90);}
+  function servioElementsV4919_(){return{dialog:document.getElementById('servioDialogV4919'),message:document.getElementById('servioMessageV4919'),options:document.getElementById('servioOptionsV4919'),thinking:document.getElementById('servioThinkingV4919'),thinkingText:document.getElementById('servioThinkingTextV4919'),form:document.getElementById('servioFormV4919'),type:document.getElementById('servioTypeV4919'),text:document.getElementById('servioTextV4919'),hint:document.getElementById('servioHintV4919'),count:document.getElementById('servioCountV4919'),error:document.getElementById('servioErrorV4919'),submit:document.getElementById('servioSubmitV4919'),result:document.getElementById('servioResultV4919')};}
+  function renderServioMenuV4919_(){
+    const el=servioElementsV4919_();servioSelectedTypeV4919_='';clearTimeout(servioThinkingTimerV4919_);
+    if(el.message)el.message.textContent='Bună, eu sunt Servio. Cu ce te pot ajuta?';
+    if(el.options){el.options.innerHTML='';Object.keys(SERVIO_TYPES_V4919).forEach(key=>{const b=document.createElement('button');b.type='button';b.className='servio-option-v4919';b.textContent=SERVIO_TYPES_V4919[key].label;b.addEventListener('click',()=>selectServioTypeV4919_(key));el.options.appendChild(b);});el.options.hidden=false;}
+    if(el.thinking)el.thinking.hidden=true;if(el.form)el.form.hidden=true;if(el.result){el.result.hidden=true;el.result.className='servio-result-v4919';el.result.textContent='';}if(el.error)el.error.textContent='';
+  }
+  function openServioAssistantV4919_(opts){
+    const el=servioElementsV4919_();if(!el.dialog)return;
+    el.dialog.hidden=false;document.body.classList.add('servio-dialog-open-v4919');renderServioMenuV4919_();
+    setTimeout(()=>{const first=el.options&&el.options.querySelector('button');try{first&&first.focus({preventScroll:true});}catch{}},60);
+  }
+  function closeServioAssistantV4919_(opts){
+    const el=servioElementsV4919_();clearTimeout(servioThinkingTimerV4919_);servioThinkingTimerV4919_=null;servioSubmittingV4919_=false;
+    if(el.dialog)el.dialog.hidden=true;document.body.classList.remove('servio-dialog-open-v4919');restoreServioRobotV4919_();
+  }
+  function selectServioTypeV4919_(key){
+    const cfg=SERVIO_TYPES_V4919[key],el=servioElementsV4919_();if(!cfg||!el.dialog)return;
+    servioSelectedTypeV4919_=key;if(el.options)el.options.hidden=true;if(el.form)el.form.hidden=true;if(el.result)el.result.hidden=true;if(el.thinking){el.thinking.hidden=false;if(el.thinkingText)el.thinkingText.textContent='Servio se gândește…';}
+    playServioRobotSoundV4919_();pulseServioRobotV4919_('soft');
+    clearTimeout(servioThinkingTimerV4919_);servioThinkingTimerV4919_=setTimeout(()=>{
+      if(el.thinking)el.thinking.hidden=true;if(el.type)el.type.textContent=cfg.label;if(el.hint)el.hint.textContent=cfg.hint;if(el.text){el.text.value='';el.text.placeholder=cfg.placeholder;}if(el.count)el.count.textContent='0/3000';if(el.error)el.error.textContent='';if(el.form)el.form.hidden=false;restoreServioRobotV4919_();setTimeout(()=>{try{el.text&&el.text.focus({preventScroll:true});}catch{}},40);
+    },900);
+  }
+  function servioPontajStateV4919_(){const s=canonicalRobotStateV499_();return s==='working'?'Lucru activ':s==='paused'?'Pauză activă':s==='extra'?'EXTRA activ':s==='offline'?'Offline':s==='syncing'?'Sincronizare':'Fără pontaj activ';}
+  function buildServioPayloadV4919_(){
+    const cfg=SERVIO_TYPES_V4919[servioSelectedTypeV4919_],el=servioElementsV4919_(),name=String(empSel&&empSel.value||'').trim(),department=String(deptSel&&deptSel.value||'').trim(),message=String(el.text&&el.text.value||'').trim();
+    if(!cfg)throw new Error('Alege tipul cererii.');if(!name)throw new Error('Selectează mai întâi angajatul în secțiunea Context.');if(message.length<5)throw new Error('Descrierea trebuie să aibă cel puțin 5 caractere.');
+    return{fn:'assistantRequestV4919',requestId:randomNonce(),requestTypeKey:servioSelectedTypeV4919_,requestType:cfg.label,name,department,message,clientTimestamp:new Date().toISOString(),pontajState:servioPontajStateV4919_(),build:PONTAJ_BUILD,device:navigator.userAgent||'',online:navigator.onLine!==false,appUrl:location.href};
+  }
+  function readServioQueueV4919_(){try{const q=JSON.parse(localStorage.getItem(SERVIO_QUEUE_KEY_V4919)||'[]');return Array.isArray(q)?q:[];}catch{return[];}}
+  function writeServioQueueV4919_(q){try{localStorage.setItem(SERVIO_QUEUE_KEY_V4919,JSON.stringify((q||[]).slice(-50)));}catch{}}
+  function queueServioRequestV4919_(payload){const q=readServioQueueV4919_();if(!q.some(x=>x&&x.requestId===payload.requestId))q.push(payload);writeServioQueueV4919_(q);}
+  async function postServioRequestV4919_(payload){
+    const endpoint=baseEndpoint();if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\//i.test(endpoint))throw new Error('Endpointul Apps Script nu este configurat.');
+    const response=await fetchWithTimeoutV48_(endpoint+'?fn=assistantRequestV4919',{method:'POST',cache:'no-store',redirect:'follow',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8','Accept':'application/json'},body:JSON.stringify(payload)},25000);
+    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error('Răspuns nevalid de la server.');}if(!response.ok||!data||data.ok!==true)throw new Error(String(data&&data.error||'Cererea nu a putut fi salvată.'));return data;
+  }
+  async function flushServioQueueV4919_(){
+    if(navigator.onLine===false)return;const q=readServioQueueV4919_();if(!q.length)return;const keep=[];
+    for(const item of q){try{await postServioRequestV4919_(item);}catch{keep.push(item);}}
+    writeServioQueueV4919_(keep);
+  }
+  async function submitServioFormV4919_(event){
+    event.preventDefault();if(servioSubmittingV4919_)return;const el=servioElementsV4919_();if(el.error)el.error.textContent='';let payload;
+    try{payload=buildServioPayloadV4919_();}catch(err){if(el.error)el.error.textContent=String(err&&err.message||err);return;}
+    servioSubmittingV4919_=true;if(el.submit)el.submit.disabled=true;if(el.form)el.form.hidden=true;if(el.thinking){el.thinking.hidden=false;if(el.thinkingText)el.thinkingText.textContent='Servio trimite cererea…';}playServioRobotSoundV4919_();pulseServioRobotV4919_('soft');
+    try{
+      let out=null,queued=false;
+      if(navigator.onLine===false){queueServioRequestV4919_(payload);queued=true;}else{
+        try{out=await postServioRequestV4919_(payload);}catch(err){if(err&&(/Endpointul|cel puțin|Selectează|Tipul/i.test(String(err.message||''))))throw err;queueServioRequestV4919_(payload);queued=true;}
+      }
+      if(el.thinking)el.thinking.hidden=true;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919'+(queued?' is-queued':'');el.result.innerHTML=queued?'<strong>Cererea a fost salvată pe dispozitiv.</strong>Va fi trimisă automat administratorului când revine conexiunea.':`<strong>Cererea a fost trimisă.</strong>Număr cerere: ${String(out&&out.requestNumber||'înregistrată')}`;}
+      flashRobotSuccessV499_();showToast(queued?'<b>Cerere Servio salvată offline</b>':'<b>Cerere Servio trimisă</b>','ok');
+    }catch(err){if(el.thinking)el.thinking.hidden=true;if(el.form)el.form.hidden=false;if(el.result){el.result.hidden=false;el.result.className='servio-result-v4919 is-error';el.result.innerHTML='<strong>Cererea nu a fost trimisă.</strong>'+String(err&&err.message||err);}restoreServioRobotV4919_();}
+    finally{servioSubmittingV4919_=false;if(el.submit)el.submit.disabled=false;}
+  }
+  function initServioAssistantV4919_(){
+    const el=servioElementsV4919_(),close=document.getElementById('servioCloseV4919'),back=document.getElementById('servioBackV4919');if(!el.dialog||el.dialog.dataset.boundV4919==='1')return;el.dialog.dataset.boundV4919='1';
+    if(close)close.addEventListener('click',()=>closeServioAssistantV4919_());if(back)back.addEventListener('click',renderServioMenuV4919_);if(el.form)el.form.addEventListener('submit',submitServioFormV4919_);if(el.text)el.text.addEventListener('input',()=>{if(el.count)el.count.textContent=`${el.text.value.length}/3000`;if(el.error)el.error.textContent='';});
+    window.addEventListener('online',()=>flushServioQueueV4919_());setTimeout(()=>flushServioQueueV4919_(),1800);
   }
 
   function fetchWithTimeoutV48_(url,options,timeoutMs){
@@ -3297,7 +3466,7 @@ function withProjectMarker_(notes, project){
   const ACTIVE_SESSION_CONTEXT_KEY_V481='pontaj/activeSessionContext/v4.8.1';
   const DETAILS_SELECTION_KEY_V481='pontaj/detailsSelection/v4.8.1';
   const DASHBOARD_CACHE_PREFIX_V481='pontaj/dashboard/v4.9.8/';
-  const HISTORY_CACHE_PREFIX_V481='pontaj/history/v4.9.17/';
+  const HISTORY_CACHE_PREFIX_V481='pontaj/history/v4.9.16/';
   const DETAILS_BY_EMPLOYEE_KEY_V482='pontaj/detailsByEmployee/v4.8.2';
   const DETAILS_SELECTION_META_KEY_V483='ui/detailsSelection/v4.8.3';
   const DASHBOARD_META_PREFIX_V483='ui/dashboard/v4.9.8/';
@@ -3369,7 +3538,7 @@ function withProjectMarker_(notes, project){
   function openDetailsV481_(message,focusId){closeHistoryV481_(false);mobileViewV481_='details';document.body.classList.add('mobile-view-details-v481');document.body.classList.remove('mobile-view-history-v481');setMobileNavV481_('details');const msg=document.getElementById('detailsModeMessageV481');if(msg)msg.textContent=message||'Selectează profilul dorit. Dacă acel angajat are o sesiune activă, starea și datele lui sunt încărcate live.';updateDetailsLockV481_();setTimeout(()=>{const el=focusId&&document.getElementById(focusId);if(el&&!el.disabled){el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();}},80);}
   function goHomeV481_(){closeHistoryV481_(false);mobileViewV481_='home';document.body.classList.remove('mobile-view-details-v481','mobile-view-history-v481');setMobileNavV481_('home');window.scrollTo({top:0,behavior:'smooth'});}
   function setMobileNavV481_(view){['Home','History','Details'].forEach(n=>{const id=n==='Details'?'mobileDetailsV481':'mobile'+n+'V50',el=document.getElementById(id),active=view===n.toLowerCase();if(el){el.classList.toggle('active',active);el.toggleAttribute('aria-current',active);}});}
-  function updateDetailsLockV481_(){const name=activeEmployeeV481_(),st=name?dashboardStateV481_(name):(STATE||blankState()),active=!!(st.normal&&st.normal.running)||!!(st.extra&&st.extra.running),info=document.querySelector('.details-lock-v481');[deptSel,empSel,actSel,projectSel,locInput,notesEl].forEach(el=>{if(el&&el.dataset.busyLock!=='1')el.disabled=false;});if(info){info.classList.toggle('active',active);info.textContent=active?`Profil activ: ${name}. Poți schimba departamentul sau angajatul; sesiunea lui continuă separat și reapare când revii la acest nume.`:'Poți schimba profilul oricând. Starea fiecărui angajat este păstrată separat.';}}
+  function updateDetailsLockV481_(){const name=activeEmployeeV481_(),st=name?dashboardStateV481_(name):(STATE||blankState()),active=!!(st.normal&&st.normal.running)||!!(st.extra&&st.extra.running),info=document.querySelector('.details-lock-v481');[deptSel,empSel,actSel,projectSel,locInput,notesEl].forEach(el=>{if(el&&el.dataset.busyLock!=='1')el.disabled=false;});if(info){info.classList.toggle('active',active);info.textContent=active?`Profil activ: ${name}. Sesiunea continuă separat; poți selecta Învoire sau un tip de concediu și poți trimite formularul din acest panou fără să oprești pontajul.`:'Poți schimba profilul oricând. Starea fiecărui angajat este păstrată separat.';}}
 
   function parseNormNumberV483_(v){
     const n=Number(String(v==null?'':v).trim().replace(',','.'));
@@ -3536,7 +3705,7 @@ function withProjectMarker_(notes, project){
     if(dashboardFetchPromisesV482_.has(key))return dashboardFetchPromisesV482_.get(key);
     const promise=(async()=>{try{
       const requestStartedAtV493=Date.now();
-      let d=await appsScriptGetV498_(baseEndpoint()+'?fn=dashboardV4917&name='+encodeURIComponent(name)+'&_='+requestStartedAtV493,{fetchTimeout:30000,jsonpTimeout:120000});if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='professional-dashboard-v4.9.17'||String(d.pauseSource||'')!=='session-aware-pause-ledger-v4.9.17'){const er=new Error('Backend Apps Script vechi sau contract dashboard incomplet. Publică Code.gs V4.9.17 ca New version.');er.code='BACKEND_CONTRACT_V498';throw er;}if(stateKeyV48_(d.name)!==key)throw new Error('Profil diferit în răspuns');const receivedAtV493=Date.now();d.receivedAtMs=receivedAtV493;d.anchorLocalMs=receivedAtV493;d.requestRoundTripMs=Math.max(0,receivedAtV493-requestStartedAtV493);d.serverClockOffsetMs=Number.isFinite(Number(d.serverNowMs))?Number(d.serverNowMs)-((requestStartedAtV493+receivedAtV493)/2):0;if(d.canonicalTimestamp!==true)throw new Error('Snapshot fără timestamp canonic');
+      let d=await appsScriptGetV498_(baseEndpoint()+'?fn=dashboardV4916&name='+encodeURIComponent(name)+'&_='+requestStartedAtV493,{fetchTimeout:30000,jsonpTimeout:120000});if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='professional-dashboard-v4.9.16'||String(d.pauseSource||'')!=='session-aware-pause-ledger-v4.9.16'){const er=new Error('Backend Apps Script vechi sau contract dashboard incomplet. Publică Code.gs V4.9.16 ca New version.');er.code='BACKEND_CONTRACT_V498';throw er;}if(stateKeyV48_(d.name)!==key)throw new Error('Profil diferit în răspuns');const receivedAtV493=Date.now();d.receivedAtMs=receivedAtV493;d.anchorLocalMs=receivedAtV493;d.requestRoundTripMs=Math.max(0,receivedAtV493-requestStartedAtV493);d.serverClockOffsetMs=Number.isFinite(Number(d.serverNowMs))?Number(d.serverNowMs)-((requestStartedAtV493+receivedAtV493)/2):0;if(d.canonicalTimestamp!==true)throw new Error('Snapshot fără timestamp canonic');
       const currentCached=await loadDashboardPersistentV483_(name),pending=queueForEmployeeV48_(name);
       d.normHours=Number(d.normHours)>0?Number(d.normHours):clientNormHoursV481_(name,d.activity,(getSessionContextV481_(name)||currentDetailsV481_()).department);
       d.day=d.day||localDayKeyV483_(new Date());
@@ -3562,7 +3731,7 @@ function withProjectMarker_(notes, project){
       if(d.state){saveCanonicalStateV48_(name,d.state);saveLocalStateV48_(name,d.state);}
       if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=d;setProjectedStateV48_(name);renderDashboardV481_();}
       return d;
-    }catch(e){if(e&&e.code==='BACKEND_CONTRACT_V498'){console.error('[PONTAJ V4.9.8]',e);try{showToast('Backendul Apps Script nu este V4.9.17. Înlocuiește Code.gs și publică New version.','warn');}catch(_){}const empty=dashboardEmptyV481_(name);empty.backendError=String(e.message||e);if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=empty;renderDashboardV481_();}return empty;}const fallback=await loadDashboardPersistentV483_(name);if(stateKeyV48_(activeEmployeeV481_())===key&&fallback){dashboardBaseV481_=fallback;renderDashboardV481_();}return fallback||((dashboardBaseV481_&&stateKeyV48_(dashboardBaseV481_.name)===key)?dashboardBaseV481_:dashboardEmptyV481_(name));}
+    }catch(e){if(e&&e.code==='BACKEND_CONTRACT_V498'){console.error('[PONTAJ V4.9.8]',e);try{showToast('Backendul Apps Script nu este V4.9.16. Înlocuiește Code.gs și publică New version.','warn');}catch(_){}const empty=dashboardEmptyV481_(name);empty.backendError=String(e.message||e);if(stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=empty;renderDashboardV481_();}return empty;}const fallback=await loadDashboardPersistentV483_(name);if(stateKeyV48_(activeEmployeeV481_())===key&&fallback){dashboardBaseV481_=fallback;renderDashboardV481_();}return fallback||((dashboardBaseV481_&&stateKeyV48_(dashboardBaseV481_.name)===key)?dashboardBaseV481_:dashboardEmptyV481_(name));}
     finally{dashboardFetchPromisesV482_.delete(key);}})();dashboardFetchPromisesV482_.set(key,promise);return promise;
   }
 
@@ -3573,7 +3742,7 @@ function withProjectMarker_(notes, project){
 
   function historyKeyV481_(name){return HISTORY_CACHE_PREFIX_V481+stateKeyV48_(name);}
   function signedClockV481_(ms){const n=Number(ms)||0;return (n>0?'+':n<0?'−':'')+fmtClockV481_(Math.abs(n),false);}
-  async function fetchHistoryV481_(name){name=String(name||activeEmployeeV481_()).trim();if(!name)throw new Error('Selectează angajatul.');let cached=null;try{cached=JSON.parse(localStorage.getItem(historyKeyV481_(name))||'null');}catch{}if(navigator.onLine===false){if(cached)return Object.assign({},cached,{offline:true});throw new Error('Istoricul nu este încă memorat pe acest dispozitiv.');}try{const d=await appsScriptGetV498_(baseEndpoint()+'?fn=historyV4917&name='+encodeURIComponent(name)+'&_='+Date.now(),{fetchTimeout:30000,jsonpTimeout:120000});if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='history-v4.9.17')throw new Error('Backend Apps Script vechi pentru istoricul V4.9.17.');try{localStorage.setItem(historyKeyV481_(name),JSON.stringify(d));}catch{}return d;}catch(e){if(cached)return Object.assign({},cached,{offline:true,stale:true});throw e;}}
+  async function fetchHistoryV481_(name){name=String(name||activeEmployeeV481_()).trim();if(!name)throw new Error('Selectează angajatul.');let cached=null;try{cached=JSON.parse(localStorage.getItem(historyKeyV481_(name))||'null');}catch{}if(navigator.onLine===false){if(cached)return Object.assign({},cached,{offline:true});throw new Error('Istoricul nu este încă memorat pe acest dispozitiv.');}try{const d=await appsScriptGetV498_(baseEndpoint()+'?fn=historyV4916&name='+encodeURIComponent(name)+'&_='+Date.now(),{fetchTimeout:30000,jsonpTimeout:120000});if(!d||d.ok===false)throw new Error(d&&d.error||'Răspuns invalid');if(String(d.version||'')!=='history-v4.9.16')throw new Error('Backend Apps Script vechi pentru istoricul V4.9.16.');try{localStorage.setItem(historyKeyV481_(name),JSON.stringify(d));}catch{}return d;}catch(e){if(cached)return Object.assign({},cached,{offline:true,stale:true});throw e;}}
   function renderHistoryV481_(data){const list=document.getElementById('historyListV49'),src=document.getElementById('historySourceV49'),sub=document.getElementById('historySubV49'),items=Array.isArray(data&&data.items)?data.items:[];if(sub)sub.textContent=(data&&data.name?data.name+' · ':'')+'ultimele 7 zile';if(src)src.textContent=data&&data.offline?'Offline · date memorate':'Live server · actualizat acum';if(!list)return;if(!items.length){list.innerHTML='<div class="history-empty-v49">Nu există date în ultimele 7 zile.</div>';return;}const wd=['Du','Lu','Ma','Mi','Jo','Vi','Sâ'];list.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),date=isNaN(d)?escapeHtmlV481_(it.date):'<span class="history-weekday-v50">'+wd[d.getDay()]+'</span><span class="history-date-number-v50">'+String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.</span>',diff=Number(it.diffMs||0),start=it.firstStart?new Date(it.firstStart).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—',finish=it.lastFinish?new Date(it.lastFinish).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';return '<article class="history-day-v49"><div class="history-date-v49"><div class="history-date-main-v49">'+date+'</div><div class="history-date-sub-v49">'+escapeHtmlV481_(it.hasActivity?'Start '+start+' · Finish '+finish:'Fără pontaj')+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Lucrat</div><div class="history-metric-value-v49">'+fmtClockV481_(it.workMs,false)+'</div></div><div class="history-metric-v49 pause"><div class="history-metric-label-v49">Pauză</div><div class="history-metric-value-v49">'+fmtClockV481_(it.pauseMs,false)+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Normă</div><div class="history-metric-value-v49">'+fmtClockV481_(it.normMs,false)+'</div></div><div class="history-metric-v49 diff '+(diff>0?'positive':diff<0?'negative':'')+'"><div class="history-metric-label-v49">Diferență</div><div class="history-metric-value-v49">'+signedClockV481_(diff)+'</div></div><div class="history-metric-v49 extra"><div class="history-metric-label-v49">Extra</div><div class="history-metric-value-v49">'+fmtClockV481_(it.extraMs,false)+'</div></div></article>';}).join('');}
   async function openHistoryV481_(){const name=activeEmployeeV481_();if(!name){openDetailsV481_('Selectează mai întâi angajatul pentru a vedea istoricul.','employeeSelect');return;}const m=document.getElementById('historyModalV49'),l=document.getElementById('historyListV49');if(!m)return;m.hidden=false;m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.body.classList.add('mobile-view-history-v481');document.body.classList.remove('mobile-view-details-v481');mobileViewV481_='history';setMobileNavV481_('history');if(l)l.innerHTML='<div class="history-loading-v49">Se încarcă istoricul pentru '+escapeHtmlV481_(name)+'…</div>';try{renderHistoryV481_(await fetchHistoryV481_(name));}catch(e){if(l)l.innerHTML='<div class="history-empty-v49">'+escapeHtmlV481_(e&&e.message||e)+'</div>';}}
   function closeHistoryV481_(home){const m=document.getElementById('historyModalV49');if(m){m.hidden=true;m.setAttribute('aria-hidden','true');}document.body.style.overflow='';document.body.classList.remove('mobile-view-history-v481');if(home!==false)goHomeV481_();}
@@ -3743,6 +3912,7 @@ function withProjectMarker_(notes, project){
       window.CFG = {};
     }
 
+    initServioAssistantV4919_();
     bindLeaveForm();
     try{await initOfflineV48_();}catch(e){setStatus('Memoria offline nu poate fi inițializată în acest browser.','err');}
     await loadEmployeeNormsV483_().catch(()=>{});
@@ -3811,6 +3981,7 @@ function withProjectMarker_(notes, project){
       }
 
       syncInvoireUI();
+      disableTimeButtons(isLeave || isInv);
       reflectState();
     });
 

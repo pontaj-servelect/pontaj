@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1';
+const BUILD='offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[

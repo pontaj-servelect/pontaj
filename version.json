@@ -1,8 +1,8 @@
 {
-  "version": "4.9.17",
-  "build": "offline-first-v4.9.17-timestamp-primary-active-leave-invoire-20260722-1",
+  "version": "4.9.19",
+  "build": "offline-first-v4.9.19-servio-admin-requests-dialog-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "enterprise-desktop-active-leave-invoire-cards-strict-timestamp",
+  "ui": "enterprise-servio-admin-requests-conversation",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -27,9 +27,23 @@
     "active-session-invoire-form-enabled",
     "active-session-leave-form-enabled",
     "active-controls-remain-available-during-special-forms",
-    "dashboard-history-v4917-contract"
+    "dashboard-history-v4917-contract",
+    "latest-start-wins-normal-session-rebuild",
+    "latest-extra-start-wins-extra-rebuild",
+    "normal-and-extra-interval-24h-safety-guard",
+    "stale-extra-reset-on-normal-start-finish",
+    "auto-midnight-events-preserved-with-reused-request-id",
+    "supplementary-hours-recomputed-from-valid-session-only",
+    "invalid-historical-spans-cleared-not-reported",
+    "global-rebuild-automatic-backup",
+    "servio-guided-admin-request-conversation",
+    "servio-four-approved-request-types-only",
+    "servio-thinking-animation-and-web-audio-sound",
+    "servio-request-sheet-with-request-id-deduplication",
+    "servio-offline-request-queue",
+    "servio-greeting-romanian-grammar"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.17",
-  "logic": "system-timestamp-primary-v4.9.17"
+  "name": "SERVELECT Pontaj Enterprise 4.9.19",
+  "logic": "servio-admin-request-sheet-v4.9.19"
 }
