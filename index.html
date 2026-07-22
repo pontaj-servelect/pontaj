@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.23-servio-notification-delivery-repair-20260722-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.23-servio-notification-delivery-repair-20260722-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.23-servio-notification-delivery-repair-20260722-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1541,7 +1541,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.23-servio-notification-delivery-repair-20260722-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2529,6 +2529,7 @@ function withProjectMarker_(notes, project){
       const fail=error=>{if(settled)return;settled=true;clearTimeout(timer);keepLateResponseSafe();reject(error instanceof Error?error:new Error(String(error||'Eroare JSONP Apps Script.')));};
       window[callback]=succeed;
       script.onerror=()=>fail(new Error('Endpointul Apps Script nu poate fi încărcat prin JSONP.'));
+      script.onload=()=>{setTimeout(()=>{if(!settled)fail(new Error('Apps Script s-a încărcat, dar nu a apelat callbackul JSONP. Verifică accesul Web App și deploymentul.'));},1200);};
       const u=new URL(url,location.href);
       u.searchParams.set('callback',callback);
       u.searchParams.set('format','jsonp');
@@ -2664,7 +2665,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.21';
-  const PONTAJ_BUILD = 'offline-first-v4.9.23-servio-notification-delivery-repair-20260722-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.24-servio-fast-notification-endpoint-20260722-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2808,7 +2809,7 @@ function withProjectMarker_(notes, project){
     other_request:{label:'Altă solicitare',hint:'Descrie solicitarea și rezultatul dorit.',placeholder:'Scrie aici solicitarea…'}
   };
   const SERVIO_QUEUE_KEY_V4919='pontaj/servioRequests/v4.9.19';
-  const SERVIO_NOTIFICATIONS_CACHE_V4922='pontaj/servioNotifications/v4.9.23/';
+  const SERVIO_NOTIFICATIONS_CACHE_V4922='pontaj/servioNotifications/v4.9.24/';
   let servioSelectedTypeV4919_='';
   let servioThinkingTimerV4919_=null;
   let servioSubmittingV4919_=false;
@@ -2916,7 +2917,7 @@ function withProjectMarker_(notes, project){
     if(cached&&servioNotificationsV4922_.name!==name){servioNotificationsV4922_=cached;renderServioNotificationBadgeV4922_(cached,false);}
     if(navigator.onLine===false)return cached||servioNotificationsV4922_;
     servioNotificationsLoadingV4922_=(async()=>{
-      const fns=['servioNotificationsV4923','servioNotificationsV4922'];
+      const fns=['servioNotificationsV4924','servioNotificationsV4923','servioNotificationsV4922'];
       let data=null,lastError=null;
       for(const fn of fns){
         try{
@@ -2926,7 +2927,7 @@ function withProjectMarker_(notes, project){
           lastError=new Error(String(candidate&&candidate.error||`Ruta ${fn} nu este disponibilă.`));
         }catch(err){lastError=err;}
       }
-      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.23. '+String(lastError&&lastError.message||''));
+      if(!data)throw new Error('Notificările Servio nu pot fi citite. Verifică deploymentul Code.gs V4.9.24. '+String(lastError&&lastError.message||''));
       servioNotificationLastErrorV4923_='';
       if(String(empSel&&empSel.value||'').trim()!==name)return data;
       servioNotificationsV4922_=data;writeServioNotificationCacheV4922_(data);renderServioNotificationBadgeV4922_(data,announce!==false);
