@@ -1,8 +1,8 @@
 {
-  "version": "4.9.20",
-  "build": "offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
+  "version": "4.9.29",
+  "build": "offline-first-v4.9.29-servio-verified-form-post-20260722-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "servio-desktop-top-left-anchor",
+  "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
@@ -41,9 +41,48 @@
     "servio-thinking-animation-and-web-audio-sound",
     "servio-request-sheet-with-request-id-deduplication",
     "servio-offline-request-queue",
-    "servio-greeting-romanian-grammar"
+    "servio-greeting-romanian-grammar",
+    "apps-script-read-transport-jsonp-first",
+    "cors-preflight-causing-cache-control-header-removed",
+    "simple-get-fetch-fallback-without-custom-headers",
+    "state-active-dashboard-history-cors-console-regression-fixed",
+    "servio-admin-reply-column-live-notification",
+    "servio-unread-reply-count-per-selected-employee",
+    "servio-request-and-admin-response-conversation-view",
+    "servio-resolved-or-unresolved-feedback",
+    "servio-five-star-gold-rating",
+    "servio-resolved-sheet-checkbox",
+    "servio-continuation-log-appended-to-same-row",
+    "servio-response-read-hash-versioning",
+    "servio-admin-response-onedit-timestamp",
+    "servio-jsonp-notification-polling",
+    "servio-post-routes-bypass-midnight-auto-split-lock",
+    "servio-request-v4925-authoritative-write-route",
+    "servio-pending-local-queue-auto-retry-preserved",
+    "servio-post-body-route-cannot-be-overwritten-by-stale-payload",
+    "servio-direct-jsonp-write-authoritative-route",
+    "servio-no-cors-post-fallback",
+    "servio-stable-assistantRequestV4919-post-alias",
+    "servio-request-success-only-after-server-confirmation",
+    "servio-resolved-admin-replies-hidden-from-menu",
+    "servio-request-creation-separated-from-jsonp-notification-transport",
+    "servio-hidden-form-cross-origin-post",
+    "servio-request-success-only-after-sheet-status-confirmation",
+    "servio-request-route-assistantRequestV4929",
+    "servio-existing-request-status-check-before-resubmit",
+    "apps-script-endpoint-last-known-good-cache-fallback"
   ],
   "date": "2026-07-22",
-  "name": "SERVELECT Pontaj Enterprise 4.9.19",
-  "logic": "servio-admin-request-sheet-v4.9.19"
+  "name": "SERVELECT Pontaj Enterprise 4.9.29",
+  "logic": "servio-hidden-form-post-verified-by-jsonp-status-v4.9.29; request-id-deduplication; separate-servio-document-lock; servio-resolved-hide-v4.9.26",
+  "notes": [
+    "Cererea Servio este trimisă prin formular POST ascuns către Apps Script, fără dependență de CORS sau de citirea redirectului cross-origin.",
+    "Interfața afișează succes numai după ce ruta JSONP de status găsește același RequestId în sheetul Cereri Servio.",
+    "Retrimiterile sunt idempotente: backendul deduplică strict după RequestId."
+  ],
+  "changes": [
+    "Replaced direct fetch POST with hidden form POST plus JSONP sheet confirmation.",
+    "Added assistantRequestV4929 while preserving all older Servio aliases.",
+    "Cached the last valid Apps Script endpoint as a fallback when config.json has a transient load failure."
+  ]
 }

@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj Enterprise 4.9.19",
-  "short_name": "Pontaj 4.9.19",
-  "description": "Pontaj SERVELECT offline-first cu Servio și cereri către administrator.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.29",
+  "short_name": "Pontaj 4.9.29",
+  "description": "Pontaj SERVELECT offline-first cu Servio, răspunsuri admin, notificări și feedback.",
   "id": "./index.html",
-  "start_url": "./index.html?v=offline-first-v4.9.20-servio-desktop-top-left-anchor-20260722-1",
+  "start_url": "./index.html?v=offline-first-v4.9.29-servio-verified-form-post-20260722-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",
