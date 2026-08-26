@@ -1,6 +1,6 @@
 {
-  "version": "4.9.38",
-  "build": "offline-first-v4.9.38-current-month-history-20260826-1",
+  "version": "4.9.39",
+  "build": "offline-first-v4.9.39-history-stats-modal-20260826-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -94,12 +94,17 @@
     "history-day-count-equals-current-day-of-month",
     "history-no-future-days",
     "desktop-history-all-current-month-days",
-    "history-v4938-contract"
+    "history-v4938-contract",
+    "history-mobile-stats-icon-and-enterprise-popup",
+    "history-current-month-stats-summary",
+    "history-stats-back-and-close-navigation",
+    "history-stats-color-aligned-with-history",
+    "service-worker-build-cache-bumped-v4939"
   ],
   "date": "2026-08-26",
-  "name": "SERVELECT Pontaj Enterprise 4.9.37",
-  "logic": "all-actions-required-context-v4.9.37",
-  "notes": "Toate acțiunile de pontaj sunt blocate până sunt completate Activitate + Proiect + Client/locație.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.39",
+  "logic": "history-stats-modal-v4.9.39",
+  "notes": "Istoric mobil cu iconiță de grafic și ecran nou de statistici pentru luna curentă.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
