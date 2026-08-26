@@ -1,6 +1,6 @@
 {
-  "version": "4.9.36",
-  "build": "offline-first-v4.9.36-disabled-opening-context-20260826-1",
+  "version": "4.9.37",
+  "build": "offline-first-v4.9.37-all-actions-required-context-20260826-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -83,17 +83,18 @@
     "opening-buttons-grey-when-project-or-client-missing",
     "explicit-missing-project-client-warning",
     "required-context-live-reenable-on-input",
-    "service-worker-build-cache-bumped-v4936"
+    "service-worker-build-cache-bumped-v4936",
+    "all-time-actions-disabled-until-required-context-complete",
+    "pause-unpause-finish-extra-finish-required-context",
+    "active-dashboard-required-context-warning",
+    "live-details-preferred-over-start-session-context",
+    "offline-queue-rejects-any-time-action-with-missing-context",
+    "service-worker-build-cache-bumped-v4937"
   ],
   "date": "2026-08-26",
-  "name": "SERVELECT Pontaj Enterprise 4.9.36",
-  "logic": "disabled-opening-context-v4.9.36",
-  "notes": [
-    "START și EXTRA START sunt efectiv dezactivate și afișate gri până când Tip activitate, Proiect și Client/locație sunt completate.",
-    "Mesajul de avertizare spune explicit ce câmpuri lipsesc, de exemplu: proiectul și clientul/locația.",
-    "Butoanele se reactivează imediat după completarea tuturor câmpurilor obligatorii, dacă starea pontajului permite acțiunea.",
-    "Validarea din submitAction rămâne ca protecție suplimentară."
-  ],
+  "name": "SERVELECT Pontaj Enterprise 4.9.37",
+  "logic": "all-actions-required-context-v4.9.37",
+  "notes": "Toate acțiunile de pontaj sunt blocate până sunt completate Activitate + Proiect + Client/locație.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
