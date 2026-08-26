@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.37",
-  "short_name": "Pontaj 4.9.37",
-  "description": "Pontaj offline-first SERVELECT — V4.9.37, context obligatoriu pentru toate acțiunile.",
+  "name": "SERVELECT Pontaj 4.9.38",
+  "short_name": "Pontaj 4.9.38",
+  "description": "Pontaj offline-first SERVELECT — V4.9.38, istoric pe luna curentă până azi.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.37-all-actions-required-context-20260826-1",
+  "start_url": "./?v=offline-first-v4.9.38-current-month-history-20260826-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",
