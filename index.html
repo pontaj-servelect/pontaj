@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.39-history-stats-modal-20260826-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.39-history-stats-modal-20260826-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.39-history-stats-modal-20260826-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.41-fast-safe-sync-20260826-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.41-fast-safe-sync-20260826-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.41-fast-safe-sync-20260826-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1590,7 +1590,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.39-history-stats-modal-20260826-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.41-fast-safe-sync-20260826-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2724,8 +2724,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.38';
-  const PONTAJ_BUILD = 'offline-first-v4.9.39-history-stats-modal-20260826-1';
+  const PONTAJ_VERSION = '4.9.41';
+  const PONTAJ_BUILD = 'offline-first-v4.9.41-fast-safe-sync-20260826-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3592,10 +3592,10 @@ function withProjectMarker_(notes, project){
     await refreshQueueMemoryV48_();if(activeQueueV48_.has(snapshot.requestId))return snapshot.requestId;if(activeQueueV48_.size>=QUEUE_LIMIT_V48)throw new Error('Coada locală a atins limita de siguranță; deschide diagnosticul de sincronizare.');
     const storedSnapshot=JSON.parse(JSON.stringify(snapshot));const item={requestId:storedSnapshot.requestId,snapshot:storedSnapshot,status:'queued',attempts:0,lastAttemptAt:0,nextAttemptAt:0,sendingOwner:'',sendingExpiresAt:0,lastErrorCode:'',lastErrorMessage:'',updatedAt:Date.now(),enrichment:{}};
     await putActiveV48_(item);const verify=(await getAllStoreV48_(IDB_ACTIVE_V48)).some(x=>x.requestId===snapshot.requestId);if(!verify)throw new Error('IndexedDB nu a confirmat salvarea.');
-    broadcastQueueChangeV48_();setProjectedStateV48_(snapshot.name);requestSyncV48_(0);registerBackgroundSyncV484_();return snapshot.requestId;
+    broadcastQueueChangeV48_();setProjectedStateV48_(snapshot.name);requestSyncV48_(0);registerBackgroundSyncV484_('enqueue');return snapshot.requestId;
   }
 
-  function backoffMsV48_(attempts){const base=Math.min(300000,2000*Math.pow(2,Math.min(8,Math.max(0,Number(attempts||1)-1))));return Math.round(base*(0.75+Math.random()*0.5));}
+  function backoffMsV48_(attempts){const n=Math.max(1,Math.floor(Number(attempts||1))),steps=[600,1200,2500,5000,10000,20000,40000,80000,160000,300000],base=steps[Math.min(steps.length-1,n-1)];return Math.round(base*(0.85+Math.random()*0.30));}
   async function acquireLeaseV48_(){
     const db=await openIdbV48_();const tx=db.transaction(IDB_META_V48,'readwrite'),store=tx.objectStore(IDB_META_V48),req=store.get(SYNC_LEASE_KEY_V48);let acquired=false;
     await new Promise((resolve,reject)=>{req.onsuccess=()=>{const cur=req.result,now=Date.now();if(!cur||Number(cur.expiresAt||0)<=now||cur.owner===TAB_OWNER_V48){store.put({key:SYNC_LEASE_KEY_V48,owner:TAB_OWNER_V48,expiresAt:now+LEASE_MS_V48,updatedAt:now});acquired=true;}resolve();};req.onerror=()=>reject(req.error);});await txDoneV48_(tx,db);return acquired;
@@ -3682,7 +3682,7 @@ function withProjectMarker_(notes, project){
         const attempts=Number(item.attempts||0)+1;
         item=await patchActiveV48_(item.requestId,{status:'sending',attempts,lastAttemptAt:now,sendingOwner:TAB_OWNER_V48,sendingExpiresAt:now+LEASE_MS_V48,nextAttemptAt:now+LEASE_MS_V48,lastErrorCode:'',lastErrorMessage:''})||item;updateOfflineBadgeV48_();
         try{const ack=await submitDirectActionV48_(item);await finalizeAckV48_(item,ack);if(flushProgressV48_)flushProgressV48_.completed++;}
-        catch(e){const resumedRecently=navigator.onLine!==false&&(Date.now()-lastSyncWakeV484_<12000),wait=resumedRecently?0:backoffMsV48_(attempts);await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent.'});requestSyncV48_(wait);registerBackgroundSyncV484_();break;}
+        catch(e){const resumedRecently=navigator.onLine!==false&&(Date.now()-lastSyncWakeV484_<12000),wait=resumedRecently?0:backoffMsV48_(attempts);await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent.'});requestSyncV48_(wait);registerBackgroundSyncV484_('foreground-error');break;}
       }
     }catch(e){console.warn('Sincronizarea V4.9.6 a întâmpinat o eroare temporară.');}
     finally{flushProgressV48_=null;offlineFlushRunningV48_=false;try{await releaseLeaseV48_();}catch{}await refreshQueueMemoryV48_().catch(()=>{});updateOfflineBadgeV48_();if(document.visibilityState==='hidden'&&activeQueueV48_.size)handoffSyncToServiceWorkerV491_('foreground-flush-ended-hidden').catch(()=>{});}
@@ -3692,17 +3692,17 @@ function withProjectMarker_(notes, project){
       if(!('serviceWorker' in navigator))return false;
       const reg=await navigator.serviceWorker.ready;
       let scheduled=false;
-      // One-shot Background Sync este util când conexiunea revine după ce pagina
-      // a fost suspendată. Nu ne bazăm însă exclusiv pe el: cerem și o rulare
-      // imediată a service worker-ului, fiindcă unele browsere amână evenimentul.
       if(reg.sync&&typeof reg.sync.register==='function'){
         try{await reg.sync.register('servelect-pontaj-sync-v48');scheduled=true;}catch(_){ }
       }
+      // V4.9.41: când pagina este vizibilă și online, foreground sync are
+      // prioritate. Nu mai trezim simultan Service Worker-ul pentru aceeași
+      // acțiune, evitând competiția pe lease. Background Sync rămâne înregistrat
+      // și SW este trezit imediat la handoff/hidden/offline/error.
+      const why=String(reason||''),foregroundPreferred=document.visibilityState==='visible'&&navigator.onLine!==false;
+      const forceWorker=!foregroundPreferred||/handoff|hidden|freeze|pagehide|background|error|offline/i.test(why);
       const worker=reg.active||navigator.serviceWorker.controller;
-      if(worker){
-        worker.postMessage({type:'PONTAJ_SYNC_NOW',reason:String(reason||'page-request'),requestedAt:Date.now()});
-        scheduled=true;
-      }
+      if(worker&&forceWorker){worker.postMessage({type:'PONTAJ_SYNC_NOW',reason:why||'page-request',requestedAt:Date.now()});scheduled=true;}
       return scheduled;
     }catch(_){return false;}
   }
@@ -3748,7 +3748,7 @@ function withProjectMarker_(notes, project){
     if(!offlineFlushRunningV48_)await recoverRetryableQueueV484_(reason);
     updateOfflineBadgeV48_();
     requestSyncV48_(0);
-    registerBackgroundSyncV484_();
+    registerBackgroundSyncV484_(reason||'wake');
   }
 
   function requestSyncV48_(delay){
@@ -3838,7 +3838,7 @@ function withProjectMarker_(notes, project){
     if(badge)badge.onclick=openSyncDiagnosticsV48_;const d=document.getElementById('syncDiagnosticsDialog'),close=document.getElementById('syncDiagnosticsClose'),retry=document.getElementById('syncRetryNow'),retire=document.getElementById('syncRetireBlocked');if(close)close.onclick=()=>{if(d&&typeof d.close==='function')d.close();else if(d)d.removeAttribute('open');};if(retry)retry.onclick=retryNowV48_;if(retire)retire.onclick=retireBlockedV48_;
     refreshGpsCacheV48_();await autoMigrateUiCacheV48_();activateLatestServiceWorkerV48_();requestSyncV48_(100);registerBackgroundSyncV484_('initial');
     if(syncWatchdogV484_)clearInterval(syncWatchdogV484_);
-    syncWatchdogV484_=setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine!==false&&activeQueueV48_.size)wakeSyncV484_('watchdog').catch(()=>{});},8000);
+    syncWatchdogV484_=setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine!==false&&activeQueueV48_.size)wakeSyncV484_('watchdog').catch(()=>{});},5000);
     setInterval(()=>checkRemoteBuildV48_(false),300000);
   }
 

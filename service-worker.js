@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.39-history-stats-modal-20260826-1';
+const BUILD='offline-first-v4.9.41-fast-safe-sync-20260826-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -288,7 +288,7 @@ async function processPontajQueueV484(options){
         await terminalizeActionV484(item,ack.status,ack);
         await notifyClientsV484({requestId:item.requestId,status:ack.status,name:item.snapshot&&item.snapshot.name||''});
       }catch(error){
-        const wait=Math.min(300000,2000*Math.pow(2,Math.min(8,Math.max(0,attempts-1))));
+        const retrySteps=[600,1200,2500,5000,10000,20000,40000,80000,160000,300000],wait=retrySteps[Math.min(retrySteps.length-1,Math.max(0,attempts-1))];
         await patchActiveActionV484(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:String(error&&error.message||error).slice(0,80),lastErrorMessage:'Sincronizarea din fundal va fi reluata.'});
         await notifyClientsV484({requestId:item.requestId,status:'failed-retryable',name:item.snapshot&&item.snapshot.name||''});
         await scheduleNextBackgroundSyncV491();

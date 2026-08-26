@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.39",
-  "short_name": "Pontaj 4.9.39",
-  "description": "Pontaj offline-first SERVELECT — V4.9.39, istoric lunar cu grafic de statistici enterprise pe mobil.",
+  "name": "SERVELECT Pontaj 4.9.41",
+  "short_name": "Pontaj 4.9.41",
+  "description": "Pontaj offline-first SERVELECT — V4.9.41 Fast Safe Sync.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.39-history-stats-modal-20260826-1",
+  "start_url": "./?v=offline-first-v4.9.41-fast-safe-sync-20260826-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

@@ -1,6 +1,6 @@
 {
-  "version": "4.9.39",
-  "build": "offline-first-v4.9.39-history-stats-modal-20260826-1",
+  "version": "4.9.41",
+  "build": "offline-first-v4.9.41-fast-safe-sync-20260826-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -99,12 +99,20 @@
     "history-current-month-stats-summary",
     "history-stats-back-and-close-navigation",
     "history-stats-color-aligned-with-history",
-    "service-worker-build-cache-bumped-v4939"
+    "service-worker-build-cache-bumped-v4939",
+    "fast-safe-sync",
+    "foreground-sync-priority-no-sw-lease-race",
+    "subsecond-first-retry",
+    "timestamp-integrity-fast-path",
+    "background-sync-preserved",
+    "request-id-idempotency-preserved",
+    "offline-indexeddb-preserved",
+    "service-worker-build-cache-bumped-v4941"
   ],
   "date": "2026-08-26",
-  "name": "SERVELECT Pontaj Enterprise 4.9.39",
-  "logic": "history-stats-modal-v4.9.39",
-  "notes": "Istoric mobil cu iconiță de grafic și ecran nou de statistici pentru luna curentă.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.41",
+  "logic": "fast-safe-sync-v4.9.41",
+  "notes": "Sincronizare mai rapidă cu aceeași arhitectură offline-first, foreground-first lease și Timestamp integrity gate optimizat.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
