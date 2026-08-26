@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.31-required-start-context-20260812-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.31-required-start-context-20260812-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.31-required-start-context-20260812-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.34-birou-deplasare-8h-20260826-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.34-birou-deplasare-8h-20260826-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.34-birou-deplasare-8h-20260826-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1541,7 +1541,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.31-required-start-context-20260812-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.34-birou-deplasare-8h-20260826-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2665,7 +2665,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.31';
-  const PONTAJ_BUILD = 'offline-first-v4.9.31-required-start-context-20260812-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.34-birou-deplasare-8h-20260826-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3972,15 +3972,34 @@ function withProjectMarker_(notes, project){
     for(const base of candidates){try{const url=base+(base.includes('?')?'&':'?')+'v='+Date.now(),r=await fetch(url,{cache:'no-store'});if(!r.ok)continue;const map=parseEmployeeNormsV483_(await r.text());if(map.size){EMPLOYEE_NORMS_V483_=map;const value=serializeEmployeeNormsV483_(map);try{localStorage.setItem(EMPLOYEE_NORMS_CACHE_KEY_V483,JSON.stringify(value));}catch{}putMetaV48_({key:EMPLOYEE_NORMS_META_KEY_V483,value,updatedAt:Date.now()}).catch(()=>{});return map;}}catch{}}
     return EMPLOYEE_NORMS_V483_;
   }
+  function isBirouDeplasareV4934_(activity){
+    return normalizeName(activity||'').replace(/\s+/g,' ') === 'birou + deplasare';
+  }
   function employeeNormHoursV483_(name,activity){
     const rec=EMPLOYEE_NORMS_V483_.get(stateKeyV48_(name));if(!rec)return 0;
-    const field=['atelier','deplasare','deplasari','pe drum','teren'].some(x=>normalizeName(activity||'').includes(x));
+    const hybridOffice=isBirouDeplasareV4934_(activity);
+    const field=!hybridOffice&&['atelier','deplasare','deplasari','pe drum','teren'].some(x=>normalizeName(activity||'').includes(x));
     return field?(Number(rec.fieldHours)||Number(rec.defaultHours)||Number(rec.officeHours)||0):(Number(rec.officeHours)||Number(rec.defaultHours)||Number(rec.fieldHours)||0);
   }
   function clientNormHoursV481_(name,activity,department){
+    const hybridOffice=isBirouDeplasareV4934_(activity);
     let v=employeeNormHoursV483_(name,activity);
-    try{const n=CFG&&CFG.normSettings||{},emp=n.employees&&n.employees[name];if(!v&&emp&&Number(emp.normHours)>0)v=Number(emp.normHours);if(!v){const dep=n.departments&&n.departments[department];if(dep&&Number(dep.normHours)>0)v=Number(dep.normHours);}if(!v&&n.default&&Number(n.default.normHours)>0)v=Number(n.default.normHours);}catch{}
-    if(!v)v=['atelier','deplasare','pe drum','teren'].some(x=>String(activity||'').toLowerCase().includes(x))?8.5:8;
+    try{
+      const n=CFG&&CFG.normSettings||{},emp=n.employees&&n.employees[name];
+      if(!v&&emp&&Number(emp.normHours)>0)v=Number(emp.normHours);
+      // V4.9.34: norma de departament "teren" nu are voie să transforme
+      // "birou + deplasare" în 8h30. Pentru hibrid folosim norma de birou /
+      // norma implicită, păstrând totuși eventualele norme individuale.
+      if(!v&&!hybridOffice){
+        const dep=n.departments&&n.departments[department];
+        if(dep&&Number(dep.normHours)>0)v=Number(dep.normHours);
+      }
+      if(!v&&n.default&&Number(n.default.normHours)>0)v=Number(n.default.normHours);
+    }catch{}
+    if(!v){
+      const field=!hybridOffice&&['atelier','deplasare','pe drum','teren'].some(x=>String(activity||'').toLowerCase().includes(x));
+      v=field?8.5:8;
+    }
     return v;
   }
   function captureActionContextV481_(action,pressedAtMs){const a=_normAction(action),pressMs=Number.isFinite(Number(pressedAtMs))?Number(pressedAtMs):Date.now(),name=activeEmployeeV481_(),saved=getSessionContextV481_(name)||{},useSaved=isTransitionV481_(a),deptFromMap=(DEPTMAP.byName&&DEPTMAP.byName.get)?(DEPTMAP.byName.get(name)||''):'';const requestId=randomNonce(),gps=cachedGpsV48_?cachedGpsV48_():null,localSequence=`${String(pressMs).padStart(13,'0')}-${CLIENT_TAB_ID_V48}-${String(++clientPressSequenceV48_).padStart(6,'0')}`;return deepFreezeV48_({schemaVersion:1,requestId,action:a,clientTimestamp:new Date(pressMs).toISOString(),clientTimestampMs:pressMs,createdAt:pressMs,localSequence,clientSequence:localSequence,clientTimezone:(Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Bucharest'),clientUtcOffsetMinutes:-new Date(pressMs).getTimezoneOffset(),name,department:String((useSaved&&saved.department)||deptSel.value||deptFromMap||'').trim(),activity:String((useSaved&&saved.activity)||actSel.value||'').trim(),location:String((useSaved&&saved.location)||locInput.value||'').trim(),project:String((useSaved&&saved.project)||(projectSel?projectSel.value:'')||'').trim(),notesPayload:String((useSaved&&saved.notesPayload)||composeNotesPayload()||'').trim(),invoireInterval:getInvoireIntervalLabel(),device:navigator.userAgent||'',gps:gps?{lat:gps.lat,lon:gps.lon,acc:gps.acc,capturedAt:gps.capturedAt}:null});}
