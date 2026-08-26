@@ -3,7 +3,7 @@
   "short_name": "Pontaj 4.9.34",
   "description": "Pontaj SERVELECT offline-first cu Servio, răspunsuri admin, notificări și feedback.",
   "id": "./index.html",
-  "start_url": "./index.html?v=offline-first-v4.9.34-birou-deplasare-8h-20260826-1",
+  "start_url": "./index.html?v=offline-first-v4.9.36-disabled-opening-context-20260826-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

@@ -1,6 +1,6 @@
 {
-  "version": "4.9.34",
-  "build": "offline-first-v4.9.34-birou-deplasare-8h-20260826-1",
+  "version": "4.9.36",
+  "build": "offline-first-v4.9.36-disabled-opening-context-20260826-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -73,15 +73,26 @@
     "hybrid-activity-classified-as-office-not-field",
     "hybrid-activity-skips-department-field-norm",
     "frontend-backend-norm-policy-aligned",
-    "service-worker-build-cache-bumped"
+    "service-worker-build-cache-bumped",
+    "project-required-before-start",
+    "client-nonblank-required-before-start",
+    "opening-context-click-validation-not-disabled",
+    "project-readiness-chip-required",
+    "service-worker-build-cache-bumped-v4935",
+    "opening-buttons-disabled-until-required-context-complete",
+    "opening-buttons-grey-when-project-or-client-missing",
+    "explicit-missing-project-client-warning",
+    "required-context-live-reenable-on-input",
+    "service-worker-build-cache-bumped-v4936"
   ],
   "date": "2026-08-26",
-  "name": "SERVELECT Pontaj Enterprise 4.9.34",
-  "logic": "birou-deplasare-office-norm-v4.9.34",
+  "name": "SERVELECT Pontaj Enterprise 4.9.36",
+  "logic": "disabled-opening-context-v4.9.36",
   "notes": [
-    "Activitatea «birou + deplasare» folosește norma de birou (8h pentru norma standard), nu norma de teren de 8h30.",
-    "Normele individuale part-time rămân respectate; activitatea hibridă nu este forțată la 8h pentru angajații cu normă individuală mai mică.",
-    "Frontendul și backendul folosesc aceeași clasificare, iar buildul Service Worker a fost schimbat pentru invalidarea cache-ului vechi."
+    "START și EXTRA START sunt efectiv dezactivate și afișate gri până când Tip activitate, Proiect și Client/locație sunt completate.",
+    "Mesajul de avertizare spune explicit ce câmpuri lipsesc, de exemplu: proiectul și clientul/locația.",
+    "Butoanele se reactivează imediat după completarea tuturor câmpurilor obligatorii, dacă starea pontajului permite acțiunea.",
+    "Validarea din submitAction rămâne ca protecție suplimentară."
   ],
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
