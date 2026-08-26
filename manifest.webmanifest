@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.41",
-  "short_name": "Pontaj 4.9.41",
-  "description": "Pontaj offline-first SERVELECT — V4.9.41 Fast Safe Sync.",
+  "name": "SERVELECT Pontaj 4.9.42",
+  "short_name": "Pontaj 4.9.42",
+  "description": "Pontaj offline-first SERVELECT — V4.9.42, statistici Istoric responsive mobile-first.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.41-fast-safe-sync-20260826-1",
+  "start_url": "./?v=offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",
