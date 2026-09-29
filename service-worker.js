@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1';
+const BUILD='offline-first-v4.9.47-overload-protection-verified-20260929-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -107,7 +107,7 @@ const PONTAJ_META_STORE_V484='meta';
 const PONTAJ_TERMINAL_STORE_V484='terminalJournal';
 const PONTAJ_LEASE_KEY_V484='syncLease';
 const PONTAJ_PROTOCOL_V484='servelect-pontaj-sync/v4.8';
-const PONTAJ_SW_OWNER_V484='service-worker-v4.9.7';
+const PONTAJ_SW_OWNER_V484='service-worker-v4.9.47';
 const PONTAJ_SW_LEASE_MS_V484=45000;
 const PONTAJ_FINAL_ACCEPTED_V484=new Set(['accepted','already_processed','accepted_duplicate','deleted_manually','tombstoned']);
 const PONTAJ_FINAL_REJECTED_V484=new Set(['rejected','cancelled','retired']);
@@ -225,6 +225,7 @@ async function postActionV484(endpoint,item){
     if(/^\s*</.test(text))throw new Error('ACK_HTML_REJECTED');
     const ack=JSON.parse(text);const status=String(ack&&ack.status||'').toLowerCase();
     if(!ack||ack.protocol!==PONTAJ_PROTOCOL_V484||String(ack.requestId||ack.REQUEST_ID||'')!==item.requestId)throw new Error('ACK_INVALID');
+    if(status==='failed-retryable'){const er=new Error(String(ack.reasonCode||ack.message||'SERVER_RETRYABLE'));er.retryAfterMs=Math.max(0,Number(ack.retryAfterMs||0));throw er;}
     if(!PONTAJ_FINAL_ACCEPTED_V484.has(status)&&!PONTAJ_FINAL_REJECTED_V484.has(status))throw new Error('ACK_STATUS_INVALID');
     return Object.assign({},ack,{status});
   }finally{clearTimeout(timer);}
@@ -236,6 +237,7 @@ async function notifyClientsV484(payload){
 }
 
 function sleepV491(ms){return new Promise(resolve=>setTimeout(resolve,Math.max(0,Number(ms||0))));}
+function swBackoffV4946_(attempts){const n=Math.max(1,Math.floor(Number(attempts||1))),steps=[800,1600,3200,6500,13000,26000,52000,104000,208000,300000],base=steps[Math.min(steps.length-1,n-1)];return Math.round(base*(0.80+Math.random()*0.40));}
 
 async function acquireSwLeaseWithRetryV491(maxWaitMs){
   const started=Date.now(),limit=Math.max(0,Number(maxWaitMs||0));
@@ -260,7 +262,7 @@ async function processPontajQueueV484(options){
   const opts=options||{},soft=!!opts.soft,startedAt=Date.now(),MAX_RUN_MS=28000;
   let initial=(await readActiveActionsV484()).filter(item=>item&&!item.migrationProbeOnly).sort(compareActionsV484);
   if(!initial.length)return {ok:true,empty:true};
-  if(!await acquireSwLeaseWithRetryV491(soft?1500:12000)){
+  if(!await acquireSwLeaseWithRetryV491(soft?800:2500)){
     await scheduleNextBackgroundSyncV491();
     if(soft)return {ok:false,busy:true};
     throw new Error('SYNC_LEASE_BUSY');
@@ -280,7 +282,8 @@ async function processPontajQueueV484(options){
         await sleepV491(remaining);
         continue;
       }
-      if(item.status==='failed-retryable'||item.status==='sending')item=await patchActiveActionV484(item.requestId,{status:'queued',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:0});
+      if(item.status==='failed-retryable'&&Number(item.nextAttemptAt||0)>now){await scheduleNextBackgroundSyncV491();return {ok:false,deferred:true,nextAttemptAt:Number(item.nextAttemptAt||0)};}
+      if(item.status==='sending'&&Number(item.sendingExpiresAt||0)<=now){const retryAt=Math.max(Number(item.nextAttemptAt||0),now+swBackoffV4946_(Math.max(1,Number(item.attempts||1))));item=await patchActiveActionV484(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:retryAt,lastErrorCode:'SENDING_LEASE_EXPIRED',lastErrorMessage:'Retry amanat cu backoff V4.9.46.'});await scheduleNextBackgroundSyncV491();return {ok:false,deferred:true,nextAttemptAt:retryAt};}
       const attempts=Number(item.attempts||0)+1;
       item=await patchActiveActionV484(item.requestId,{status:'sending',attempts,lastAttemptAt:now,sendingOwner:PONTAJ_SW_OWNER_V484,sendingExpiresAt:now+PONTAJ_SW_LEASE_MS_V484,nextAttemptAt:now+PONTAJ_SW_LEASE_MS_V484,lastErrorCode:'',lastErrorMessage:''});
       try{
@@ -288,7 +291,7 @@ async function processPontajQueueV484(options){
         await terminalizeActionV484(item,ack.status,ack);
         await notifyClientsV484({requestId:item.requestId,status:ack.status,name:item.snapshot&&item.snapshot.name||''});
       }catch(error){
-        const retrySteps=[600,1200,2500,5000,10000,20000,40000,80000,160000,300000],wait=retrySteps[Math.min(retrySteps.length-1,Math.max(0,attempts-1))];
+        const wait=Math.max(swBackoffV4946_(attempts),Math.max(0,Number(error&&error.retryAfterMs||0)));
         await patchActiveActionV484(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:String(error&&error.message||error).slice(0,80),lastErrorMessage:'Sincronizarea din fundal va fi reluata.'});
         await notifyClientsV484({requestId:item.requestId,status:'failed-retryable',name:item.snapshot&&item.snapshot.name||''});
         await scheduleNextBackgroundSyncV491();

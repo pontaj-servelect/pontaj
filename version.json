@@ -1,6 +1,6 @@
 {
-  "version": "4.9.42",
-  "build": "offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1",
+  "version": "4.9.47",
+  "build": "offline-first-v4.9.47-overload-protection-verified-20260929-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -114,12 +114,22 @@
     "history-stats-320px-430px-breakpoints",
     "history-stats-sticky-safe-area-header",
     "history-stats-touch-scroll-optimized",
-    "service-worker-build-cache-bumped-v4942"
+    "service-worker-build-cache-bumped-v4942",
+    "apps-script-overload-protection",
+    "retry-backoff-never-reset-on-resume",
+    "retry-jitter-per-device",
+    "service-worker-respects-next-attempt-at",
+    "foreground-post-not-aborted-on-focus",
+    "dashboard-polling-load-reduced",
+    "servio-polling-load-reduced",
+    "mobile-sync-diagnostic-fab",
+    "post-lock-fast-fail-retryable",
+    "midnight-split-lock-fast-fail"
   ],
-  "date": "2026-08-26",
-  "name": "SERVELECT Pontaj Enterprise 4.9.42",
-  "logic": "mobile-history-stats-responsive-v4.9.42",
-  "notes": "Graficul de statistici din Istoric a fost refăcut mobile-first pentru 320–820 px, cu layout fără overflow și grafic SVG fluid Lucrat vs Normă.",
+  "date": "2026-09-29",
+  "name": "SERVELECT Pontaj Enterprise 4.9.47",
+  "logic": "overload-protection-verified-v4.9.47",
+  "notes": "Protecție la limita Apps Script: retry/backoff păstrat, jitter per dispozitiv, Service Worker fără resetarea nextAttemptAt, polling redus, diagnostic mobil permanent și lock server scurt.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",

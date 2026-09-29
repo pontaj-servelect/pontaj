@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.42",
-  "short_name": "Pontaj 4.9.42",
-  "description": "Pontaj offline-first SERVELECT — V4.9.42, statistici Istoric responsive mobile-first.",
+  "name": "SERVELECT Pontaj 4.9.47",
+  "short_name": "Pontaj 4.9.47",
+  "description": "Pontaj offline-first SERVELECT — V4.9.47, protecție verificată la suprasarcină Apps Script.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1",
+  "start_url": "./?v=offline-first-v4.9.47-overload-protection-verified-20260929-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

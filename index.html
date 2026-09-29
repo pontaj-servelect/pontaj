@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.47-overload-protection-verified-20260929-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.47-overload-protection-verified-20260929-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.47-overload-protection-verified-20260929-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -745,6 +745,18 @@
     /* ================= V4.9.0: UI status cleanup + collapsible desktop sidebar ================= */
     #activeStatePillV48,#activeSyncV48{display:none!important}
     #offlineQueueStatusText{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+    .mobile-sync-fab-v4946{display:none}
+    @media(max-width:820px){
+      body.pontaj-active-v48 .mobile-sync-fab-v4946{position:fixed;top:max(12px,env(safe-area-inset-top,0px));right:12px;z-index:1705;width:42px;height:42px;border:1px solid #dce7f3;border-radius:14px;background:rgba(255,255,255,.96);box-shadow:0 10px 28px rgba(15,39,70,.17);display:grid;place-items:center;color:#188a42;cursor:pointer;backdrop-filter:blur(12px)}
+      body.pontaj-active-v48 .mobile-sync-fab-v4946.pending{color:#0a6cf0;background:#f2f7ff;border-color:#cfe0fb}
+      body.pontaj-active-v48 .mobile-sync-fab-v4946.error{color:#c83f4b;background:#fff5f5;border-color:#f3cfd3}
+      body.pontaj-active-v48 .mobile-sync-fab-v4946.offline{color:#a16409;background:#fff9ed;border-color:#f0dfbd}
+      .mobile-sync-fab-v4946 svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .mobile-sync-count-v4946{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#ef4444;color:#fff;border:2px solid #fff;font:900 10px/14px system-ui;text-align:center;box-sizing:border-box}
+      .mobile-sync-count-v4946[hidden]{display:none!important}
+    }
+
     .sync-chip{width:38px!important;min-width:38px!important;justify-content:center!important;padding:0!important;position:relative}
     .sync-chip .sync-dot{margin:0!important}
     @media(max-width:820px){.sync-chip{width:34px!important;min-width:34px!important;order:initial!important}.nav{grid-template-columns:1fr auto!important}.nav .sync-chip{grid-column:auto!important}}
@@ -1405,6 +1417,10 @@
     <button id="mobileHistoryV50" class="mobile-nav-item-v50" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3.5 2M4.4 6.1A9 9 0 1 1 3 12H1l3.2-3.3L7.4 12h-2A6.6 6.6 0 1 0 6 9.2"/></svg><span>Istoric</span></button>
     <button id="mobileDetailsV481" class="mobile-nav-item-v50" type="button"><span class="nav-alert-v481" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Detalii</span></button>
   </nav>
+  <button id="mobileSyncDiagV4946" class="mobile-sync-fab-v4946" type="button" aria-label="Diagnostic sincronizare" title="Diagnostic sincronizare">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.6M20 4v4.6h-4.6"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.4M4 20v-4.6h4.6"/></svg>
+    <span id="mobileSyncCountV4946" class="mobile-sync-count-v4946" hidden></span>
+  </button>
 
   <div id="historyModalV49" class="history-modal-v49" hidden aria-hidden="true"><section class="history-dialog-v49" role="dialog" aria-modal="true" aria-labelledby="historyTitleV49"><header class="history-head-v49"><div><div id="historyTitleV49" class="history-title-v49">Istoric pontaj</div><div id="historySubV49" class="history-sub-v49">Luna curentă până azi</div></div><div class="history-head-actions-v4939"><button id="historyStatsOpenV4939" class="history-stats-open-v4939" type="button" aria-label="Grafic statistici" title="Grafic statistici"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M7.5 17V9.5M12 17V5.5M16.5 17v-7"/></svg></button><button id="historyCloseV49" class="history-close-v49" type="button" aria-label="Închide">×</button></div></header><div class="history-tools-v49"><div class="history-fixed-range-v50"><span class="history-fixed-icon-v50">◷</span><span>Luna curentă</span></div><div id="historySourceV49" class="history-source-v49">Se încarcă…</div></div><div id="historyListV49" class="history-list-v49"><div class="history-loading-v49">Se încarcă istoricul…</div></div></section><div id="historyStatsPanelV4939" class="history-stats-panel-v4939" hidden aria-hidden="true"><section class="history-stats-dialog-v4939" role="dialog" aria-modal="true" aria-labelledby="historyStatsTitleV4939"><header class="history-stats-head-v4939"><button id="historyStatsBackV4939" class="history-stats-navbtn-v4939" type="button" aria-label="Înapoi la istoric"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M9 12h10"/></svg></button><div><div id="historyStatsTitleV4939" class="history-stats-title-v4939">Grafic statistici</div><div id="historyStatsSubV4939" class="history-stats-sub-v4939">Luna curentă până azi</div></div><button id="historyStatsCloseV4939" class="history-stats-close-v4939" type="button" aria-label="Închide și revino la ecranul principal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><div id="historyStatsBodyV4939" class="history-stats-body-v4939"><div class="history-stats-loading-v4939">Se pregătesc statisticile lunii curente…</div></div></section></div></div>
 
@@ -1623,7 +1639,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.47-overload-protection-verified-20260929-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2757,8 +2773,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.41';
-  const PONTAJ_BUILD = 'offline-first-v4.9.42-mobile-history-stats-responsive-20260826-1';
+  const PONTAJ_VERSION = '4.9.47';
+  const PONTAJ_BUILD = 'offline-first-v4.9.47-overload-protection-verified-20260929-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -2912,6 +2928,7 @@ function withProjectMarker_(notes, project){
   let servioNotificationPositionRafV4922_=0;
   let servioNotificationsV4922_={name:'',unreadCount:0,totalCount:0,items:[]};
   let servioNotificationsLoadingV4922_=null;
+  let servioNotificationsLastFetchV4946_=0;
   let servioNotificationPollV4922_=null;
   let servioSelectedNotificationV4922_=null;
   let servioSelectedRatingV4922_=0;
@@ -3007,6 +3024,7 @@ function withProjectMarker_(notes, project){
     if(!name){servioNotificationsV4922_={name:'',unreadCount:0,totalCount:0,items:[]};renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);return servioNotificationsV4922_;}
     if(servioNotificationsLoadingV4922_)return servioNotificationsLoadingV4922_;
     const cached=readServioNotificationCacheV4922_(name);
+    if(!force&&Date.now()-servioNotificationsLastFetchV4946_<45000)return cached||servioNotificationsV4922_;
     if(cached&&servioNotificationsV4922_.name!==name){servioNotificationsV4922_=cached;renderServioNotificationBadgeV4922_(cached,false);}
     if(navigator.onLine===false)return cached||servioNotificationsV4922_;
     servioNotificationsLoadingV4922_=(async()=>{
@@ -3025,7 +3043,7 @@ function withProjectMarker_(notes, project){
       if(String(empSel&&empSel.value||'').trim()!==name)return data;
       data.items=Array.isArray(data.items)?data.items.filter(item=>item&&item.resolved!==true):[];
       data.totalCount=data.items.length;data.unreadCount=data.items.filter(item=>item.unread).length;
-      servioNotificationsV4922_=data;writeServioNotificationCacheV4922_(data);renderServioNotificationBadgeV4922_(data,announce!==false);
+      servioNotificationsLastFetchV4946_=Date.now();servioNotificationsV4922_=data;writeServioNotificationCacheV4922_(data);renderServioNotificationBadgeV4922_(data,announce!==false);
       return data;
     })().catch(err=>{servioNotificationLastErrorV4923_=String(err&&err.message||err);if(cached){servioNotificationsV4922_=cached;renderServioNotificationBadgeV4922_(cached,false);return cached;}throw err;}).finally(()=>{servioNotificationsLoadingV4922_=null;});
     return servioNotificationsLoadingV4922_;
@@ -3344,9 +3362,9 @@ function withProjectMarker_(notes, project){
     const reportServioRefreshError=err=>{const msg=String(err&&err.message||err);servioNotificationLastErrorV4923_=msg;showToast('<b>Servio</b><div class="small">'+servioEscapeV4922_(msg)+'</div>','err');};
     if(empSel)empSel.addEventListener('change',()=>{const name=String(empSel.value||'').trim(),cached=name?readServioNotificationCacheV4922_(name):null;servioNotificationsV4922_=cached||{name,unreadCount:0,totalCount:0,items:[]};renderServioNotificationBadgeV4922_(servioNotificationsV4922_,false);refreshServioNotificationsV4922_(true,true).catch(reportServioRefreshError);});
     window.addEventListener('online',()=>{flushServioQueueV4919_();refreshServioNotificationsV4922_(true,true).catch(reportServioRefreshError);});
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&String(empSel&&empSel.value||'').trim())refreshServioNotificationsV4922_(true,true).catch(()=>{});});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&String(empSel&&empSel.value||'').trim())refreshServioNotificationsV4922_(false,true).catch(()=>{});});
     setTimeout(()=>{flushServioQueueV4919_();refreshServioNotificationsV4922_(true,false).catch(()=>{});},1200);
-    clearInterval(servioNotificationPollV4922_);servioNotificationPollV4922_=setInterval(()=>{if(!document.hidden&&String(empSel&&empSel.value||'').trim())refreshServioNotificationsV4922_(false,true).catch(()=>{});},10000);
+    clearInterval(servioNotificationPollV4922_);servioNotificationPollV4922_=setInterval(()=>{if(!document.hidden&&String(empSel&&empSel.value||'').trim())refreshServioNotificationsV4922_(false,true).catch(()=>{});},60000);
   }
 
   function fetchWithTimeoutV48_(url,options,timeoutMs){
@@ -3550,6 +3568,7 @@ function withProjectMarker_(notes, project){
     if(String(data.requestId||data.REQUEST_ID||'')!==item.requestId)throw new Error('ACK_REQUEST_ID_MISMATCH');
     const status=String(data.status||'').toLowerCase();
     if(allowNotFound&&status==='not_found')return Object.assign({},data,{status});
+    if(status==='failed-retryable'){const er=new Error(String(data.reasonCode||data.message||'SERVER_RETRYABLE'));er.code=String(data.reasonCode||'SERVER_RETRYABLE');er.retryAfterMs=Math.max(0,Number(data.retryAfterMs||0));throw er;}
     if(!FINAL_ACCEPTED_V48.has(status)&&!FINAL_REJECTED_V48.has(status))throw new Error('ACK_STATUS_INVALID');
     if(status==='accepted'&&!(Number(data.rowNumber)>0))throw new Error('ACK_ROW_MISSING');
     return Object.assign({},data,{status});
@@ -3681,7 +3700,7 @@ function withProjectMarker_(notes, project){
     // După fiecare ACK recitim cronologia canonică. Astfel toate dispozitivele
     // converg la aceeași valoare, iar PAUSE/UNPAUSE nu pot păstra un cache local.
     dashboardLastFetchByNameV482_.set(stateKeyV48_(s.name),0);
-    refreshDashboardV481_(s.name,true).catch(()=>{});
+    setTimeout(()=>refreshDashboardV481_(s.name,true).catch(()=>{}),700+Math.floor(Math.random()*1300));
   }
   async function processLegacyProbeV48_(item){
     try{
@@ -3709,13 +3728,13 @@ function withProjectMarker_(notes, project){
         if(!await renewLeaseV48_())break;await refreshQueueMemoryV48_();let item=sortedActiveV48_()[0];if(!item)break;
         const now=Date.now();
         if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now){requestSyncV48_(Number(item.sendingExpiresAt)-now+50);break;}
-        if(item.status==='sending'){item=await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:now,lastErrorCode:'SENDING_LEASE_EXPIRED',lastErrorMessage:'Trimiterea anterioară a expirat controlat.'})||item;}
+        if(item.status==='sending'){const expiredWait=backoffMsV48_(Math.max(1,Number(item.attempts||1)));item=await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:now+expiredWait,lastErrorCode:'SENDING_LEASE_EXPIRED',lastErrorMessage:'Trimiterea anterioară a expirat; retry-ul respectă backoff-ul.'})||item;}
         if(Number(item.nextAttemptAt||0)>now){requestSyncV48_(Number(item.nextAttemptAt)-now);break;}
         if(item.migrationProbeOnly){const terminal=await processLegacyProbeV48_(item);if(terminal&&flushProgressV48_)flushProgressV48_.completed++;else requestSyncV48_(Math.max(500,Number((activeQueueV48_.get(item.requestId)||{}).nextAttemptAt||0)-Date.now()));continue;}
         const attempts=Number(item.attempts||0)+1;
         item=await patchActiveV48_(item.requestId,{status:'sending',attempts,lastAttemptAt:now,sendingOwner:TAB_OWNER_V48,sendingExpiresAt:now+LEASE_MS_V48,nextAttemptAt:now+LEASE_MS_V48,lastErrorCode:'',lastErrorMessage:''})||item;updateOfflineBadgeV48_();
         try{const ack=await submitDirectActionV48_(item);await finalizeAckV48_(item,ack);if(flushProgressV48_)flushProgressV48_.completed++;}
-        catch(e){const resumedRecently=navigator.onLine!==false&&(Date.now()-lastSyncWakeV484_<12000),wait=resumedRecently?0:backoffMsV48_(attempts);await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent.'});requestSyncV48_(wait);registerBackgroundSyncV484_('foreground-error');break;}
+        catch(e){const wait=Math.max(backoffMsV48_(attempts),Math.max(0,Number(e&&e.retryAfterMs||0)));await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:Date.now()+wait,lastErrorCode:safeErrorCodeV48_(e),lastErrorMessage:'Confirmarea exactă nu a fost primită; REQUEST_ID-ul va fi retrimis idempotent după backoff.'});requestSyncV48_(wait);registerBackgroundSyncV484_('foreground-error');break;}
       }
     }catch(e){console.warn('Sincronizarea V4.9.6 a întâmpinat o eroare temporară.');}
     finally{flushProgressV48_=null;offlineFlushRunningV48_=false;try{await releaseLeaseV48_();}catch{}await refreshQueueMemoryV48_().catch(()=>{});updateOfflineBadgeV48_();if(document.visibilityState==='hidden'&&activeQueueV48_.size)handoffSyncToServiceWorkerV491_('foreground-flush-ended-hidden').catch(()=>{});}
@@ -3756,15 +3775,24 @@ function withProjectMarker_(notes, project){
   }
 
 
+  function nextQueueDelayV4946_(){
+    const rows=sortedActiveV48_();if(!rows.length)return 0;
+    const item=rows[0],now=Date.now();
+    if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now)return Math.max(100,Number(item.sendingExpiresAt||0)-now+50);
+    return Math.max(0,Number(item.nextAttemptAt||0)-now);
+  }
+
   async function recoverRetryableQueueV484_(reason){
     if(!offlineReadyV48_)return;
     await refreshQueueMemoryV48_().catch(()=>{});
     const now=Date.now();
     for(const item of sortedActiveV48_()){
-      if(item.status==='failed-retryable'){
-        await patchActiveV48_(item.requestId,{status:'queued',nextAttemptAt:0,lastErrorCode:item.lastErrorCode||'',lastErrorMessage:item.lastErrorMessage||'',updatedAt:now});
-      }else if(item.status==='sending' && (item.sendingOwner===TAB_OWNER_V48 || Number(item.sendingExpiresAt||0)<=now)){
-        await patchActiveV48_(item.requestId,{status:'queued',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:0,lastErrorCode:'RESUME_RETRY',lastErrorMessage:'Trimiterea a fost reluata dupa revenirea aplicatiei.',updatedAt:now});
+      // V4.9.46: failed-retryable rămâne failed-retryable și își păstrează
+      // nextAttemptAt. Revenirea în pagină nu mai anulează backoff-ul.
+      if(item.status==='sending' && Number(item.sendingExpiresAt||0)<=now){
+        const attempts=Math.max(1,Number(item.attempts||1));
+        const retryAt=Math.max(Number(item.nextAttemptAt||0),now+backoffMsV48_(attempts));
+        await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:retryAt,lastErrorCode:'SENDING_LEASE_EXPIRED',lastErrorMessage:'Trimiterea anterioară a expirat; retry-ul respectă backoff-ul.',updatedAt:now});
       }
     }
     await refreshQueueMemoryV48_().catch(()=>{});
@@ -3773,14 +3801,12 @@ function withProjectMarker_(notes, project){
   async function wakeSyncV484_(reason){
     if(!offlineReadyV48_)return;
     const now=Date.now();lastSyncWakeV484_=now;
-    if(navigator.onLine===false){updateOfflineBadgeV48_();registerBackgroundSyncV484_();return;}
-    if(activeSyncAbortV484_ && (reason==='online'||reason==='pageshow'||reason==='visible'||reason==='focus')){
-      try{activeSyncAbortV484_.abort();}catch{}
-    }
-    if(offlineFlushTimerV48_){clearTimeout(offlineFlushTimerV48_);offlineFlushTimerV48_=null;offlineFlushDueAtV48_=0;}
+    if(navigator.onLine===false){updateOfflineBadgeV48_();registerBackgroundSyncV484_(reason||'offline');return;}
+    // Nu anulăm un POST aflat deja în zbor doar pentru focus/pageshow; aceasta
+    // producea cereri duplicate exact în perioadele de overload.
     if(!offlineFlushRunningV48_)await recoverRetryableQueueV484_(reason);
     updateOfflineBadgeV48_();
-    requestSyncV48_(0);
+    requestSyncV48_(nextQueueDelayV4946_());
     registerBackgroundSyncV484_(reason||'wake');
   }
 
@@ -3794,7 +3820,7 @@ function withProjectMarker_(notes, project){
     updateOfflineBadgeV48_();
   }
   function updateOfflineBadgeV48_(forcedError){
-    const el=document.getElementById('offlineQueueStatus'),txt=document.getElementById('offlineQueueStatusText');if(!el||!txt)return;
+    const el=document.getElementById('offlineQueueStatus'),txt=document.getElementById('offlineQueueStatusText'),fab=document.getElementById('mobileSyncDiagV4946'),fabCount=document.getElementById('mobileSyncCountV4946');if(!el||!txt)return;
     const q=sortedActiveV48_(),total=q.length,failed=q.filter(x=>x.status==='failed-retryable').length,sending=q.filter(x=>x.status==='sending').length,retired=terminalSummaryV48_.retired+terminalSummaryV48_.rejected,online=navigator.onLine!==false;
     el.classList.remove('pending','offline','error');let message='Online';
     if(forcedError){el.classList.add('error');message='Eroare temporară; sincronizarea se reîncearcă';}
@@ -3805,7 +3831,7 @@ function withProjectMarker_(notes, project){
     else if(!online){el.classList.add('offline');message='Offline; datele sunt păstrate local';}
     else if(retired)message=`Online; ${retired} acțiuni retrase sau respinse`;
     else message='Online; coada este goală';
-    txt.textContent=message;el.title=message+' — apasă pentru diagnostic';el.setAttribute('aria-label',message);syncRobotStateV499_();
+    txt.textContent=message;el.title=message+' — apasă pentru diagnostic';el.setAttribute('aria-label',message);if(fab){fab.classList.remove('pending','offline','error');if(forcedError||failed)fab.classList.add('error');else if(!online)fab.classList.add('offline');else if(sending||total)fab.classList.add('pending');fab.title=message+' — apasă pentru diagnostic';fab.setAttribute('aria-label',message);}if(fabCount){fabCount.hidden=total<1;fabCount.textContent=total>99?'99+':String(total||'');}syncRobotStateV499_();
   }
 
   async function renderSyncDiagnosticsV48_(){
@@ -3868,10 +3894,10 @@ function withProjectMarker_(notes, project){
     document.addEventListener('freeze',()=>{handoffSyncToServiceWorkerV491_('freeze').catch(()=>{});});
     document.addEventListener('resume',()=>kick('resume'));
     try{navigator.connection&&navigator.connection.addEventListener('change',()=>kick('connection'));}catch{}
-    if(badge)badge.onclick=openSyncDiagnosticsV48_;const d=document.getElementById('syncDiagnosticsDialog'),close=document.getElementById('syncDiagnosticsClose'),retry=document.getElementById('syncRetryNow'),retire=document.getElementById('syncRetireBlocked');if(close)close.onclick=()=>{if(d&&typeof d.close==='function')d.close();else if(d)d.removeAttribute('open');};if(retry)retry.onclick=retryNowV48_;if(retire)retire.onclick=retireBlockedV48_;
+    if(badge)badge.onclick=openSyncDiagnosticsV48_;const mobileDiagV4946=document.getElementById('mobileSyncDiagV4946');if(mobileDiagV4946)mobileDiagV4946.onclick=openSyncDiagnosticsV48_;const d=document.getElementById('syncDiagnosticsDialog'),close=document.getElementById('syncDiagnosticsClose'),retry=document.getElementById('syncRetryNow'),retire=document.getElementById('syncRetireBlocked');if(close)close.onclick=()=>{if(d&&typeof d.close==='function')d.close();else if(d)d.removeAttribute('open');};if(retry)retry.onclick=retryNowV48_;if(retire)retire.onclick=retireBlockedV48_;
     refreshGpsCacheV48_();await autoMigrateUiCacheV48_();activateLatestServiceWorkerV48_();requestSyncV48_(100);registerBackgroundSyncV484_('initial');
     if(syncWatchdogV484_)clearInterval(syncWatchdogV484_);
-    syncWatchdogV484_=setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine!==false&&activeQueueV48_.size)wakeSyncV484_('watchdog').catch(()=>{});},5000);
+    syncWatchdogV484_=setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine!==false&&activeQueueV48_.size&&nextQueueDelayV4946_()<=0)wakeSyncV484_('watchdog').catch(()=>{});},15000);
     setInterval(()=>checkRemoteBuildV48_(false),300000);
   }
 
@@ -4232,7 +4258,7 @@ function withProjectMarker_(notes, project){
     if(persisted&&stateKeyV48_(activeEmployeeV481_())===key){dashboardBaseV481_=persisted;renderDashboardV481_();}
     else if(!dashboardBaseV481_||stateKeyV48_(dashboardBaseV481_.name)!==key){dashboardBaseV481_=dashboardEmptyV481_(name);renderDashboardV481_();}
     if(navigator.onLine===false)return persisted||dashboardBaseV481_;
-    const last=Number(dashboardLastFetchByNameV482_.get(key)||0),stNow=dashboardStateV481_(name)||blankState(),activeNow=!!(stNow.normal&&stNow.normal.running)||!!(stNow.extra&&stNow.extra.running),minGap=activeNow?4000:15000;if(!force&&Date.now()-last<minGap)return persisted||dashboardBaseV481_;
+    const last=Number(dashboardLastFetchByNameV482_.get(key)||0),stNow=dashboardStateV481_(name)||blankState(),activeNow=!!(stNow.normal&&stNow.normal.running)||!!(stNow.extra&&stNow.extra.running),minGap=activeNow?15000:60000;if(!force&&Date.now()-last<minGap)return persisted||dashboardBaseV481_;
     if(dashboardFetchPromisesV482_.has(key))return dashboardFetchPromisesV482_.get(key);
     const promise=(async()=>{try{
       const requestStartedAtV493=Date.now();
@@ -4266,9 +4292,12 @@ function withProjectMarker_(notes, project){
     finally{dashboardFetchPromisesV482_.delete(key);}})();dashboardFetchPromisesV482_.set(key,promise);return promise;
   }
 
+  const visibleProfileLastRefreshV4946_=new Map();
   async function refreshVisibleProfileV483_(reason){
     if(visibleProfileRefreshPromiseV483_)return visibleProfileRefreshPromiseV483_;
-    visibleProfileRefreshPromiseV483_=(async()=>{const name=String(empSel&&empSel.value||activeEmployeeV481_()||'').trim();if(!name)return null;if(!EMPLOYEE_NORMS_V483_.size)await loadEmployeeNormsV483_().catch(()=>{});await Promise.allSettled([refreshActiveSnapshotV48_(true),refreshServerState(name),refreshDashboardV481_(name,true)]);if(String(empSel.value||'').trim()===name){setProjectedStateV48_(name);renderDashboardV481_();}return {ok:true,name,reason:reason||''};})().finally(()=>{visibleProfileRefreshPromiseV483_=null;});return visibleProfileRefreshPromiseV483_;
+    const nameNow=String(empSel&&empSel.value||activeEmployeeV481_()||'').trim(),keyNow=stateKeyV48_(nameNow),nowV4946=Date.now(),lastV4946=Number(visibleProfileLastRefreshV4946_.get(keyNow)||0);
+    if(nameNow&&reason!=='startup'&&nowV4946-lastV4946<15000)return {ok:true,name:nameNow,reason:reason||'',throttled:true};
+    visibleProfileRefreshPromiseV483_=(async()=>{const name=String(empSel&&empSel.value||activeEmployeeV481_()||'').trim();if(!name)return null;if(!EMPLOYEE_NORMS_V483_.size)await loadEmployeeNormsV483_().catch(()=>{});await Promise.allSettled([refreshActiveSnapshotV48_(false),refreshServerState(name),refreshDashboardV481_(name,false)]);visibleProfileLastRefreshV4946_.set(stateKeyV48_(name),Date.now());if(String(empSel.value||'').trim()===name){setProjectedStateV48_(name);renderDashboardV481_();}return {ok:true,name,reason:reason||''};})().finally(()=>{visibleProfileRefreshPromiseV483_=null;});return visibleProfileRefreshPromiseV483_;
   }
 
   function historyKeyV481_(name){return HISTORY_CACHE_PREFIX_V481+stateKeyV48_(name);}
@@ -4404,7 +4433,7 @@ function withProjectMarker_(notes, project){
     empSel.addEventListener('change',()=>{const n=String(empSel.value||'').trim();selectEmployeeProfileV482_(n,true).catch(()=>{});});
     const resume=()=>{wakeSyncV484_('profile-resume').catch(()=>{});refreshVisibleProfileV483_('resume').catch(()=>{});};window.addEventListener('online',resume);window.addEventListener('focus',resume);window.addEventListener('pageshow',resume);document.addEventListener('visibilitychange',()=>{if(!document.hidden)resume();});
     setTimeout(()=>restoreDetailsV481_().then(()=>refreshVisibleProfileV483_('startup')).catch(()=>{}),0);
-    setInterval(()=>{const n=activeEmployeeV481_();if(n)refreshDashboardV481_(n,false);},5000);
+    setInterval(()=>{const n=activeEmployeeV481_();if(n)refreshDashboardV481_(n,false);},15000);
     updateSelectionSummaryV481_();setMobileNavV481_('home');updateDetailsLockV481_();
   }
 
