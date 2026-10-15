@@ -1,6 +1,6 @@
 {
-  "version": "4.9.50",
-  "build": "offline-first-v4.9.50-mobile-fast-commit-20261015-1",
+  "version": "4.9.52",
+  "build": "offline-first-v4.9.52-live-state-fast-refresh-20261015-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -128,12 +128,19 @@
     "mobile-indexeddb-targeted-readback",
     "foreground-ack-fast-ui-without-service-worker-ready",
     "skip-terminal-history-scans-on-send-path",
-    "ack-record-append-after-locked-absence-check"
+    "ack-record-append-after-locked-absence-check",
+    "single-authoritative-dashboard-on-profile-resume",
+    "out-of-order-get-cannot-overwrite-locally-saved-action",
+    "stale-state-active-get-guard",
+    "cross-tab-dashboard-local-reflection",
+    "jittered-visible-polling-with-error-cooldown",
+    "desktop-history-refresh-after-finish-ack",
+    "honest-local-versus-server-sync-labels"
   ],
   "date": "2026-10-15",
-  "name": "SERVELECT Pontaj Enterprise 4.9.50",
-  "logic": "mobile-fast-durable-commit-v4.9.50",
-  "notes": "Confirmare locală rapidă cu IndexedDB read-back punctual; fără așteptare Background Sync; fără rescannarea arhivei terminale pe calea critică; backend ACK fast append când absența RequestId a fost verificată sub lock.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.52",
+  "logic": "live-single-snapshot-stale-response-protection-v4.9.52",
+  "notes": "UI mobil/desktop: snapshot dashboard autoritar unic pe profil, GET-uri vechi protejate, polling cu jitter si backoff, valori locale instant si istoric desktop reimprospatat la FINISH confirmat.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
