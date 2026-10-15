@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.47-overload-protection-verified-20260929-1';
+const BUILD='offline-first-v4.9.50-mobile-fast-commit-20261015-1';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[
@@ -107,7 +107,7 @@ const PONTAJ_META_STORE_V484='meta';
 const PONTAJ_TERMINAL_STORE_V484='terminalJournal';
 const PONTAJ_LEASE_KEY_V484='syncLease';
 const PONTAJ_PROTOCOL_V484='servelect-pontaj-sync/v4.8';
-const PONTAJ_SW_OWNER_V484='service-worker-v4.9.47';
+const PONTAJ_SW_OWNER_V484='service-worker-v4.9.50';
 const PONTAJ_SW_LEASE_MS_V484=45000;
 const PONTAJ_FINAL_ACCEPTED_V484=new Set(['accepted','already_processed','accepted_duplicate','deleted_manually','tombstoned']);
 const PONTAJ_FINAL_REJECTED_V484=new Set(['rejected','cancelled','retired']);

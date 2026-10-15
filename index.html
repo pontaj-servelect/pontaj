@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.47-overload-protection-verified-20260929-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.47-overload-protection-verified-20260929-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.47-overload-protection-verified-20260929-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.50-mobile-fast-commit-20261015-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.50-mobile-fast-commit-20261015-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.50-mobile-fast-commit-20261015-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1639,7 +1639,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.47-overload-protection-verified-20260929-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.50-mobile-fast-commit-20261015-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2773,8 +2773,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.47';
-  const PONTAJ_BUILD = 'offline-first-v4.9.47-overload-protection-verified-20260929-1';
+  const PONTAJ_VERSION = '4.9.50';
+  const PONTAJ_BUILD = 'offline-first-v4.9.50-mobile-fast-commit-20261015-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3462,6 +3462,13 @@ function withProjectMarker_(notes, project){
     const db=await openIdbV48_();const tx=db.transaction(storeName,'readonly');const req=tx.objectStore(storeName).getAll();
     const result=await new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});await txDoneV48_(tx,db);return result;
   }
+  // V4.9.50: verificare punctuală O(1) a acțiunii nou salvate.
+  // Păstrăm read-back durabil, dar nu mai recitim toată coada IndexedDB.
+  async function getRecordByIdV4950_(storeName,requestId){
+    const db=await openIdbV48_();const tx=db.transaction(storeName,'readonly');const req=tx.objectStore(storeName).get(requestId);
+    const result=await new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});await txDoneV48_(tx,db);return result;
+  }
+  async function getActiveByIdV4950_(requestId){return getRecordByIdV4950_(IDB_ACTIVE_V48,requestId);}
   async function getMetaV48_(key){
     const db=await openIdbV48_();const tx=db.transaction(IDB_META_V48,'readonly');const req=tx.objectStore(IDB_META_V48).get(key);
     const result=await new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});await txDoneV48_(tx,db);return result;
@@ -3478,10 +3485,15 @@ function withProjectMarker_(notes, project){
     const db=await openIdbV48_();const tx=db.transaction([IDB_ACTIVE_V48,IDB_TERMINAL_V48],'readwrite');tx.objectStore(IDB_ACTIVE_V48).delete(item.requestId);tx.objectStore(IDB_TERMINAL_V48).put(terminal);await txDoneV48_(tx,db);activeQueueV48_.delete(item.requestId);return terminal;
   }
   async function putTerminalOnlyV48_(terminal){const db=await openIdbV48_();const tx=db.transaction(IDB_TERMINAL_V48,'readwrite');tx.objectStore(IDB_TERMINAL_V48).put(terminal);await txDoneV48_(tx,db);}
-  async function refreshQueueMemoryV48_(){
+  async function refreshQueueMemoryV48_(skipTerminalV4950_){
     const rows=await getAllStoreV48_(IDB_ACTIVE_V48);activeQueueV48_.clear();
     rows.forEach(item=>{if(item&&item.requestId&&item.snapshot&&ACTIVE_STATUSES_V48.has(item.status))activeQueueV48_.set(item.requestId,item);});
-    const terminal=await getAllStoreV48_(IDB_TERMINAL_V48);terminalSummaryV48_={total:terminal.length,retired:terminal.filter(x=>x.status==='retired'||x.status==='cancelled').length,rejected:terminal.filter(x=>x.status==='rejected').length,accepted:terminal.filter(x=>FINAL_ACCEPTED_V48.has(x.status)).length};
+    // V4.9.50: arhiva terminală poate conține mii de confirmări. Nu este
+    // necesară pentru a trimite acțiuni sau pentru a salva apăsarea curentă.
+    // Se citește integral în diagnostic și la inițializare/finalizarea flush-ului.
+    if(!skipTerminalV4950_){
+      const terminal=await getAllStoreV48_(IDB_TERMINAL_V48);terminalSummaryV48_={total:terminal.length,retired:terminal.filter(x=>x.status==='retired'||x.status==='cancelled').length,rejected:terminal.filter(x=>x.status==='rejected').length,accepted:terminal.filter(x=>FINAL_ACCEPTED_V48.has(x.status)).length};
+    }
     updateOfflineBadgeV48_();return sortedActiveV48_();
   }
   async function pruneTerminalV48_(){
@@ -3641,10 +3653,23 @@ function withProjectMarker_(notes, project){
     if(!snapshot||!snapshot.requestId||!snapshot.name||!snapshot.clientTimestamp)throw new Error('Snapshotul acțiunii este incomplet.');
     const timeActionV4937=['start','extra_start','pause','unpause','finish','extra_finish'].includes(_normAction(snapshot.action));
     if(timeActionV4937){const missingRequiredV4937=openingContextMissingV4935_(snapshot);if(missingRequiredV4937.length)throw new Error('Nu se poate salva acțiunea: completează '+missingRequiredV4937.map(x=>x.label).join(' și ')+'.');}
-    await refreshQueueMemoryV48_();if(activeQueueV48_.has(snapshot.requestId))return snapshot.requestId;if(activeQueueV48_.size>=QUEUE_LIMIT_V48)throw new Error('Coada locală a atins limita de siguranță; deschide diagnosticul de sincronizare.');
+    await refreshQueueMemoryV48_(true);if(activeQueueV48_.has(snapshot.requestId))return snapshot.requestId;if(activeQueueV48_.size>=QUEUE_LIMIT_V48)throw new Error('Coada locală a atins limita de siguranță; deschide diagnosticul de sincronizare.');
     const storedSnapshot=JSON.parse(JSON.stringify(snapshot));const item={requestId:storedSnapshot.requestId,snapshot:storedSnapshot,status:'queued',attempts:0,lastAttemptAt:0,nextAttemptAt:0,sendingOwner:'',sendingExpiresAt:0,lastErrorCode:'',lastErrorMessage:'',updatedAt:Date.now(),enrichment:{}};
-    await putActiveV48_(item);const verify=(await getAllStoreV48_(IDB_ACTIVE_V48)).some(x=>x.requestId===snapshot.requestId);if(!verify)throw new Error('IndexedDB nu a confirmat salvarea.');
-    broadcastQueueChangeV48_();setProjectedStateV48_(snapshot.name);requestSyncV48_(0);registerBackgroundSyncV484_('enqueue');return snapshot.requestId;
+    await putActiveV48_(item);
+    const verified=await getActiveByIdV4950_(snapshot.requestId);
+    // Dacă un alt tab/SW a terminat între write și read-back, acțiunea
+    // poate fi deja în jurnalul terminal. Nu afișăm fals „nu s-a salvat”.
+    if(!verified){
+      const terminal=await getRecordByIdV4950_(IDB_TERMINAL_V48,snapshot.requestId);
+      if(!terminal||terminal.requestId!==snapshot.requestId)throw new Error('IndexedDB nu a confirmat salvarea.');
+    }else if(verified.requestId!==snapshot.requestId||!verified.snapshot||verified.snapshot.clientTimestamp!==snapshot.clientTimestamp){
+      throw new Error('IndexedDB nu a confirmat salvarea.');
+    }
+    // Confirmarea locală NU așteaptă navigator.serviceWorker.ready / Background Sync.
+    // Foreground începe imediat; SW rămâne disponibil pentru handoff/offline.
+    broadcastQueueChangeV48_();setProjectedStateV48_(snapshot.name);requestSyncV48_(0);
+    registerBackgroundSyncV484_('enqueue').catch(()=>{});
+    return snapshot.requestId;
   }
 
   function backoffMsV48_(attempts){const n=Math.max(1,Math.floor(Number(attempts||1))),steps=[600,1200,2500,5000,10000,20000,40000,80000,160000,300000],base=steps[Math.min(steps.length-1,n-1)];return Math.round(base*(0.85+Math.random()*0.30));}
@@ -3723,9 +3748,9 @@ function withProjectMarker_(notes, project){
     if(!await acquireLeaseV48_()){requestSyncV48_(2500);return;}
     offlineFlushRunningV48_=true;
     try{
-      await refreshQueueMemoryV48_();flushProgressV48_={total:activeQueueV48_.size,completed:0};updateOfflineBadgeV48_();
+      await refreshQueueMemoryV48_(true);flushProgressV48_={total:activeQueueV48_.size,completed:0};updateOfflineBadgeV48_();
       while(navigator.onLine!==false){
-        if(!await renewLeaseV48_())break;await refreshQueueMemoryV48_();let item=sortedActiveV48_()[0];if(!item)break;
+        if(!await renewLeaseV48_())break;await refreshQueueMemoryV48_(true);let item=sortedActiveV48_()[0];if(!item)break;
         const now=Date.now();
         if(item.status==='sending'&&Number(item.sendingExpiresAt||0)>now){requestSyncV48_(Number(item.sendingExpiresAt)-now+50);break;}
         if(item.status==='sending'){const expiredWait=backoffMsV48_(Math.max(1,Number(item.attempts||1)));item=await patchActiveV48_(item.requestId,{status:'failed-retryable',sendingOwner:'',sendingExpiresAt:0,nextAttemptAt:now+expiredWait,lastErrorCode:'SENDING_LEASE_EXPIRED',lastErrorMessage:'Trimiterea anterioară a expirat; retry-ul respectă backoff-ul.'})||item;}
