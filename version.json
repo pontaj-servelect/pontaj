@@ -1,6 +1,6 @@
 {
-  "version": "4.9.59",
-  "build": "offline-first-v4.9.59-leave-invoire-net-20261025-1",
+  "version": "4.9.63",
+  "build": "offline-first-v4.9.63-co-cm-cs-conflict-20261025-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -148,10 +148,15 @@
     "batch-reuses-intake-snapshot-only-under-script-lock-v4957",
     "batch-ack-map-skips-repeated-negative-lookups-v4957",
     "preflight-cache-invalidated-on-heal-or-schema-change-v4957",
-    "coalesced-foreground-resume-events-v4957"
+    "coalesced-foreground-resume-events-v4957",
+    "v4963-conflict-detection-on-canonical-work-events",
+    "v4963-leave-type-conflicts-co-cm-cs",
+    "v4963-exclude-conflict-days-from-leave-counts",
+    "v4963-auto-reconcile-on-monthly-report-rebuild",
+    "v4963-history-day-and-monthly-conflict-indicators"
   ],
   "date": "2026-10-25",
-  "name": "SERVELECT Pontaj Enterprise 4.9.59 — CO și învoiri scăzute din ore",
+  "name": "SERVELECT Pontaj Enterprise 4.9.63 — conflicte concediu/pontaj",
   "logic": "conservative-fresh-preflight-per-action-and-ordered-batch-v4.9.57-r1",
   "notes": "CO/CM/concediu pentru ore suplimentare fără status de aprobare în interfață. Învoirea se deduce numai din timpul efectiv suprapus cu sesiunea de lucru și nu din pauze. Păstrează protocolul offline V4.8.",
   "changes": [

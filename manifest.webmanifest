@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.59",
+  "name": "SERVELECT Pontaj 4.9.63",
   "short_name": "Pontaj",
-  "description": "Pontaj offline-first SERVELECT — V4.9.59, rapoarte CO și învoiri deduse din timpul de lucru, istoric complet.",
+  "description": "Pontaj offline-first SERVELECT — V4.9.63, CO/CM/CS și conflicte cu pontaj, ore suplimentare și EXTRA, cu reconciliere la raportare.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.59-leave-invoire-net-20261025-1",
+  "start_url": "./?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

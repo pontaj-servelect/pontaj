@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.59-leave-invoire-net-20261025-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.59-leave-invoire-net-20261025-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.59-leave-invoire-net-20261025-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1650,7 +1650,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.59-leave-invoire-net-20261025-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2785,8 +2785,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.57';
-  const PONTAJ_BUILD = 'offline-first-v4.9.59-leave-invoire-net-20261025-1';
+  const PONTAJ_VERSION = '4.9.63';
+  const PONTAJ_BUILD = 'offline-first-v4.9.63-co-cm-cs-conflict-20261025-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -4663,9 +4663,10 @@ function withProjectMarker_(notes, project){
     const items=Array.isArray(data&&data.items)?data.items:[];
     if(!items.length){body.innerHTML='<div class="history-stats-empty-v4939">Nu există suficiente date în luna curentă pentru a afișa statistici.</div>';return;}
     const s=historyStatsSummaryV4939_(data);
-    const leaveDaysV4958_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CO')).length;
-    const cmDaysV4959_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CM')).length;
-    const csDaysV4959_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CS')).length;
+    const leaveDaysV4958_=items.filter(it=>!it.leaveConflictV4963_&&Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CO')).length;
+    const cmDaysV4959_=items.filter(it=>!it.leaveConflictV4963_&&Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CM')).length;
+    const csDaysV4959_=items.filter(it=>!it.leaveConflictV4963_&&Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CS')).length;
+    const conflictDaysV4963_=items.filter(it=>!!it.leaveConflictV4963_).length;
     const invMsV4958_=items.reduce((sum,it)=>sum+Math.max(0,Number(it.invoireMinutes||0))*60000,0);
     const metrics=[
       {label:'Lucrat',value:s.workMs,color:'#086bf0'},
@@ -4690,6 +4691,7 @@ function withProjectMarker_(notes, project){
       +  '<article class="history-stats-card-v4939 positive"><b>Diferență pozitivă</b><strong>'+fmtClockV481_(s.posDiffMs,false)+'</strong><span>Timp peste normă</span></article>'
       +  '<article class="history-stats-card-v4939 negative"><b>Diferență negativă</b><strong>'+fmtClockV481_(s.negDiffMs,false)+'</strong><span>Timp sub normă</span></article>'
       +  '<article class="history-stats-card-v4939"><b>Total CO</b><strong>'+leaveDaysV4958_+' zile</strong><span>CM: '+cmDaysV4959_+' zile · Concediu pentru ore suplimentare: '+csDaysV4959_+' zile</span></article>'
+      +  (conflictDaysV4963_?'<article class="history-stats-card-v4939 negative"><b>Concedii de verificat</b><strong>'+conflictDaysV4963_+' zile</strong><span>Suprapunere cu pontaj / suplimentar / EXTRA; excluse temporar din totalul CO/CM/CS.</span></article>':'')
       +  '<article class="history-stats-card-v4939 pause"><b>Total învoire</b><strong>'+fmtClockV481_(invMsV4958_,false)+'</strong><span>Intervale înregistrate în luna curentă</span></article>'
       +'</section>'
       +'<section class="history-stats-grid-v4939">'
@@ -4729,7 +4731,10 @@ function withProjectMarker_(notes, project){
     const extra=list(it.extraIntervals).map(p=>clock(p.start)+'–'+(p.ongoing?'în curs':clock(p.end)));
     if(extra.length)lines.push(['EXTRA · Start–Stop',extra.join(', ')]);
     const leave=list(it.leave).map(p=>({CO:'CO – concediu de odihnă',CM:'CM – concediu medical',CS:'Concediu pentru ore suplimentare'}[p.code]||String(p.type||'Concediu')));
-    if(leave.length)lines.push(['Concediu',leave.join(', ')]);
+    if(leave.length){
+      lines.push(['Concediu',leave.join(', ')]);
+      if(it.leaveConflictV4963_)lines.push(['ATENȚIE · suprapunere','CONFLICT concediu + pontaj · nu se contabilizează ca zi de concediu până la verificare']);
+    }
     const inv=list(it.invoireIntervals);
     if(inv.length)lines.push(['Învoire',inv.join(', ')+' · '+fmtClockV481_(Number(it.invoireMinutes||0)*60000,false)]);
     const proj=list(it.projects);if(proj.length)lines.push(['Proiect',proj.join(' · ')]);
