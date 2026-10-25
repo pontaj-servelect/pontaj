@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.57",
-  "short_name": "Pontaj 4.9.57",
-  "description": "Pontaj offline-first SERVELECT — V4.9.57-R1, Fast Ordered Batch cu verificare conservatoare per acțiune.",
+  "name": "SERVELECT Pontaj 4.9.59",
+  "short_name": "Pontaj",
+  "description": "Pontaj offline-first SERVELECT — V4.9.59, rapoarte CO și învoiri deduse din timpul de lucru, istoric complet.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.57-r1-conservative-20261015-1",
+  "start_url": "./?v=offline-first-v4.9.59-leave-invoire-net-20261025-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",

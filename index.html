@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.57-r1-conservative-20261015-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.57-r1-conservative-20261015-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.57-r1-conservative-20261015-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.59-leave-invoire-net-20261025-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.59-leave-invoire-net-20261025-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.59-leave-invoire-net-20261025-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1025,6 +1025,17 @@
     @media(max-width:820px) and (max-height:620px){.robot-pet-caption-v499{display:none}.robot-pet-canvas-v499{--tl-size:min(150px,52vw)}.robot-pet-panel-v499{margin-bottom:-10px}}
     @media(prefers-reduced-motion:reduce){.robot-pet-canvas-v499{scroll-behavior:auto}.robot-pet-caption-v499{transition:none}}
 
+
+
+    /* V4.9.58 — istoric contextual complet, păstrând aspectul mobil/desktop */
+    .history-details-v4958{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px;margin-top:5px;padding:11px 12px;border-top:1px solid #e5edf6;background:#f8fbff;border-radius:11px}
+    .history-detail-line-v4958{min-width:0;display:flex;flex-direction:column;gap:3px;font-size:10px;line-height:1.45;overflow-wrap:anywhere}
+    .history-detail-line-v4958 b{font-size:9px;color:#6a7e99;font-weight:850}
+    .history-detail-line-v4958 span{color:#243f65;font-weight:750;overflow-wrap:anywhere}
+    .desktop-history-details-v4958{display:grid;gap:7px;margin-top:9px;padding-top:8px;border-top:1px solid #e3edf7;text-align:left}
+    .desktop-history-details-v4958 .history-detail-line-v4958{font-size:9px}
+    @media(min-width:821px){.desktop-history-strip-v488{grid-auto-columns:minmax(190px,1fr)!important}.desktop-history-day-v488{min-height:118px;padding:12px 10px!important}}
+    @media(max-width:820px){.history-details-v4958{grid-template-columns:1fr;gap:8px;padding:10px}.history-detail-line-v4958{font-size:11px}.history-detail-line-v4958 b{font-size:9px}}
 </style>
 </head>
 <body>
@@ -1639,7 +1650,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.57-r1-conservative-20261015-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.59-leave-invoire-net-20261025-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2775,7 +2786,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.57';
-  const PONTAJ_BUILD = 'offline-first-v4.9.57-r1-conservative-20261015-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.59-leave-invoire-net-20261025-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -4652,6 +4663,10 @@ function withProjectMarker_(notes, project){
     const items=Array.isArray(data&&data.items)?data.items:[];
     if(!items.length){body.innerHTML='<div class="history-stats-empty-v4939">Nu există suficiente date în luna curentă pentru a afișa statistici.</div>';return;}
     const s=historyStatsSummaryV4939_(data);
+    const leaveDaysV4958_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CO')).length;
+    const cmDaysV4959_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CM')).length;
+    const csDaysV4959_=items.filter(it=>Array.isArray(it.leave)&&it.leave.some(p=>p.code==='CS')).length;
+    const invMsV4958_=items.reduce((sum,it)=>sum+Math.max(0,Number(it.invoireMinutes||0))*60000,0);
     const metrics=[
       {label:'Lucrat',value:s.workMs,color:'#086bf0'},
       {label:'Normă',value:s.normMs,color:'#4c86d9'},
@@ -4674,6 +4689,8 @@ function withProjectMarker_(notes, project){
       +  '<article class="history-stats-card-v4939 extra"><b>Ore extra</b><strong>'+fmtClockV481_(s.extraMs,false)+'</strong><span>Acumulat în luna curentă</span></article>'
       +  '<article class="history-stats-card-v4939 positive"><b>Diferență pozitivă</b><strong>'+fmtClockV481_(s.posDiffMs,false)+'</strong><span>Timp peste normă</span></article>'
       +  '<article class="history-stats-card-v4939 negative"><b>Diferență negativă</b><strong>'+fmtClockV481_(s.negDiffMs,false)+'</strong><span>Timp sub normă</span></article>'
+      +  '<article class="history-stats-card-v4939"><b>Total CO</b><strong>'+leaveDaysV4958_+' zile</strong><span>CM: '+cmDaysV4959_+' zile · Concediu pentru ore suplimentare: '+csDaysV4959_+' zile</span></article>'
+      +  '<article class="history-stats-card-v4939 pause"><b>Total învoire</b><strong>'+fmtClockV481_(invMsV4958_,false)+'</strong><span>Intervale înregistrate în luna curentă</span></article>'
       +'</section>'
       +'<section class="history-stats-grid-v4939">'
       +  '<article class="history-stats-panel-card-v4939">'
@@ -4704,6 +4721,25 @@ function withProjectMarker_(notes, project){
     if(toHome===true)closeHistoryV481_(true);
   }
 
+
+  // V4.9.58: afișare numai din datele citite (server sau cache), niciun POST nou.
+  function historyDetailHtmlV4958_(it,compact){
+    const lines=[],list=x=>Array.isArray(x)?x:[],safe=x=>escapeHtmlV481_(String(x==null?'':x));
+    const clock=x=>{const d=new Date(x);return isNaN(d)?'—':new Intl.DateTimeFormat('ro-RO',{timeZone:'Europe/Bucharest',hour:'2-digit',minute:'2-digit',hour12:false}).format(d);};
+    const extra=list(it.extraIntervals).map(p=>clock(p.start)+'–'+(p.ongoing?'în curs':clock(p.end)));
+    if(extra.length)lines.push(['EXTRA · Start–Stop',extra.join(', ')]);
+    const leave=list(it.leave).map(p=>({CO:'CO – concediu de odihnă',CM:'CM – concediu medical',CS:'Concediu pentru ore suplimentare'}[p.code]||String(p.type||'Concediu')));
+    if(leave.length)lines.push(['Concediu',leave.join(', ')]);
+    const inv=list(it.invoireIntervals);
+    if(inv.length)lines.push(['Învoire',inv.join(', ')+' · '+fmtClockV481_(Number(it.invoireMinutes||0)*60000,false)]);
+    const proj=list(it.projects);if(proj.length)lines.push(['Proiect',proj.join(' · ')]);
+    const clients=list(it.clients);if(clients.length)lines.push(['Client / locație',clients.join(' · ')]);
+    if(!lines.length)return '';
+    return '<div class="'+(compact?'desktop-history-details-v4958':'history-details-v4958')+'">'
+      +lines.map(pair=>'<div class="history-detail-line-v4958"><b>'+safe(pair[0])+'</b><span>'+safe(pair[1])+'</span></div>').join('')
+      +'</div>';
+  }
+
   function renderHistoryV481_(data){
     historyLastDataV4939_=data||null;
     const list=document.getElementById('historyListV49'),src=document.getElementById('historySourceV49'),sub=document.getElementById('historySubV49'),items=Array.isArray(data&&data.items)?data.items:[],days=Number(data&&data.days||items.length||0),monthLabel=historyMonthLabelV4938_(data);
@@ -4712,7 +4748,7 @@ function withProjectMarker_(notes, project){
     if(!list)return;
     if(!items.length){list.innerHTML='<div class="history-empty-v49">Nu există zile disponibile în luna curentă.</div>';return;}
     const wd=['Du','Lu','Ma','Mi','Jo','Vi','Sâ'];
-    list.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),date=isNaN(d)?escapeHtmlV481_(it.date):'<span class="history-weekday-v50">'+wd[d.getDay()]+'</span><span class="history-date-number-v50">'+String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.</span>',diff=Number(it.diffMs||0),start=it.firstStart?new Date(it.firstStart).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—',finish=it.lastFinish?new Date(it.lastFinish).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';return '<article class="history-day-v49"><div class="history-date-v49"><div class="history-date-main-v49">'+date+'</div><div class="history-date-sub-v49">'+escapeHtmlV481_(it.hasActivity?'Start '+start+' · Finish '+finish:'Fără pontaj')+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Lucrat</div><div class="history-metric-value-v49">'+fmtClockV481_(it.workMs,false)+'</div></div><div class="history-metric-v49 pause"><div class="history-metric-label-v49">Pauză</div><div class="history-metric-value-v49">'+fmtClockV481_(it.pauseMs,false)+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Normă</div><div class="history-metric-value-v49">'+fmtClockV481_(it.normMs,false)+'</div></div><div class="history-metric-v49 diff '+(diff>0?'positive':diff<0?'negative':'')+'"><div class="history-metric-label-v49">Diferență</div><div class="history-metric-value-v49">'+signedClockV481_(diff)+'</div></div><div class="history-metric-v49 extra"><div class="history-metric-label-v49">Extra</div><div class="history-metric-value-v49">'+fmtClockV481_(it.extraMs,false)+'</div></div></article>';}).join('');
+    list.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),date=isNaN(d)?escapeHtmlV481_(it.date):'<span class="history-weekday-v50">'+wd[d.getDay()]+'</span><span class="history-date-number-v50">'+String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.</span>',diff=Number(it.diffMs||0),start=it.firstStart?new Date(it.firstStart).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—',finish=it.lastFinish?new Date(it.lastFinish).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}):'—';return '<article class="history-day-v49"><div class="history-date-v49"><div class="history-date-main-v49">'+date+'</div><div class="history-date-sub-v49">'+escapeHtmlV481_(it.leaveStatus?(it.leaveStatus+(it.hasActivity&&it.firstStart?' · Start '+start+' · Finish '+finish:'')):(it.hasActivity?'Start '+start+' · Finish '+finish:'Fără pontaj'))+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Lucrat</div><div class="history-metric-value-v49">'+fmtClockV481_(it.workMs,false)+'</div></div><div class="history-metric-v49 pause"><div class="history-metric-label-v49">Pauză</div><div class="history-metric-value-v49">'+fmtClockV481_(it.pauseMs,false)+'</div></div><div class="history-metric-v49"><div class="history-metric-label-v49">Normă</div><div class="history-metric-value-v49">'+fmtClockV481_(it.normMs,false)+'</div></div><div class="history-metric-v49 diff '+(diff>0?'positive':diff<0?'negative':'')+'"><div class="history-metric-label-v49">Diferență</div><div class="history-metric-value-v49">'+signedClockV481_(diff)+'</div></div><div class="history-metric-v49 extra"><div class="history-metric-label-v49">Extra</div><div class="history-metric-value-v49">'+fmtClockV481_(it.extraMs,false)+'</div></div>'+historyDetailHtmlV4958_(it,false)+'</article>';}).join('');
   }
   async function openHistoryV481_(){
     const name=activeEmployeeV481_();if(!name){openDetailsV481_('Selectează mai întâi angajatul pentru a vedea istoricul.','employeeSelect');return;}
@@ -4806,7 +4842,7 @@ function withProjectMarker_(notes, project){
     const items=Array.isArray(data&&data.items)?data.items:[];
     if(!items.length){host.innerHTML='<div class="desktop-history-loading-v488">Nu există zile disponibile în luna curentă.</div>';return;}
     const wd=['Du','Lu','Ma','Mi','Jo','Vi','Sâ'],today=String(data&&data.currentDate||items[0]&&items[0].date||'');
-    host.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),label=isNaN(d)?'—':wd[d.getDay()],date=isNaN(d)?String(it.date||''):String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.',work=fmtClockV481_(Number(it.workMs||0),false),diff=Number(it.diffMs||0),diffText=(diff>0?'+':diff<0?'−':'')+fmtClockV481_(Math.abs(diff),false);return '<article class="desktop-history-day-v488 '+(String(it.date||'')===today?'today':'')+'"><b>'+escapeHtmlV481_(label)+'</b><span>'+escapeHtmlV481_(date)+'</span><strong>'+escapeHtmlV481_(work)+'</strong><em>'+escapeHtmlV481_(diffText)+'</em></article>';}).join('');
+    host.innerHTML=items.map(it=>{const d=new Date(String(it.date||'')+'T12:00:00'),label=isNaN(d)?'—':wd[d.getDay()],date=isNaN(d)?String(it.date||''):String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.',work=fmtClockV481_(Number(it.workMs||0),false),diff=Number(it.diffMs||0),diffText=(diff>0?'+':diff<0?'−':'')+fmtClockV481_(Math.abs(diff),false);return '<article class="desktop-history-day-v488 '+(String(it.date||'')===today?'today':'')+'"><b>'+escapeHtmlV481_(label)+'</b><span>'+escapeHtmlV481_(date)+'</span><strong>'+escapeHtmlV481_(work)+'</strong><em>'+escapeHtmlV481_(diffText)+'</em>'+historyDetailHtmlV4958_(it,true)+'</article>';}).join('');
   }
   async function refreshDesktopHistoryV488_(name,force){
     if(window.innerWidth<821)return;name=String(name||activeEmployeeV481_()||'').trim();if(!name)return;

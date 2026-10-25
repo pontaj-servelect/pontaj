@@ -1,6 +1,6 @@
 {
-  "version": "4.9.57",
-  "build": "offline-first-v4.9.57-r1-conservative-20261015-1",
+  "version": "4.9.59",
+  "build": "offline-first-v4.9.59-leave-invoire-net-20261025-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -150,10 +150,10 @@
     "preflight-cache-invalidated-on-heal-or-schema-change-v4957",
     "coalesced-foreground-resume-events-v4957"
   ],
-  "date": "2026-10-15",
-  "name": "SERVELECT Pontaj Enterprise 4.9.57-R1 Conservative",
+  "date": "2026-10-25",
+  "name": "SERVELECT Pontaj Enterprise 4.9.59 — CO și învoiri scăzute din ore",
   "logic": "conservative-fresh-preflight-per-action-and-ordered-batch-v4.9.57-r1",
-  "notes": "Loturi ordonate cu ACK individual, fără snapshot cross-action; fiecare acțiune recitește foaia, verifică din nou RequestId și mapa ACK. UI responsive V4.9.55–V4.9.57. Backup cu sursele reale 4.9.51/4.9.52.",
+  "notes": "CO/CM/concediu pentru ore suplimentare fără status de aprobare în interfață. Învoirea se deduce numai din timpul efectiv suprapus cu sesiunea de lucru și nu din pauze. Păstrează protocolul offline V4.8.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
@@ -166,7 +166,15 @@
     "Group identical timestamp/number format assignments via RangeList with per-cell fallback; no change to persisted values, schema, or timestamps.",
     "Avoid scanning full IndexedDB terminal archive on every foreground flush, resume and background handoff; preserve full archive loading for diagnostic view.",
     "Keep live terminal badge counts after transaction completion; retain full cross-tab/SW authoritative refresh.",
-    "R1 safety override: disable cross-action sheet cache in ordered batches; verify ACK ledger for every action."
+    "R1 safety override: disable cross-action sheet cache in ordered batches; verify ACK ledger for every action.",
+    "monthly-leave-days-from-concedii-read-only-v4958",
+    "leave-approval-vs-requested-explicit-v4958",
+    "monthly-extra-intervals-v4958",
+    "monthly-invoire-total-v4958",
+    "mobile-desktop-history-project-client-extra-invoire-leave-v4958",
+    "v4959-leave-type-only-no-approval-labels-in-reports-or-history",
+    "v4959-invoire-net-report-overlap-with-work-minus-pause-union",
+    "v4959-invoire-overlap-dedup-and-next-day-split"
   ],
   "features": [
     "conservative-fresh-sheet-read-per-action-v4957-r1",
