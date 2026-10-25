@@ -1,6 +1,6 @@
 {
-  "version": "4.9.63",
-  "build": "offline-first-v4.9.63-co-cm-cs-conflict-20261025-1",
+  "version": "4.9.65",
+  "build": "offline-first-v4.9.65-fast-intake-20261025-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -153,7 +153,10 @@
     "v4963-leave-type-conflicts-co-cm-cs",
     "v4963-exclude-conflict-days-from-leave-counts",
     "v4963-auto-reconcile-on-monthly-report-rebuild",
-    "v4963-history-day-and-monthly-conflict-indicators"
+    "v4963-history-day-and-monthly-conflict-indicators",
+    "first-action-dispatch-delay-1450ms-to-300ms",
+    "other-single-action-dispatch-delay-250ms-to-100ms",
+    "idb-ack-protocol-and-batch-unchanged"
   ],
   "date": "2026-10-25",
   "name": "SERVELECT Pontaj Enterprise 4.9.63 — conflicte concediu/pontaj",

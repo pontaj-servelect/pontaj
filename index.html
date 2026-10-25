@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
-  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
-  <meta name="pontaj-build" content="offline-first-v4.9.63-co-cm-cs-conflict-20261025-1" />
+  <link rel="manifest" href="manifest.webmanifest?v=offline-first-v4.9.65-fast-intake-20261025-1" />
+  <link rel="stylesheet" href="robot-pet.css?v=offline-first-v4.9.65-fast-intake-20261025-1" />
+  <meta name="pontaj-build" content="offline-first-v4.9.65-fast-intake-20261025-1" />
   <meta name="theme-color" content="#516A75"/>
   <style>
     :root{
@@ -1650,7 +1650,7 @@ const ServelectAudio = (() => {
     </div>
   </section>
 
-  <script src="robot-pet.js?v=offline-first-v4.9.63-co-cm-cs-conflict-20261025-1"></script>
+  <script src="robot-pet.js?v=offline-first-v4.9.65-fast-intake-20261025-1"></script>
 
   <!-- ================== APP LOGIC ================== -->
   <script>
@@ -2786,7 +2786,7 @@ function withProjectMarker_(notes, project){
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
   const PONTAJ_VERSION = '4.9.63';
-  const PONTAJ_BUILD = 'offline-first-v4.9.63-co-cm-cs-conflict-20261025-1';
+  const PONTAJ_BUILD = 'offline-first-v4.9.65-fast-intake-20261025-1';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3685,10 +3685,11 @@ function withProjectMarker_(notes, project){
     return validateBatchEnvelopeV4953_(data,items);
   }
   function batchFirstWakeDelayV4953_(snapshot){
-    // 1.45s doar pentru o primă apăsare fără backlog, pentru a comasa
-    // apăsările rapide. Toate celelalte acțiuni sunt trimise imediat.
+    // V4.9.65: primul pontaj nu mai aşteaptă 1,45 s înainte de POST.
+    // Păstrăm o fereastră scurtă pentru a grupa acțiunile consecutive.
+    // Confirmarea rămâne condiționată de ACK-ul persistent, nu de timer.
     const a=_normAction(snapshot&&snapshot.action);
-    return ['start','pause','extra_start'].includes(a)?1450:250;
+    return ['start','pause','extra_start'].includes(a)?300:100;
   }
 
   async function probeLegacyAckV48_(item){
