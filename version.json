@@ -1,6 +1,6 @@
 {
-  "version": "4.9.52",
-  "build": "offline-first-v4.9.52-live-state-fast-refresh-20261015-1",
+  "version": "4.9.57",
+  "build": "offline-first-v4.9.57-r1-conservative-20261015-1",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
   "ui": "servio-admin-replies-notifications-feedback",
   "fixes": [
@@ -135,16 +135,41 @@
     "cross-tab-dashboard-local-reflection",
     "jittered-visible-polling-with-error-cooldown",
     "desktop-history-refresh-after-finish-ack",
-    "honest-local-versus-server-sync-labels"
+    "honest-local-versus-server-sync-labels",
+    "bounded-ordered-batch-intake-v4953-per-requestid-ack",
+    "batch-foreground-retry-without-id-loss-v4953",
+    "clock-only-one-second-ticker-v4955",
+    "skip-unchanged-counter-dom-writes",
+    "avoid-recreating-details-dom-on-unchanged-values",
+    "grouped-sheet-formatting-with-safe-fallback-v4956",
+    "ack-row-formatting-with-safe-fallback-v4956",
+    "sync-hot-path-skips-terminal-archive-v4956",
+    "terminal-summary-increment-after-idb-commit-v4956",
+    "batch-reuses-intake-snapshot-only-under-script-lock-v4957",
+    "batch-ack-map-skips-repeated-negative-lookups-v4957",
+    "preflight-cache-invalidated-on-heal-or-schema-change-v4957",
+    "coalesced-foreground-resume-events-v4957"
   ],
   "date": "2026-10-15",
-  "name": "SERVELECT Pontaj Enterprise 4.9.52",
-  "logic": "live-single-snapshot-stale-response-protection-v4.9.52",
-  "notes": "UI mobil/desktop: snapshot dashboard autoritar unic pe profil, GET-uri vechi protejate, polling cu jitter si backoff, valori locale instant si istoric desktop reimprospatat la FINISH confirmat.",
+  "name": "SERVELECT Pontaj Enterprise 4.9.57-R1 Conservative",
+  "logic": "conservative-fresh-preflight-per-action-and-ordered-batch-v4.9.57-r1",
+  "notes": "Loturi ordonate cu ACK individual, fără snapshot cross-action; fiecare acțiune recitește foaia, verifică din nou RequestId și mapa ACK. UI responsive V4.9.55–V4.9.57. Backup cu sursele reale 4.9.51/4.9.52.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",
     "Kept the fast batch notification endpoint and resolved-item filtering.",
-    "Kept Servio POST routes ahead of midnight auto-split processing."
+    "Kept Servio POST routes ahead of midnight auto-split processing.",
+    "Added safe ordered 2-3 action batch endpoint with per-request ACK and idempotent partial recovery.",
+    "Legacy single-action POST remains supported; Service Worker background path remains unchanged.",
+    "Separated one-second clock updates from full dashboard redraw; full redraw remains used after actions and server-state refresh.",
+    "Avoided redundant DOM writes for repeated text/ring values and unchanged employee-details markup.",
+    "Group identical timestamp/number format assignments via RangeList with per-cell fallback; no change to persisted values, schema, or timestamps.",
+    "Avoid scanning full IndexedDB terminal archive on every foreground flush, resume and background handoff; preserve full archive loading for diagnostic view.",
+    "Keep live terminal badge counts after transaction completion; retain full cross-tab/SW authoritative refresh.",
+    "R1 safety override: disable cross-action sheet cache in ordered batches; verify ACK ledger for every action."
+  ],
+  "features": [
+    "conservative-fresh-sheet-read-per-action-v4957-r1",
+    "ack-ledger-checked-on-each-action-v4957-r1"
   ]
 }

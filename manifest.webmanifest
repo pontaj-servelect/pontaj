@@ -1,9 +1,9 @@
 {
-  "name": "SERVELECT Pontaj 4.9.52",
-  "short_name": "Pontaj 4.9.52",
-  "description": "Pontaj offline-first SERVELECT — V4.9.52, actualizare rapidă stare live mobil și desktop.",
+  "name": "SERVELECT Pontaj 4.9.57",
+  "short_name": "Pontaj 4.9.57",
+  "description": "Pontaj offline-first SERVELECT — V4.9.57-R1, Fast Ordered Batch cu verificare conservatoare per acțiune.",
   "id": "./index.html",
-  "start_url": "./?v=offline-first-v4.9.52-live-state-fast-refresh-20261015-1",
+  "start_url": "./?v=offline-first-v4.9.57-r1-conservative-20261015-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#516A75",
