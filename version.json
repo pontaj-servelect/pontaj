@@ -1,9 +1,16 @@
 {
-  "version": "4.9.65",
-  "build": "offline-first-v4.9.65-fast-intake-20261025-1",
+  "version": "4.9.65-admin2",
+  "build": "offline-first-v4.9.65-admin2-20261031",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "servio-admin-replies-notifications-feedback",
+  "ui": "administrativ-servio-only",
   "fixes": [
+    "administrativ-servio-only-no-history-report-management-actions",
+    "administrativ-no-attendance-explanatory-text",
+    "administrativ-mobile-bottom-nav-home-only",
+    "administrativ-profile-vlad-taran-no-new-attendance",
+    "historical-reports-preserved",
+    "servio-feedback-reuse",
+    "server-intake-blocks-old-clients",
     "dashboard-fetch-and-jsonp-parallel-transport",
     "state-active-history-jsonp-fallback",
     "server-pause-fields-authoritative",
@@ -161,7 +168,7 @@
   "date": "2026-10-25",
   "name": "SERVELECT Pontaj Enterprise 4.9.63 — conflicte concediu/pontaj",
   "logic": "conservative-fresh-preflight-per-action-and-ordered-batch-v4.9.57-r1",
-  "notes": "CO/CM/concediu pentru ore suplimentare fără status de aprobare în interfață. Învoirea se deduce numai din timpul efectiv suprapus cu sesiunea de lucru și nu din pauze. Păstrează protocolul offline V4.8.",
+  "notes": "Actualizare ADMIN2: pentru Vlad Taran profilul Administrativ are numai Servio · Feedback; fără linkuri istorice, fără mesaje despre pontaj și fără Istoric/Detalii în navigația mobilă. Datele istorice și generarea rapoartelor rămân intacte, iar toate funcțiile colegilor rămân nemodificate.",
   "changes": [
     "Restored the proven V4.9.19 text/plain POST request transport.",
     "Restored assistantRequestV4919 as the canonical request creation route.",

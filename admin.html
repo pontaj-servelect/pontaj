@@ -3416,7 +3416,7 @@ const workCell =
     return list;
   }
 
-  function getRosterFiltered(){
+  function getRosterFiltered(dayKeyV4966){
   let arr = [];
 
   if (ALL_STATS && ALL_STATS.employees && ALL_STATS.employees.size){
@@ -3435,6 +3435,11 @@ const workCell =
     });
     arr = Array.from(byName.values());
   }
+
+  // Profilul Administrativ nu participa la absente/pontaj dupa 31.10.2026.
+  // Datele si rapoartele istorice raman accesibile.
+  const rosterDayV4966=String(dayKeyV4966||new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Bucharest'}));
+  if(rosterDayV4966>='2026-10-31')arr=arr.filter(x=>!/^(?:vlad taran|taran vlad)$/i.test(String(x.name||'').trim()));
 
   // teamlead lock
   if (ADMIN_ROLE === 'teamlead' && ADMIN_DEPT){
@@ -4937,8 +4942,7 @@ function renderPresenceCalendarMonthly(){
     return shown.join(', ') + (arr.length > max ? ' …' : '');
   }
 
-  const rosterForCalendar = getRosterFiltered();
-  const rosterNames = rosterForCalendar.map(x=>x.name);
+  // Pentru zilele istorice, rosterul pastreaza colegii care atunci erau activi.
 
   for (let dayNum=1; dayNum<=lastDay.getDate(); dayNum++){
     const d = new Date(CALENDAR_YEAR, CALENDAR_MONTH, dayNum);
@@ -4966,7 +4970,7 @@ function renderPresenceCalendarMonthly(){
     const leaveCount = leaveSet ? leaveSet.size : 0;
 
     const inactiveSet = new Set(
-    rosterNames.filter(n => !startedSet.has(n) && !(leaveSet && leaveSet.has(n)))
+    getRosterFiltered(dk).map(x=>x.name).filter(n => !startedSet.has(n) && !(leaveSet && leaveSet.has(n)))
     );
 
     
