@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD='offline-first-v4.9.65-admin2-20261031';
+const BUILD='offline-first-v4.9.65-admin3-20261104';
 const CACHE_PREFIX='servelect-pontaj-';
 const CACHE_NAME=CACHE_PREFIX+BUILD;
 const CORE=[

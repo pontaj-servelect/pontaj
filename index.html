@@ -1045,8 +1045,19 @@
     .admin-profile-actions-v4966{display:flex;flex-wrap:wrap;gap:10px}
     .admin-profile-actions-v4966 button,.admin-profile-actions-v4966 a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;gap:7px;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:800;font-size:12px;cursor:pointer;border:1px solid #0f66d7;background:#0f66d7;color:#fff}
     .admin-profile-actions-v4966 button.secondary,.admin-profile-actions-v4966 a.secondary{background:#fff;color:#1255a6;border-color:#bfd5ee}
-    body.administrativ-profile-v4966 #actionCenterV51,body.administrativ-profile-v4966 #invoireBox,body.administrativ-profile-v4966 #leavePanel,body.administrativ-profile-v4966 .activity-steps-v499 > .activity-step-v499:not(:first-child),body.administrativ-profile-v4966 #activeDashboardV48,body.administrativ-profile-v4966 .profile-live-v49,body.administrativ-profile-v4966 #selectionReadinessV481{display:none!important}
-    body.administrativ-profile-v4966 .admin-profile-card-v4966{display:block}
+    /* ADMIN3: Vlad Taran poate trimite numai concedii si invoiri, cu note.
+       Formularele existente raman in DOM (si pastreaza validarea/sincronizarea). */
+    body.administrativ-profile-v4966 #actionCenterV51,
+    body.administrativ-profile-v4966 #activeDashboardV48,
+    body.administrativ-profile-v4966 .profile-live-v49,
+    body.administrativ-profile-v4966 #selectionReadinessV481,
+    body.administrativ-profile-v4966 #servelectPetPanelV499,
+    body.administrativ-profile-v4966 .admin-profile-card-v4966{display:none!important}
+    body.administrativ-profile-v4966 .activity-main-grid-v499 > div:not(:first-child){display:none!important}
+    body.administrativ-profile-v4966 .activity-main-grid-v499{grid-template-columns:minmax(0,1fr)!important}
+    body.administrativ-profile-v4966.administrativ-leave-v4966 .activity-steps-v499 > .activity-step-v499:last-child{display:none!important}
+    body.administrativ-profile-v4966 #invoireBox,body.administrativ-profile-v4966 #leavePanel{margin-top:14px}
+    body.administrativ-profile-v4966 .auxiliary-request-number-v4917{display:none!important}
     body.administrativ-profile-v4966 .hero .panel > header h2{font-size:19px}
     body.administrativ-profile-v4966 .hero .panel > p.sub,body.administrativ-profile-v4966 .hero .rail{display:none!important}
     @media(max-width:520px){.admin-profile-card-v4966{padding:16px}.admin-profile-actions-v4966{flex-direction:column}.admin-profile-actions-v4966 button,.admin-profile-actions-v4966 a{width:100%}}
@@ -1951,17 +1962,60 @@ function withProjectMarker_(notes, project){
     return key==='vlad taran'||key==='taran vlad';
   }
   function isAdministrativeProfileV4966_(){return isAdministrativeIdentityV4966_(empSel&&empSel.value);}
+  const ADMIN_REQUEST_TYPES_V4967_=new Set(['concediu de odihna','concediu medical','concediu pentru ore suplimentare','invoire']);
+  function isAdministrativeInvoireAllowedV4967_(action,name){
+    return !isAdministrativeIdentityV4966_(name)||_normAction(action)==='invoire';
+  }
   function applyAdministrativeUiV4966_(){
     const administrative=isAdministrativeProfileV4966_();
-    document.body.classList.toggle('administrativ-profile-v4966',administrative);
+    const body=document.body;
+    body.classList.toggle('administrativ-profile-v4966',administrative);
+    if(actSel){
+      for(const option of actSel.options){
+        if(!option.value)continue;
+        if(!option.dataset.originalLabelV4967)option.dataset.originalLabelV4967=option.textContent;
+        const isAllowed=ADMIN_REQUEST_TYPES_V4967_.has(String(option.value).toLowerCase());
+        option.disabled=administrative&&!isAllowed;
+        option.hidden=administrative&&!isAllowed;
+        if(administrative&&option.value==='invoire')option.textContent='Învoire';
+        else option.textContent=option.dataset.originalLabelV4967;
+      }
+      if(administrative&&!ADMIN_REQUEST_TYPES_V4967_.has(String(actSel.value||'').toLowerCase()))actSel.value='';
+    }
+    const isLeave=administrative&&LEAVE_TYPES_SET.has(String(actSel&&actSel.value||'').toLowerCase());
+    body.classList.toggle('administrativ-leave-v4966',isLeave);
     const card=document.getElementById('administrativProfileV4966');
-    if(card)card.hidden=!administrative;
+    if(card)card.hidden=true; // Cererile sunt singurele instrumente afisate pe profil.
+    const labels=[
+      ['.hero .panel > header h2',administrative?'Concedii și învoiri':'Înregistrare activitate'],
+      ['#activityContextTitleV499',administrative?'Profil':'Context'],
+      ['#activityContextTitleV499 + .activity-step-hint-v499',administrative?'Selectează profilul pentru care trimiți cererea.':'Alege profilul pentru care înregistrezi activitatea.'],
+      ['#activityMainTitleV499',administrative?'Tipul cererii':'Activitate'],
+      ['#activityDetailsTitleV499',administrative?'Notă pentru învoire':'Detalii'],
+      ['#activityMainTitleV499 + .activity-step-hint-v499',administrative?'Selectează un tip de concediu sau învoire.':'Completează activitatea curentă. Tipul de activitate, proiectul și clientul sunt obligatorii.'],
+      ['#activityDetailsTitleV499 + .activity-step-hint-v499',administrative?'Nota este trimisă împreună cu învoirea.':'Adaugă o notă și verifică selecțiile.'],
+      ['label[for="activitySelect"]',administrative?'Tip cerere':'Tip de activitate'],
+      ['label[for="notes"]',administrative?'Notă pentru învoire (opțional)':'Notă (opțional)'],
+      ['#invoireBox .auxiliary-request-hint-v4917',administrative?'Alege intervalul, adaugă o notă și trimite învoirea.':'Poate fi trimisă și când pontajul normal sau EXTRA este activ.'],
+      ['#invoireBox .kicker',administrative?'Alege intervalul în format 24h și apasă „Trimite învoirea”.':'Selectează intervalul în format 24h și apasă Trimite învoirea. Sesiunea de pontaj activă continuă separat.'],
+      ['#leavePanel .auxiliary-request-hint-v4917',administrative?'Selectează zilele și, opțional, adaugă o notă către HR.':'Poate fi trimisă și când pontajul normal sau EXTRA este activ.'],
+      ['#leavePanel .kicker',administrative?'Selectează zile individuale sau un interval, completează emailul personal și nota opțională, apoi trimite cererea.':'Adaugă zile individuale sau un interval, completează emailul personal și trimite cererea către HR. Sesiunea activă nu este oprită.']
+    ];
+    for(const [selector,text] of labels){
+      const el=document.querySelector(selector);if(!el)continue;
+      if(selector==='label[for="activitySelect"]'&&!administrative){
+        // Restauram indicatorul de obligatoriu pentru ceilalti colegi.
+        const html='Tip de activitate <span class="required-v481">obligatoriu</span>';if(el.innerHTML!==html)el.innerHTML=html;
+      }else if(el.textContent!==text)el.textContent=text;
+    }
+    const note=notesEl;if(note)note.placeholder=administrative?'Motiv / detalii pentru învoire':'ex: Proiect X, client Y';
     if(administrative){
-      document.body.classList.remove('pontaj-active-v48');
+      body.classList.remove('pontaj-active-v48');
       const dash=document.getElementById('activeDashboardV48');if(dash)dash.hidden=true;
-      // Interfață neutră: fără text privind obligațiile sau istoricul pontajului.
       const msg=document.getElementById('empStatus');if(msg)msg.textContent='';
     }
+    if(leavePanel)leavePanel.style.display=(actSel&&LEAVE_TYPES_SET.has(String(actSel.value||'').toLowerCase()))?'':'none';
+    if(invoireBox)invoireBox.style.display=(actSel&&String(actSel.value||'').toLowerCase()==='invoire')?'block':'none';
   }
   function forceAdministrativeDepartmentV4966_(map){
     if(!map||!map.byDept||!map.byName)return map;
@@ -2009,8 +2063,8 @@ function withProjectMarker_(notes, project){
       name,
       department: (deptSel.value || deptFromMap || '').trim(),
       activity: actSel.value || '',
-      location: (locInput.value || '').trim(),
-      project: (projectSel && !projectSel.disabled ? projectSel.value : '') || '',
+      location: isAdministrativeProfileV4966_()?'':(locInput.value || '').trim(),
+      project: isAdministrativeProfileV4966_()?'':((projectSel && !projectSel.disabled ? projectSel.value : '') || ''),
       notesPayload: composeNotesPayload(),
       invoireInterval: getInvoireIntervalLabel(),
       device: navigator.userAgent || '',
@@ -2164,7 +2218,7 @@ function withProjectMarker_(notes, project){
     if (invMarker){
       notes = notes ? (notes + ' ' + invMarker) : invMarker;
     }
-    return withProjectMarker_(notes, (projectSel && projectSel.value) || '');
+    return withProjectMarker_(notes, isAdministrativeProfileV4966_()?'':((projectSel && projectSel.value) || ''));
   }
 
   function syncInvoireUI(){
@@ -2674,7 +2728,7 @@ function withProjectMarker_(notes, project){
     const activeWarnV4937=document.getElementById('activeRequiredWarningV4937');if(activeWarnV4937){activeWarnV4937.classList.toggle('visible',hasSel&&labelsV4937.length>0&&(running||extraR));activeWarnV4937.textContent=labelsV4937.length?warnTextV4937+' Intră la Detalii, completează și apoi poți continua.':'';}
     const disabledHintV4937=labelsV4937.length?'Completează '+labelsV4937.join(', ')+' pentru a activa acest buton.':'';
     [btnStart,btnPause,btnUnpause,btnFinish,btnExtraStart,btnExtraFinish].forEach(b=>{if(!b)return;if(disabledHintV4937)b.setAttribute('title',disabledHintV4937);else b.removeAttribute('title');});
-    if(btnInvoire)btnInvoire.disabled=!hasSel||!isInvoireActivity()||isAdministrativeProfileV4966_();
+    if(btnInvoire)btnInvoire.disabled=!hasSel||!isInvoireActivity();
     if(isAdministrativeProfileV4966_())[btnStart,btnFinish,btnPause,btnUnpause,btnExtraStart,btnExtraFinish].forEach(b=>{if(b)b.disabled=true;});
     updateSelectionSummaryV481_();renderDashboardV481_();
     updateDetailsLockV481_();
@@ -2853,8 +2907,8 @@ function withProjectMarker_(notes, project){
   }
 
   /*********************** OFFLINE-FIRST V4.8.1 ************************/
-  const PONTAJ_VERSION = '4.9.65-admin2';
-  const PONTAJ_BUILD = 'offline-first-v4.9.65-admin2-20261031';
+  const PONTAJ_VERSION = '4.9.65-admin3';
+  const PONTAJ_BUILD = 'offline-first-v4.9.65-admin3-20261104';
   const SYNC_PROTOCOL_V48 = 'servelect-pontaj-sync/v4.8';
   const UI_BUILD_MARKER_KEY_V48 = 'pontaj/uiBuild/current';
   const LOCAL_STATE_MAP_KEY_V48 = 'pontaj/stateByEmployee/v4.8';
@@ -3805,7 +3859,7 @@ function withProjectMarker_(notes, project){
   }
 
   async function enqueueActionV48_(snapshot){
-    if(snapshot&&isAdministrativeIdentityV4966_(snapshot.name))throw new Error('Profilul Administrativ nu poate înregistra acțiuni de pontaj.');
+    if(snapshot&&!isAdministrativeInvoireAllowedV4967_(snapshot.action,snapshot.name))throw new Error('Profilul Administrativ permite doar învoiri, nu acțiuni de pontaj.');
     if(!offlineReadyV48_)throw new Error('Memoria offline nu este încă pregătită.');
     if(!snapshot||!snapshot.requestId||!snapshot.name||!snapshot.clientTimestamp)throw new Error('Snapshotul acțiunii este incomplet.');
     const timeActionV4937=['start','extra_start','pause','unpause','finish','extra_finish'].includes(_normAction(snapshot.action));
@@ -4236,7 +4290,6 @@ function withProjectMarker_(notes, project){
 
   async function submitInvoire(snapshot){
     const ctx=snapshot;
-    if(ctx&&isAdministrativeIdentityV4966_(ctx.name)){setInvoireStatus('Profilul Administrativ nu înregistrează învoiri.','warn');return;}
     const now=Date.now(); if(busy||now-lastActionAt<180)return;
     if(!ctx||!ctx.department){setInvoireStatus('Alege departamentul.','err');return;}
     if(!ctx.name){setInvoireStatus('Selectează angajat.','err');return;}
@@ -5138,7 +5191,6 @@ function withProjectMarker_(notes, project){
 
     document.getElementById('btnLeave').addEventListener('click', async () => {
       setLeaveStatus('', '');
-      if(isAdministrativeProfileV4966_()){setLeaveStatus('Profilul Administrativ nu înregistrează concedii.','err');return;}
       if (!deptSel.value) { setLeaveStatus('Alege departamentul.', 'err'); return; }
       if (!empSel.value)  { setLeaveStatus('Selectează angajat.', 'err'); return; }
 

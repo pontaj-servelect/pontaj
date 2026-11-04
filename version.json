@@ -1,10 +1,13 @@
 {
-  "version": "4.9.65-admin2",
-  "build": "offline-first-v4.9.65-admin2-20261031",
+  "version": "4.9.65-admin3",
+  "build": "offline-first-v4.9.65-admin3-20261104",
   "syncProtocol": "servelect-pontaj-sync/v4.8",
-  "ui": "administrativ-servio-only",
+  "ui": "administrativ-leave-invoire-with-notes",
   "fixes": [
-    "administrativ-servio-only-no-history-report-management-actions",
+    "administrativ-allow-leave-and-invoire-with-notes",
+    "administrativ-time-actions-remain-blocked",
+    "administrativ-mobile-home-only",
+    "historical-report-invoire-days-not-absent",
     "administrativ-no-attendance-explanatory-text",
     "administrativ-mobile-bottom-nav-home-only",
     "administrativ-profile-vlad-taran-no-new-attendance",
